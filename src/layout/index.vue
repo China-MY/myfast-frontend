@@ -1,5 +1,5 @@
 <template>
-  <a-layout class="layout-container">
+  <a-layout class="layout-container" :class="{ 'layout-dark': isDarkTheme }">
     <!-- 侧边栏 -->
     <a-layout-sider
       v-model:collapsed="collapsed"
@@ -7,12 +7,13 @@
       collapsible
       width="220"
       class="layout-sider"
+      :theme="siderTheme"
     >
       <div class="logo" @click="$router.push('/')">
         <img src="../assets/logo.png" alt="Logo" class="logo-image" />
         <h1 v-if="!collapsed">MyFast-Admin</h1>
       </div>
-      <side-menu :collapsed="collapsed" />
+      <side-menu :collapsed="collapsed" :theme="siderTheme" />
     </a-layout-sider>
 
     <a-layout>
@@ -32,6 +33,12 @@
           <breadcrumb class="breadcrumb" />
         </div>
         <div class="header-right">
+          <a-tooltip title="刷新当前页">
+            <reload-outlined class="action-icon" @click="refreshCurrentPage" />
+          </a-tooltip>
+          <a-tooltip :title="isDarkTheme ? '浅色模式' : '深色模式'">
+            <component :is="isDarkTheme ? 'bulb-filled' : 'bulb-outlined'" class="action-icon" @click="toggleTheme" />
+          </a-tooltip>
           <header-right />
         </div>
       </a-layout-header>
@@ -51,15 +58,30 @@
             :closable="tag.path !== '/dashboard'"
           />
         </a-tabs>
+        <div class="tags-actions">
+          <a-dropdown>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="close-others" @click="closeOtherTags">
+                  关闭其他
+                </a-menu-item>
+                <a-menu-item key="close-all" @click="closeAllTags">
+                  关闭所有
+                </a-menu-item>
+              </a-menu>
+            </template>
+            <down-outlined class="tags-action-icon" />
+          </a-dropdown>
+        </div>
       </div>
 
       <!-- 内容区 -->
       <a-layout-content class="layout-content">
         <div class="content-container">
-          <router-view v-slot="{ Component }">
+          <router-view v-slot="{ Component }" v-if="!isRefreshing">
             <transition name="fade-transform" mode="out-in">
               <keep-alive :include="cachedViews">
-                <component :is="Component" />
+                <component :is="Component" :key="routeKey" />
               </keep-alive>
             </transition>
           </router-view>
@@ -77,16 +99,31 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watch, computed } from 'vue';
+import { ref, reactive, watch, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons-vue';
+import { 
+  MenuFoldOutlined, 
+  MenuUnfoldOutlined, 
+  ReloadOutlined, 
+  DownOutlined,
+  BulbOutlined,
+  BulbFilled
+} from '@ant-design/icons-vue';
 import SideMenu from './components/SideMenu.vue';
 import HeaderRight from './components/HeaderRight.vue';
 import Breadcrumb from './components/Breadcrumb.vue';
+import { useUserStore } from '@/stores/modules/user';
 
 const route = useRoute();
 const router = useRouter();
+const userStore = useUserStore();
 const collapsed = ref(false);
+const isDarkTheme = ref(false);
+const siderTheme = computed(() => isDarkTheme.value ? 'dark' : 'light');
+const isRefreshing = ref(false);
+
+// 路由key，用于强制刷新组件
+const routeKey = computed(() => route.path + route.query.t);
 
 // 标签导航
 const visitedTags = reactive([
@@ -154,11 +191,104 @@ const removeVisitedTag = (path: string) => {
     }
   }
 };
+
+// 关闭其他标签
+const closeOtherTags = () => {
+  visitedTags.splice(1);
+  const currentIndex = visitedTags.findIndex(tag => tag.path === activeKey.value);
+  if (currentIndex === -1) {
+    visitedTags.push({
+      title: route.meta.title as string || route.name,
+      path: route.path
+    });
+  } else {
+    const currentTag = visitedTags[currentIndex];
+    visitedTags.splice(1);
+    if (currentTag.path !== '/dashboard') {
+      visitedTags.push(currentTag);
+    }
+  }
+  
+  // 清除缓存，只保留当前页和首页
+  const currentRouteName = router.currentRoute.value.name;
+  cachedViews.value = currentRouteName ? ['Dashboard', currentRouteName.toString()] : ['Dashboard'];
+};
+
+// 关闭所有标签
+const closeAllTags = () => {
+  visitedTags.splice(1);
+  cachedViews.value = ['Dashboard'];
+  router.push('/dashboard');
+};
+
+// 刷新当前页面
+const refreshCurrentPage = () => {
+  isRefreshing.value = true;
+  
+  // 从缓存中移除当前路由
+  const name = route.name as string;
+  const index = cachedViews.value.indexOf(name);
+  if (index > -1) {
+    cachedViews.value.splice(index, 1);
+  }
+  
+  // 添加随机参数强制刷新
+  const { query } = route;
+  router.replace({
+    path: route.path,
+    query: {
+      ...query,
+      t: Date.now()
+    }
+  });
+  
+  // 延迟恢复显示，确保组件被完全重新创建
+  nextTick(() => {
+    isRefreshing.value = false;
+  });
+};
+
+// 切换主题
+const toggleTheme = () => {
+  isDarkTheme.value = !isDarkTheme.value;
+  // 这里可以添加持久化存储主题设置
+};
 </script>
 
 <style lang="less" scoped>
 .layout-container {
   min-height: 100vh;
+  
+  &.layout-dark {
+    background-color: #141414;
+    
+    .layout-header {
+      background: #1f1f1f;
+      color: rgba(255, 255, 255, 0.85);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      
+      .trigger, .action-icon {
+        color: rgba(255, 255, 255, 0.85);
+        &:hover {
+          color: #1890ff;
+        }
+      }
+    }
+    
+    .tags-nav {
+      background: #1f1f1f;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    
+    .content-container {
+      background: #1f1f1f;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    
+    .layout-footer .footer-content {
+      color: rgba(255, 255, 255, 0.45);
+    }
+  }
 
   .layout-sider {
     box-shadow: 2px 0 6px rgba(0, 21, 41, 0.1);
@@ -225,6 +355,22 @@ const removeVisitedTag = (path: string) => {
         margin-left: 8px;
       }
     }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      
+      .action-icon {
+        font-size: 16px;
+        padding: 0 12px;
+        cursor: pointer;
+        transition: color 0.3s;
+        
+        &:hover {
+          color: #1890ff;
+        }
+      }
+    }
   }
 
   .tags-nav {
@@ -238,9 +384,12 @@ const removeVisitedTag = (path: string) => {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     z-index: 8;
     transition: width 0.2s;
+    display: flex;
+    align-items: center;
 
     :deep(.ant-tabs) {
       height: 40px;
+      flex: 1;
     }
 
     :deep(.ant-tabs-nav) {
@@ -262,6 +411,20 @@ const removeVisitedTag = (path: string) => {
 
     :deep(.ant-tabs-tab-btn) {
       font-size: 12px;
+    }
+    
+    .tags-actions {
+      padding: 0 8px;
+      
+      .tags-action-icon {
+        font-size: 14px;
+        cursor: pointer;
+        transition: color 0.3s;
+        
+        &:hover {
+          color: #1890ff;
+        }
+      }
     }
   }
 

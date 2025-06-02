@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check build-only",
+    "openapi": "node openapi.config.js",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.json --composite false"
@@ -14,6 +15,8 @@
     "ant-design-vue": "^3.2.20",
     "axios": "^1.4.0",
     "echarts": "^5.4.3",
+    "file-saver": "^2.0.5",
+    "js-cookie": "^3.0.5",
     "nprogress": "^0.2.0",
     "pinia": "^2.1.6",
     "vite-plugin-vue-devtools": "^7.7.6",
@@ -22,8 +25,11 @@
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.0",
+    "@types/file-saver": "^2.0.7",
+    "@types/js-cookie": "^3.0.6",
     "@types/node": "^18.17.5",
     "@types/nprogress": "^0.2.0",
+    "@umijs/openapi": "^1.13.0",
     "@vitejs/plugin-vue": "^4.3.1",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
     "@vue/tsconfig": "^0.4.0",
@@ -32,5 +38,6 @@
     "typescript": "~5.1.6",
     "vite": "^4.4.9",
     "vue-tsc": "^1.8.8"
-  }
+  },
+  "type": "module"
 }

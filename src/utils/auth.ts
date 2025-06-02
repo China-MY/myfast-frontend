@@ -1,24 +1,15 @@
-// Token存储的键名
-const TOKEN_KEY = 'myfast_token';
+import Cookies from 'js-cookie'
 
-/**
- * 获取存储的Token
- */
-export function getToken(): string {
-  return localStorage.getItem(TOKEN_KEY) || '';
+const TokenKey = 'myfast_token'
+
+export function getToken() {
+  return Cookies.get(TokenKey)
 }
 
-/**
- * 设置Token到本地存储
- * @param token Token字符串
- */
-export function setToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
+export function setToken(token: string) {
+  return Cookies.set(TokenKey, token)
 }
 
-/**
- * 从本地存储中移除Token
- */
-export function removeToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
-}
+export function removeToken() {
+  return Cookies.remove(TokenKey)
+} 

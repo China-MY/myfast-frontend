@@ -287,9 +287,9 @@ router.beforeEach(async (to, from, next) => {
       } else {
         try {
           // 获取用户信息
-          const success = await userStore.getUserInfo()
+          const userInfo = await userStore.getUserInfo()
 
-          if (success) {
+          if (userInfo) {
             // 根据角色动态生成路由
             const accessRoutes = filterAsyncRoutes(asyncRoutes, userStore.roles, userStore.permissions)
 
@@ -306,8 +306,8 @@ router.beforeEach(async (to, from, next) => {
         } catch (error) {
           console.error('路由守卫错误:', error)
           // 获取用户信息失败，清除token并重定向到登录页
-          await userStore.resetState()
-          next(`/login?redirect=${to.path}`)
+          userStore.resetUserState()
+          next(`/login?redirect=${encodeURIComponent(to.path)}`)
           NProgress.done()
         }
       }
@@ -317,7 +317,7 @@ router.beforeEach(async (to, from, next) => {
     if (['/login', '/404'].indexOf(to.path) !== -1) {
       next()
     } else {
-      next(`/login?redirect=${to.path}`)
+      next(`/login?redirect=${encodeURIComponent(to.path)}`)
       NProgress.done()
     }
   }
