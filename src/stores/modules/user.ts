@@ -35,14 +35,27 @@ export const useUserStore = defineStore({
     // 登录
     async login(username: string, password: string) {
       try {
-        const res = await request.post('/api/auth/login', { username, password })
-        if (res && res.data && res.data.token) {
-          setToken(res.data.token)
-          this.isLogin = true
-          return this.getUserInfo()
+        console.log(`尝试登录：用户名=${username}`)
+        const res = await request.post('/api/auth/tokens', { username, password })
+        console.log('登录响应：', res)
+        
+        if (res && typeof res === 'object') {
+          if (res.data && res.data.token) {
+            setToken(res.data.token)
+            this.isLogin = true
+            return this.getUserInfo()
+          }
+          else if ('token' in res) {
+            setToken(res.token as string)
+            this.isLogin = true
+            return this.getUserInfo()
+          }
         }
+        
+        console.error('登录失败：响应格式不正确', res)
         return false
       } catch (error) {
+        console.error('登录请求出错：', error)
         return false
       }
     },

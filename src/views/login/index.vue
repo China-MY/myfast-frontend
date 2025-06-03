@@ -417,11 +417,10 @@ const handleLoginSubmit = async () => {
     noticeMessage.value = '提示：用户名 admin，密码 admin123';
     noticeType.value = 'info';
 
+    console.log('正在提交登录请求...');
     // 调用登录接口
-    const success = await userStore.login({
-      username: loginForm.username,
-      password: loginForm.password
-    });
+    const success = await userStore.login(loginForm.username, loginForm.password);
+    console.log('登录结果:', success ? '成功' : '失败');
 
     if (success) {
       notification.success({
@@ -436,7 +435,14 @@ const handleLoginSubmit = async () => {
       // 跳转到首页
       router.push({ path: '/dashboard' });
     } else {
-      throw new Error('用户名或密码错误 (admin/admin123)');
+      notification.error({
+        message: '登录失败',
+        description: '用户名或密码错误，默认用户：admin，密码：admin123',
+        duration: 5
+      });
+      
+      noticeMessage.value = '登录失败：用户名或密码错误 (admin/admin123)';
+      noticeType.value = 'error';
     }
   } catch (error: any) {
     console.error('登录失败:', error);

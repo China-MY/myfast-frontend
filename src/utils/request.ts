@@ -6,9 +6,12 @@ import { getToken, removeToken } from '@/utils/auth'
 
 // 创建 Axios 实例
 const myAxios = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '',
+  baseURL: 'http://localhost:8000',  // 确保指向正确的后端地址
   timeout: 60000,
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 // 全局请求拦截器
@@ -32,8 +35,8 @@ myAxios.interceptors.response.use(
   function (response) {
     const { data } = response
     
-    // 如果接口请求成功
-    if (data.code === 200) {
+    // 如果接口请求成功或者未返回code (某些接口可能直接返回数据)
+    if (!data.code || data.code === 200) {
       return data
     }
     
@@ -52,17 +55,21 @@ myAxios.interceptors.response.use(
       }
     } else if (data.code !== 200) {
       // 其他错误情况
-      message.error(data.message || '服务器异常')
+      message.error(data.message || data.msg || '服务器异常')
     }
     
     return response
   },
   function (error) {
+    console.error('请求错误：', error)
     let errorMsg = '网络异常，请稍后重试'
     
     if (error.response) {
       const { status } = error.response
       switch (status) {
+        case 401:
+          errorMsg = '未授权访问：用户名或密码错误'
+          break
         case 403:
           errorMsg = '禁止访问'
           break
