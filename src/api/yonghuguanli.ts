@@ -2,12 +2,31 @@
 /* eslint-disable */
 import request from '@/request'
 
-/** 添加用户 添加用户 POST /api/system/user/add */
-export async function addUserApiSystemUserAddPost(
+/** Read Users 获取用户列表 GET /api/v1/system/user/ */
+export async function readUsersApiV1SystemUserGet(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.readUsersApiV1SystemUserGetParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.PageResponseModelUser_>('/api/v1/system/user/', {
+    method: 'GET',
+    params: {
+      // page has a default value: 1
+      page: '1',
+      // pageSize has a default value: 10
+      pageSize: '10',
+      ...params,
+    },
+    ...(options || {}),
+  })
+}
+
+/** Create User 创建新用户 POST /api/v1/system/user/ */
+export async function createUserApiV1SystemUserPost(
   body: API.UserCreate,
   options?: { [key: string]: any }
 ) {
-  return request<any>('/api/system/user/add', {
+  return request<API.ResponseModelUser_>('/api/v1/system/user/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -17,78 +36,67 @@ export async function addUserApiSystemUserAddPost(
   })
 }
 
-/** 修改用户 修改用户 PUT /api/system/user/edit */
-export async function editUserApiSystemUserEditPut(
-  body: API.UserUpdate,
-  options?: { [key: string]: any }
-) {
-  return request<any>('/api/system/user/edit', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data: body,
-    ...(options || {}),
-  })
-}
-
-/** 获取用户详情 获取用户详情 GET /api/system/user/info/${param0} */
-export async function getUserInfoApiSystemUserInfoUserIdGet(
+/** Read User 获取指定用户信息 GET /api/v1/system/user/${param0} */
+export async function readUserApiV1SystemUserUserIdGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getUserInfoApiSystemUserInfoUserIdGetParams,
+  params: API.readUserApiV1SystemUserUserIdGetParams,
   options?: { [key: string]: any }
 ) {
   const { user_id: param0, ...queryParams } = params
-  return request<any>(`/api/system/user/info/${param0}`, {
+  return request<API.ResponseModelUser_>(`/api/v1/system/user/${param0}`, {
     method: 'GET',
     params: { ...queryParams },
     ...(options || {}),
   })
 }
 
-/** 获取用户列表 获取用户列表（分页查询） GET /api/system/user/list */
-export async function getUserListApiSystemUserListGet(
+/** Update User 更新用户信息 PUT /api/v1/system/user/${param0} */
+export async function updateUserApiV1SystemUserUserIdPut(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getUserListApiSystemUserListGetParams,
+  params: API.updateUserApiV1SystemUserUserIdPutParams,
+  body: API.UserUpdate,
   options?: { [key: string]: any }
 ) {
-  return request<any>('/api/system/user/list', {
-    method: 'GET',
-    params: {
-      // page_num has a default value: 1
-      page_num: '1',
-      // page_size has a default value: 10
-      page_size: '10',
-      ...params,
+  const { user_id: param0, ...queryParams } = params
+  return request<API.ResponseModelUser_>(`/api/v1/system/user/${param0}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
     },
+    params: { ...queryParams },
+    data: body,
     ...(options || {}),
   })
 }
 
-/** 删除用户 删除用户 DELETE /api/system/user/remove/${param0} */
-export async function removeUserApiSystemUserRemoveUserIdDelete(
+/** Delete User 删除用户 DELETE /api/v1/system/user/${param0} */
+export async function deleteUserApiV1SystemUserUserIdDelete(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.removeUserApiSystemUserRemoveUserIdDeleteParams,
+  params: API.deleteUserApiV1SystemUserUserIdDeleteParams,
   options?: { [key: string]: any }
 ) {
   const { user_id: param0, ...queryParams } = params
-  return request<any>(`/api/system/user/remove/${param0}`, {
+  return request<API.ResponseModel>(`/api/v1/system/user/${param0}`, {
     method: 'DELETE',
     params: { ...queryParams },
     ...(options || {}),
   })
 }
 
-/** 重置用户密码 重置用户密码 PUT /api/system/user/resetPwd */
-export async function resetUserPasswordApiSystemUserResetPwdPut(
-  body: API.BodyResetUserPasswordApiSystemUserResetPwdPut,
+/** Reset Password 重置用户密码 PUT /api/v1/system/user/${param0}/reset-password */
+export async function resetPasswordApiV1SystemUserUserIdResetPasswordPut(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.resetPasswordApiV1SystemUserUserIdResetPasswordPutParams,
+  body: API.BodyResetPasswordApiV1SystemUser_userId_resetPasswordPut,
   options?: { [key: string]: any }
 ) {
-  return request<any>('/api/system/user/resetPwd', {
+  const { user_id: param0, ...queryParams } = params
+  return request<API.ResponseModel>(`/api/v1/system/user/${param0}/reset-password`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
+    params: { ...queryParams },
     data: body,
     ...(options || {}),
   })

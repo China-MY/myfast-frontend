@@ -274,6 +274,9 @@ import {
 import { message, notification } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/modules/user';
+import { loginByAccountApiV1AuthLoginAccountPost } from '@/api/renzheng';
+import { registerUserApiV1AuthRegisterPost } from '@/api/zhuce';
+import { setToken } from '@/utils/auth';
 
 // 表单引用
 const loginFormRef = ref();
@@ -317,7 +320,9 @@ const registerForm = reactive({
   password: '',
   confirmPassword: '',
   agreement: false,
-  dept_id: 1  // 默认部门ID
+  dept_id: 1,  // 默认部门ID
+  sex: '2',    // 默认未知性别
+  status: '0'  // 默认正常状态
 });
 
 // 注册表单验证规则
@@ -407,22 +412,33 @@ const registerLoading = ref(false);
 const router = useRouter();
 const userStore = useUserStore();
 
+// 监听密码变化，自动验证确认密码
+watch(() => registerForm.password, () => {
+  if (registerForm.confirmPassword) {
+    registerFormRef.value?.validateField('confirmPassword');
+  }
+});
+
 // 登录提交
 const handleLoginSubmit = async () => {
   try {
     await loginFormRef.value.validate();
     loginLoading.value = true;
 
-    // 显示提示信息
-    noticeMessage.value = '提示：用户名 admin，密码 admin123';
-    noticeType.value = 'info';
-
-    console.log('正在提交登录请求...');
-    // 调用登录接口
-    const success = await userStore.login(loginForm.username, loginForm.password);
-    console.log('登录结果:', success ? '成功' : '失败');
-
-    if (success) {
+    // 准备登录数据
+    const loginData: API.UserLogin = {
+      username: loginForm.username,
+      password: loginForm.password
+    };
+    
+    // 调用登录API
+    const response = await loginByAccountApiV1AuthLoginAccountPost(loginData);
+    
+    if (response.code === 200 && response.data) {
+      // 保存token到cookies
+      const token = response.data.access_token;
+      setToken(token);
+      
       notification.success({
         message: '登录成功',
         description: `欢迎回来，${loginForm.username}！`,
@@ -435,18 +451,12 @@ const handleLoginSubmit = async () => {
       // 跳转到首页
       router.push({ path: '/dashboard' });
     } else {
-      notification.error({
-        message: '登录失败',
-        description: '用户名或密码错误，默认用户：admin，密码：admin123',
-        duration: 5
-      });
-      
-      noticeMessage.value = '登录失败：用户名或密码错误 (admin/admin123)';
+      noticeMessage.value = response.msg || '登录失败：用户名或密码错误';
       noticeType.value = 'error';
     }
   } catch (error: any) {
     console.error('登录失败:', error);
-    noticeMessage.value = error.message || '登录失败，请使用 admin/admin123';
+    noticeMessage.value = error.message || '登录失败，请稍后再试';
     noticeType.value = 'error';
   } finally {
     loginLoading.value = false;
@@ -459,8 +469,21 @@ const handleRegisterSubmit = async () => {
     await registerFormRef.value.validate();
     registerLoading.value = true;
 
-    // 模拟注册成功
-    setTimeout(() => {
+    // 准备注册数据
+    const registerData: API.UserCreate = {
+      username: registerForm.username,
+      nickname: registerForm.nickname,
+      email: registerForm.email,
+      password: registerForm.password,
+      dept_id: registerForm.dept_id,
+      sex: registerForm.sex, 
+      status: registerForm.status
+    };
+
+    // 调用注册API
+    const response = await registerUserApiV1AuthRegisterPost(registerData);
+    
+    if (response.code === 200) {
       notification.success({
         message: '注册成功',
         description: '您的账号已注册成功，请登录系统',
@@ -474,18 +497,28 @@ const handleRegisterSubmit = async () => {
       registerFormRef.value.resetFields();
 
       // 自动填充登录表单的用户名
-      loginForm.username = registerForm.username;
+      loginForm.username = registerData.username;
 
       // 显示提示信息
       noticeMessage.value = '注册成功，请使用您的账号登录';
       noticeType.value = 'success';
-
-      registerLoading.value = false;
-    }, 1000);
+    } else {
+      noticeMessage.value = response.msg || '注册失败，请检查输入信息';
+      noticeType.value = 'error';
+    }
   } catch (error: any) {
     console.error('注册失败:', error);
-    noticeMessage.value = error.message || '注册失败，请检查输入信息';
+    
+    if (error.response?.data?.detail) {
+      // 处理后端返回的具体验证错误
+      const errorDetails = error.response.data.detail;
+      const errorMessages = errorDetails.map((err: any) => err.msg).join('; ');
+      noticeMessage.value = `注册失败: ${errorMessages}`;
+    } else {
+      noticeMessage.value = error.message || '注册失败，请检查输入信息';
+    }
     noticeType.value = 'error';
+  } finally {
     registerLoading.value = false;
   }
 };
@@ -506,6 +539,21 @@ const showPrivacy = (e: Event) => {
   e.preventDefault();
   privacyVisible.value = true;
 };
+
+// 重置表单
+const resetForms = () => {
+  if (activeTabKey.value === 'login') {
+    loginFormRef.value?.resetFields();
+  } else {
+    registerFormRef.value?.resetFields();
+  }
+  noticeMessage.value = '';
+};
+
+// 监听标签页切换，重置提示信息
+watch(() => activeTabKey.value, () => {
+  noticeMessage.value = '';
+});
 </script>
 
 <style lang="less" scoped>

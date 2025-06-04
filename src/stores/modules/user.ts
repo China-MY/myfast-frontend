@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
-import { request } from '@/utils/request'
+import { getUserInfoApiV1AuthInfoGet } from '@/api/renzheng'
 import { setToken, removeToken } from '@/utils/auth'
 import type { UserInfo } from '@/types/user'
+import { message } from 'ant-design-vue'
 
 export const useUserStore = defineStore({
   id: 'user',
@@ -32,47 +33,41 @@ export const useUserStore = defineStore({
     }
   },
   actions: {
-    // 登录
+    // 登录 - 此方法已通过直接调用API处理
     async login(username: string, password: string) {
-      try {
-        console.log(`尝试登录：用户名=${username}`)
-        const res = await request.post('/api/auth/tokens', { username, password })
-        console.log('登录响应：', res)
-        
-        if (res && typeof res === 'object') {
-          if (res.data && res.data.token) {
-            setToken(res.data.token)
-            this.isLogin = true
-            return this.getUserInfo()
-          }
-          else if ('token' in res) {
-            setToken(res.token as string)
-            this.isLogin = true
-            return this.getUserInfo()
-          }
-        }
-        
-        console.error('登录失败：响应格式不正确', res)
-        return false
-      } catch (error) {
-        console.error('登录请求出错：', error)
-        return false
-      }
+      // 现在在登录页中直接使用API调用进行登录
+      return false
     },
     
     // 获取用户信息
     async getUserInfo() {
       try {
-        const res = await request.get('/api/user/info')
-        if (res && res.data) {
-          this.userInfo = res.data
-          this.permissions = res.data.permissions || []
-          this.roles = res.data.roles || []
+        const response = await getUserInfoApiV1AuthInfoGet()
+        
+        // response现在是从request.ts返回的处理后的数据，不是axios响应对象
+        if (response && response.code === 200 && response.data) {
+          const userInfo = response.data
+          this.userInfo = userInfo.user
+          this.permissions = userInfo.permissions || []
+          this.roles = userInfo.roles || []
           this.isLogin = true
-          return res.data
+          return userInfo
+        } else {
+          message.error(response?.msg || '获取用户信息失败')
+          return null
         }
-        return null
-      } catch (error) {
+      } catch (error: any) {
+        console.error('获取用户信息失败:', error)
+        
+        // 可能的特定错误处理
+        if (error.response?.status === 401) {
+          // 401错误在request.ts中已处理，这里不需要额外处理
+          message.error('登录状态已过期，请重新登录')
+          this.resetUserState()
+        } else {
+          message.error(error.message || '获取用户信息失败，请重新登录')
+        }
+        
         return null
       }
     },
@@ -80,7 +75,9 @@ export const useUserStore = defineStore({
     // 登出
     async logout() {
       try {
-        await request.post('/api/auth/logout')
+        // 可以添加调用登出API的代码
+        // await logoutApiV1AuthLogoutPost()
+        message.success('已成功退出登录')
       } catch (error) {
         console.error('登出请求失败', error)
       } finally {
