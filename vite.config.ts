@@ -25,5 +25,10 @@ export default defineConfig({
         rewrite: (path) => path
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      external: []
+    }
   }
 })

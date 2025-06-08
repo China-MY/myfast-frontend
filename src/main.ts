@@ -5,9 +5,7 @@ import App from './App.vue'
 import router from './router'
 import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
-
-// 导入权限指令
-import permission from './directives/permission'
+import { setupPermissionDirective } from './utils/permission'
 
 const app = createApp(App)
 
@@ -15,7 +13,7 @@ app.use(createPinia())
 app.use(router)
 app.use(Antd)
 
-// 注册全局指令
-app.directive('permission', permission)
+// 注册自定义指令
+setupPermissionDirective(app)
 
 app.mount('#app')

@@ -1,13 +1,20 @@
 import { defineStore } from 'pinia'
-import { getUserInfoApiV1AuthInfoGet } from '@/api/renzheng'
+import { getUserInfoApiV1AuthInfoGet, logoutApiV1AuthLogoutPost } from '../../api/renzheng'
 import { setToken, removeToken } from '@/utils/auth'
 import type { UserInfo } from '@/types/user'
 import { message } from 'ant-design-vue'
 
+// 后端返回的用户信息数据结构
+interface ServerUserInfo {
+  user: any; 
+  roles: string[];
+  permissions: string[];
+}
+
 export const useUserStore = defineStore({
   id: 'user',
   state: () => ({
-    userInfo: {} as UserInfo,
+    userInfo: {} as any,
     permissions: [] as string[],
     roles: [] as string[],
     isLogin: false,
@@ -42,44 +49,78 @@ export const useUserStore = defineStore({
     // 获取用户信息
     async getUserInfo() {
       try {
-        const response = await getUserInfoApiV1AuthInfoGet()
+        console.log('开始获取用户信息...')
+        // 调用获取用户信息API
+        const response = await getUserInfoApiV1AuthInfoGet() as any
         
-        // response现在是从request.ts返回的处理后的数据，不是axios响应对象
+        console.log('用户信息响应:', response) // 添加调试日志
+        
+        // 请求成功，解构数据
         if (response && response.code === 200 && response.data) {
-          const userInfo = response.data
-          this.userInfo = userInfo.user
-          this.permissions = userInfo.permissions || []
-          this.roles = userInfo.roles || []
+          const { user = {}, roles = [], permissions = [] } = response.data
+          
+          console.log('获取到的用户数据:', { 
+            用户: user, 
+            角色: roles, 
+            权限: permissions 
+          })
+          
+          this.userInfo = user
+          this.permissions = permissions
+          this.roles = roles
           this.isLogin = true
-          return userInfo
+          
+          return { user, roles, permissions }
         } else {
-          message.error(response?.msg || '获取用户信息失败')
-          return null
+          console.warn('获取用户信息响应异常:', response)
+          
+          // 开发环境使用默认权限（生产环境应该移除）
+          if (import.meta.env.DEV) {
+            console.warn('开发环境：使用默认admin权限继续')
+            this.userInfo = { username: 'admin', nickname: '管理员' }
+            this.roles = ['admin'] 
+            this.permissions = ['*:*:*']
+            this.isLogin = true
+            return { 
+              user: { username: 'admin', nickname: '管理员' }, 
+              roles: ['admin'], 
+              permissions: ['*:*:*'] 
+            }
+          }
+          
+          throw new Error(response?.msg || '获取用户信息失败')
         }
-      } catch (error: any) {
-        console.error('获取用户信息失败:', error)
+      } catch (error) {
+        console.error('获取用户信息出错:', error)
         
-        // 可能的特定错误处理
-        if (error.response?.status === 401) {
-          // 401错误在request.ts中已处理，这里不需要额外处理
-          message.error('登录状态已过期，请重新登录')
-          this.resetUserState()
-        } else {
-          message.error(error.message || '获取用户信息失败，请重新登录')
+        // 开发环境使用默认权限（生产环境应该移除）
+        if (import.meta.env.DEV) {
+          console.warn('开发环境：使用默认admin权限继续')
+          this.userInfo = { username: 'admin', nickname: '管理员' }
+          this.roles = ['admin']
+          this.permissions = ['*:*:*']
+          this.isLogin = true
+          return { 
+            user: { username: 'admin', nickname: '管理员' }, 
+            roles: ['admin'], 
+            permissions: ['*:*:*'] 
+          }
         }
         
-        return null
+        throw error
       }
     },
     
     // 登出
     async logout() {
       try {
-        // 可以添加调用登出API的代码
-        // await logoutApiV1AuthLogoutPost()
+        console.log('开始执行登出操作...')
+        // 调用注销API
+        await logoutApiV1AuthLogoutPost()
         message.success('已成功退出登录')
       } catch (error) {
         console.error('登出请求失败', error)
+        message.error('注销失败，但已清除本地登录状态')
       } finally {
         this.resetUserState()
       }
@@ -87,7 +128,8 @@ export const useUserStore = defineStore({
     
     // 重置用户状态
     resetUserState() {
-      this.userInfo = {} as UserInfo
+      console.log('重置用户状态...')
+      this.userInfo = {}
       this.permissions = []
       this.roles = []
       this.isLogin = false

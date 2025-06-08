@@ -39,3 +39,11 @@ export async function loginByAccountApiV1AuthLoginAccountPost(
     ...(options || {}),
   })
 }
+
+/** 用户注销 注销当前用户的登录状态 POST /api/v1/auth/logout */
+export async function logoutApiV1AuthLogoutPost(options?: { [key: string]: any }) {
+  return request<API.ResponseModel>('/api/v1/auth/logout', {
+    method: 'POST',
+    ...(options || {}),
+  })
+}
