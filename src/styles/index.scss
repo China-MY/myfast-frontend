@@ -1,0 +1,634 @@
+// 导入变量和混合宏
+@use './variables.scss' as vars;
+@use './mixins.scss' as mixins;
+
+// 变量定义
+$primary-color: var(--el-color-primary);
+$primary-light-1: var(--el-color-primary-light-1);
+$primary-light-3: var(--el-color-primary-light-3);
+$primary-light-5: var(--el-color-primary-light-5);
+$primary-light-7: var(--el-color-primary-light-7);
+$primary-light-9: var(--el-color-primary-light-9);
+$success-color: var(--el-color-success);
+$warning-color: var(--el-color-warning);
+$danger-color: var(--el-color-danger);
+$info-color: var(--el-color-info);
+
+$text-color: var(--el-text-color-primary);
+$text-color-secondary: var(--el-text-color-secondary);
+$text-color-placeholder: var(--el-text-color-placeholder);
+$border-color: var(--el-border-color);
+$border-color-light: var(--el-border-color-lighter);
+$background-color: var(--el-bg-color);
+$background-color-light: var(--el-bg-color-page);
+
+$font-size-base: 14px;
+$font-size-small: 13px;
+$font-size-large: 16px;
+$font-size-extra-large: 18px;
+
+$spacing-mini: 4px;
+$spacing-small: 8px;
+$spacing-base: 12px;
+$spacing-medium: 16px;
+$spacing-large: 24px;
+$spacing-extra-large: 32px;
+
+$border-radius-small: 2px;
+$border-radius-base: 4px;
+$border-radius-large: 8px;
+$border-radius-circle: 50%;
+
+$transition-duration: 0.3s;
+$transition-ease: cubic-bezier(0.2, 0, 0, 1);
+
+$box-shadow-light: 0 1px 4px rgba(0, 21, 41, 0.08);
+$box-shadow-base: 0 2px 8px rgba(0, 21, 41, 0.15);
+$box-shadow-dark: 0 4px 12px rgba(0, 21, 41, 0.2);
+
+$breakpoint-xs: 576px;
+$breakpoint-sm: 768px;
+$breakpoint-md: 992px;
+$breakpoint-lg: 1200px;
+$breakpoint-xl: 1600px;
+
+$header-height: 64px;
+$tabs-height: 40px;
+$sidebar-width: 240px;
+$sidebar-collapsed-width: 64px;
+
+// 通用样式类
+.flex-center {
+  @include mixins.flex-center;
+}
+
+.flex-between {
+  @include mixins.flex-between;
+}
+
+.flex-start {
+  @include mixins.flex-start;
+}
+
+.flex-end {
+  @include mixins.flex-end;
+}
+
+.flex-column {
+  @include mixins.flex-column;
+}
+
+.text-ellipsis {
+  @include mixins.text-ellipsis;
+}
+
+.multi-ellipsis-2 {
+  @include mixins.multi-ellipsis(2);
+}
+
+.multi-ellipsis-3 {
+  @include mixins.multi-ellipsis(3);
+}
+
+.scrollbar {
+  @include mixins.scrollbar;
+}
+
+.hover-effect {
+  @include mixins.hover-effect;
+}
+
+.hover-text {
+  @include mixins.hover-text-effect;
+}
+
+.hover-scale {
+  @include mixins.hover-scale;
+}
+
+.hover-lift {
+  @include mixins.hover-lift;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.transition-all {
+  @include mixins.transition-all;
+}
+
+.card {
+  @include mixins.card;
+}
+
+.indicator {
+  @include mixins.indicator;
+}
+
+.left-indicator {
+  @include mixins.left-indicator;
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.p-0 {
+  padding: 0;
+}
+
+.mt-1 {
+  margin-top: vars.$spacing-mini;
+}
+
+.mt-2 {
+  margin-top: vars.$spacing-small;
+}
+
+.mt-3 {
+  margin-top: vars.$spacing-base;
+}
+
+.mt-4 {
+  margin-top: vars.$spacing-medium;
+}
+
+.mt-5 {
+  margin-top: vars.$spacing-large;
+}
+
+.mb-1 {
+  margin-bottom: vars.$spacing-mini;
+}
+
+.mb-2 {
+  margin-bottom: vars.$spacing-small;
+}
+
+.mb-3 {
+  margin-bottom: vars.$spacing-base;
+}
+
+.mb-4 {
+  margin-bottom: vars.$spacing-medium;
+}
+
+.mb-5 {
+  margin-bottom: vars.$spacing-large;
+}
+
+.ml-1 {
+  margin-left: vars.$spacing-mini;
+}
+
+.ml-2 {
+  margin-left: vars.$spacing-small;
+}
+
+.ml-3 {
+  margin-left: vars.$spacing-base;
+}
+
+.ml-4 {
+  margin-left: vars.$spacing-medium;
+}
+
+.ml-5 {
+  margin-left: vars.$spacing-large;
+}
+
+.mr-1 {
+  margin-right: vars.$spacing-mini;
+}
+
+.mr-2 {
+  margin-right: vars.$spacing-small;
+}
+
+.mr-3 {
+  margin-right: vars.$spacing-base;
+}
+
+.mr-4 {
+  margin-right: vars.$spacing-medium;
+}
+
+.mr-5 {
+  margin-right: vars.$spacing-large;
+}
+
+.p-1 {
+  padding: vars.$spacing-mini;
+}
+
+.p-2 {
+  padding: vars.$spacing-small;
+}
+
+.p-3 {
+  padding: vars.$spacing-base;
+}
+
+.p-4 {
+  padding: vars.$spacing-medium;
+}
+
+.p-5 {
+  padding: vars.$spacing-large;
+}
+
+.pt-1 {
+  padding-top: vars.$spacing-mini;
+}
+
+.pt-2 {
+  padding-top: vars.$spacing-small;
+}
+
+.pt-3 {
+  padding-top: vars.$spacing-base;
+}
+
+.pt-4 {
+  padding-top: vars.$spacing-medium;
+}
+
+.pt-5 {
+  padding-top: vars.$spacing-large;
+}
+
+.pb-1 {
+  padding-bottom: vars.$spacing-mini;
+}
+
+.pb-2 {
+  padding-bottom: vars.$spacing-small;
+}
+
+.pb-3 {
+  padding-bottom: vars.$spacing-base;
+}
+
+.pb-4 {
+  padding-bottom: vars.$spacing-medium;
+}
+
+.pb-5 {
+  padding-bottom: vars.$spacing-large;
+}
+
+.pl-1 {
+  padding-left: vars.$spacing-mini;
+}
+
+.pl-2 {
+  padding-left: vars.$spacing-small;
+}
+
+.pl-3 {
+  padding-left: vars.$spacing-base;
+}
+
+.pl-4 {
+  padding-left: vars.$spacing-medium;
+}
+
+.pl-5 {
+  padding-left: vars.$spacing-large;
+}
+
+.pr-1 {
+  padding-right: vars.$spacing-mini;
+}
+
+.pr-2 {
+  padding-right: vars.$spacing-small;
+}
+
+.pr-3 {
+  padding-right: vars.$spacing-base;
+}
+
+.pr-4 {
+  padding-right: vars.$spacing-medium;
+}
+
+.pr-5 {
+  padding-right: vars.$spacing-large;
+}
+
+// 主题样式
+html.dark {
+  --sidebar-bg-color: #1e1e1e;
+  --sidebar-text-color: #e0e0e0;
+  --sidebar-active-color: #409eff;
+  --header-bg-color: #2c2c2c;
+  --tabs-bg-color: #2c2c2c;
+  --content-bg-color: #2d2d2d;
+}
+
+html.light {
+  --sidebar-bg-color: #001529;
+  --sidebar-text-color: rgba(255, 255, 255, 0.85);
+  --sidebar-active-color: #1890ff;
+  --header-bg-color: #ffffff;
+  --tabs-bg-color: #ffffff;
+  --content-bg-color: #f0f2f5;
+}
+
+// 页面过渡动画
+.fade-transform-enter-active,
+.fade-transform-leave-active {
+  transition: all 0.3s;
+}
+
+.fade-transform-enter-from {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.fade-transform-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+// 卡片样式
+.card-container {
+  @include mixins.card;
+}
+
+// 标签指示器
+.active-indicator {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 2px;
+    background-color: $primary-color;
+    border-radius: $border-radius-small;
+    transition: all 0.3s;
+  }
+}
+
+// 移动端适配
+@include mixins.mobile {
+  .hide-on-mobile {
+    display: none !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+  }
+}
+
+// 布局辅助
+.content-wrapper {
+  padding: vars.$spacing-medium;
+  background-color: var(--content-bg-color);
+  min-height: calc(100vh - #{vars.$header-height} - #{vars.$tabs-height});
+}
+
+// 文本颜色辅助类
+.text-primary {
+  color: vars.$primary-color;
+}
+
+.text-success {
+  color: vars.$success-color;
+}
+
+.text-warning {
+  color: vars.$warning-color;
+}
+
+.text-danger {
+  color: vars.$danger-color;
+}
+
+.text-info {
+  color: vars.$info-color;
+}
+
+.text-secondary {
+  color: vars.$text-color-secondary;
+}
+
+// 背景颜色辅助类
+.bg-primary {
+  background-color: vars.$primary-light-9;
+}
+
+.bg-success {
+  background-color: var(--el-color-success-light-9);
+}
+
+.bg-warning {
+  background-color: var(--el-color-warning-light-9);
+}
+
+.bg-danger {
+  background-color: var(--el-color-danger-light-9);
+}
+
+.bg-info {
+  background-color: var(--el-color-info-light-9);
+}
+
+// 字体大小辅助类
+.fs-xs {
+  font-size: vars.$font-size-extra-small;
+}
+
+.fs-sm {
+  font-size: vars.$font-size-small;
+}
+
+.fs-md {
+  font-size: vars.$font-size-base;
+}
+
+.fs-lg {
+  font-size: vars.$font-size-medium;
+}
+
+.fs-xl {
+  font-size: vars.$font-size-large;
+}
+
+// 字重辅助类
+.fw-normal {
+  font-weight: 400;
+}
+
+.fw-medium {
+  font-weight: 500;
+}
+
+.fw-bold {
+  font-weight: 600;
+}
+
+// 动画类
+.animated {
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fadeIn {
+  @include mixins.animation-fade-in;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translate3d(0, 20px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+.slideInUp {
+  @include mixins.animation-slide-in;
+}
+
+// 表格样式优化
+.el-table {
+  --el-table-border-color: vars.$border-color-light;
+  --el-table-header-bg-color: #f5f7fa;
+  
+  .el-table__header th {
+    font-weight: 500;
+    color: vars.$text-color;
+    background-color: var(--el-table-header-bg-color);
+  }
+  
+  // 表格行悬停效果
+  .el-table__row {
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background-color: #f5f7fa;
+    }
+  }
+}
+
+// 深色模式下表格样式调整
+html.dark {
+  .el-table {
+    --el-table-header-bg-color: #2c2c2c;
+    
+    .el-table__row:hover {
+      background-color: #3a3a3a !important;
+    }
+  }
+}
+
+// 阴影辅助类
+.shadow-sm {
+  box-shadow: vars.$box-shadow-light;
+}
+
+.shadow {
+  box-shadow: vars.$box-shadow-base;
+}
+
+.shadow-lg {
+  box-shadow: vars.$box-shadow-dark;
+}
+
+.shadow-card {
+  box-shadow: vars.$box-shadow-card;
+}
+
+// 圆角辅助类
+.rounded-sm {
+  border-radius: vars.$border-radius-small;
+}
+
+.rounded {
+  border-radius: vars.$border-radius-base;
+}
+
+.rounded-lg {
+  border-radius: vars.$border-radius-large;
+}
+
+.rounded-circle {
+  border-radius: vars.$border-radius-circle;
+}
+
+// 按钮增强样式
+.btn-hover-effect {
+  transition: all 0.3s;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// 数据统计卡片样式
+.stat-card {
+  border-radius: vars.$border-radius-base;
+  box-shadow: vars.$box-shadow-light;
+  padding: vars.$spacing-medium;
+  transition: all 0.3s;
+  height: 100%;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: vars.$box-shadow-base;
+  }
+  
+  .stat-icon {
+    font-size: 28px;
+    padding: 12px;
+    border-radius: vars.$border-radius-base;
+  }
+  
+  .stat-title {
+    color: vars.$text-color-secondary;
+    font-size: vars.$font-size-small;
+    margin-bottom: vars.$spacing-mini;
+  }
+  
+  .stat-value {
+    color: vars.$text-color;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: vars.$spacing-small;
+  }
+  
+  .stat-desc {
+    color: vars.$text-color-secondary;
+    font-size: vars.$font-size-small;
+    display: flex;
+    align-items: center;
+    
+    .trend-up {
+      color: vars.$success-color;
+    }
+    
+    .trend-down {
+      color: vars.$danger-color;
+    }
+  }
+}
+

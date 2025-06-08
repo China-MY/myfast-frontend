@@ -1,5 +1,5 @@
 import { ref, onMounted } from 'vue'
-import { message } from 'ant-design-vue'
+import { ElMessage } from 'element-plus'
 import { getDeptOptionsApiV1SystemDeptSelectOptionsGet } from '@/api/bumenguanli'
 import { getRoleOptionsApiV1SystemRoleSelectOptionsGet } from '@/api/jiaoseguanli'
 

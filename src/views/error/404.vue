@@ -4,8 +4,8 @@
       <h1>404</h1>
       <h2>对不起，您访问的页面不存在</h2>
       <div class="actions">
-        <a-button type="primary" @click="goHome">返回首页</a-button>
-        <a-button @click="goBack">返回上一页</a-button>
+        <el-button type="primary" @click="goHome">返回首页</el-button>
+        <el-button @click="goBack">返回上一页</el-button>
       </div>
     </div>
   </div>
@@ -39,7 +39,7 @@ const goBack = () => {
     h1 {
       font-size: 120px;
       font-weight: bold;
-      color: #1890ff;
+      color: var(--el-color-primary);
       margin-bottom: 20px;
       line-height: 1;
     }
@@ -51,7 +51,7 @@ const goBack = () => {
     }
 
     .actions {
-      .ant-btn {
+      .el-button {
         margin: 0 10px;
       }
     }

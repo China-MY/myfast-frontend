@@ -1,704 +1,444 @@
 <template>
-  <a-layout class="layout-container" :class="{ 'layout-dark': isDarkTheme, 'layout-mobile': isMobile }">
-    <!-- 移动端菜单遮罩层 -->
-    <div 
-      v-if="isMobile && !collapsed" 
-      class="mobile-mask" 
-      @click="toggleCollapsed"
-    ></div>
-    
-    <!-- 侧边栏 -->
-    <a-layout-sider
-      v-model:collapsed="collapsed"
-      :trigger="null"
-      collapsible
-      width="240"
-      :collapsed-width="isMobile ? 0 : 64"
-      class="layout-sider"
-      :theme="siderTheme"
-      :class="{ 'mobile-sider': isMobile }"
-    >
-      <div class="logo" @click="$router.push('/')">
-        <img src="../assets/logo.png" alt="Logo" class="logo-image" />
-        <h1 v-show="!collapsed">MyFast-Admin</h1>
+  <div
+    class="app-wrapper"
+    :class="[
+      isCollapse ? 'hideAside' : 'openAside',
+      device === 'mobile' ? 'mobile' : ''
+    ]"
+  >
+    <div class="sidebar-container" :class="{ 'is-collapse': isCollapse }">
+      <div
+        class="logo"
+        :class="
+          isCollapse ? 'collapse-logo' : device === 'mobile' ? 'mobile-logo' : ''
+        "
+      >
+        <img src="../assets/logo.png" alt="logo" class="logo-img" />
+        <h1 v-show="!isCollapse && device !== 'mobile'" class="logo-text">
+          MyFast Admin
+        </h1>
       </div>
-      <side-menu :collapsed="collapsed" :theme="siderTheme" />
-    </a-layout-sider>
+      <el-scrollbar>
+        <SideMenu />
+      </el-scrollbar>
+    </div>
+    <div class="main-container">
+      <div class="fixed-header">
+        <div class="navbar flex-row flex-between">
+          <div class="flex-row flex-center navbar-left">
+            <div class="hamburger-container" @click="toggleSideBar">
+              <el-icon :size="20">
+                <component :is="isCollapse ? 'Expand' : 'Fold'" />
+              </el-icon>
+            </div>
+            <Breadcrumb />
+          </div>
 
-    <a-layout class="main-content-wrapper">
-      <!-- 顶部导航 -->
-      <a-layout-header class="layout-header">
-        <div class="header-left">
-          <span class="trigger-wrapper">
-            <menu-unfold-outlined
-              v-if="collapsed"
-              class="trigger"
-              @click="toggleCollapsed"
-            />
-            <menu-fold-outlined
-              v-else
-              class="trigger"
-              @click="toggleCollapsed"
-            />
-          </span>
-          <breadcrumb class="breadcrumb" v-if="!isMobile" />
-        </div>
-        <div class="header-right">
-          <a-tooltip title="刷新当前页" v-if="!isMobile">
-            <reload-outlined class="action-icon" @click="refreshCurrentPage" />
-          </a-tooltip>
-          <a-tooltip :title="isDarkTheme ? '浅色模式' : '深色模式'" v-if="!isMobile">
-            <component :is="isDarkTheme ? 'bulb-filled' : 'bulb-outlined'" class="action-icon" @click="toggleTheme" />
-          </a-tooltip>
-          <a-tooltip title="全屏" v-if="!isMobile">
-            <component :is="isFullscreen ? 'fullscreen-exit-outlined' : 'fullscreen-outlined'" class="action-icon" @click="toggleFullscreen" />
-          </a-tooltip>
-          <header-right />
-        </div>
-      </a-layout-header>
-
-      <!-- 标签导航 -->
-      <div class="tags-nav" v-if="!isMobile">
-        <a-tabs
-          v-model:activeKey="activeKey"
-          :hideAdd="true"
-          type="editable-card"
-          @edit="handleTagEdit"
-          @change="handleTagChange"
-        >
-          <a-tab-pane
-            v-for="tag in tagsViewStore.visitedTags"
-            :key="tag.path"
-            :tab="tag.title"
-            :closable="tag.path !== '/dashboard'"
-          />
-        </a-tabs>
-        <div class="tags-actions">
-          <a-dropdown>
-            <template #overlay>
-              <a-menu>
-                <a-menu-item key="refresh-current" @click="refreshCurrentPage">
-                  <reload-outlined /> 刷新当前页
-                </a-menu-item>
-                <a-menu-item key="close-current" @click="closeCurrentTag" :disabled="activeKey === '/dashboard'">
-                  <close-outlined /> 关闭当前
-                </a-menu-item>
-                <a-menu-item key="close-others" @click="closeOtherTags">
-                  <close-circle-outlined /> 关闭其他
-                </a-menu-item>
-                <a-menu-item key="close-all" @click="closeAllTags">
-                  <close-square-outlined /> 关闭所有
-                </a-menu-item>
-              </a-menu>
-            </template>
-            <down-outlined class="tags-action-icon" />
-          </a-dropdown>
-        </div>
-      </div>
-
-      <!-- 内容区 -->
-      <a-layout-content class="layout-content">
-        <div class="content-container">
-          <router-view v-slot="{ Component }" v-if="!isRefreshing">
-            <transition name="fade-transform" mode="out-in">
-              <keep-alive :include="tagsViewStore.cachedViews">
-                <component :is="Component" :key="routeKey" />
-              </keep-alive>
-            </transition>
-          </router-view>
-          <div v-else class="page-loading">
-            <a-spin size="large" tip="加载中..." />
+          <div class="navbar-right flex-row flex-center">
+            <HeaderRight />
           </div>
         </div>
-      </a-layout-content>
 
-      <!-- 页脚 -->
-      <a-layout-footer class="layout-footer">
-        <div class="footer-content">
-          <p>Copyright © {{ new Date().getFullYear() }} MyFast-Admin. All Rights Reserved.</p>
-        </div>
-      </a-layout-footer>
-    </a-layout>
-  </a-layout>
+        <!-- <div class="tab-view">
+          <TabsNav />
+        </div> -->
+      </div>
+
+      <div class="app-main">
+        <router-view v-slot="{ Component }">
+          <transition name="fade-transform" mode="out-in">
+            <keep-alive :include="keepAlivePages">
+              <component :is="Component" :key="$route.fullPath" />
+            </keep-alive>
+          </transition>
+        </router-view>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, nextTick, onMounted, onBeforeUnmount, watch } from 'vue';
+import { computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { useAppStore } from '../stores/modules/app';
+import { useKeepAliveStore } from '../stores/modules/keepAlive';
 import { useRoute, useRouter } from 'vue-router';
-import { 
-  MenuFoldOutlined, 
-  MenuUnfoldOutlined, 
-  ReloadOutlined, 
-  DownOutlined,
-  BulbOutlined,
-  BulbFilled,
-  FullscreenOutlined,
-  FullscreenExitOutlined,
-  CloseOutlined,
-  CloseCircleOutlined,
-  CloseSquareOutlined
-} from '@ant-design/icons-vue';
 import SideMenu from './components/SideMenu.vue';
-import HeaderRight from './components/HeaderRight.vue';
 import Breadcrumb from './components/Breadcrumb.vue';
-import { useUserStore } from '@/stores/modules/user';
-import { useTagsViewStore } from '@/stores/modules/tagsView';
-import { message } from 'ant-design-vue';
+import HeaderRight from './components/HeaderRight.vue';
+import TabsNav from './components/TabsNav.vue';
 
-const route = useRoute();
+// 使用仓库
+const appStore = useAppStore();
+const keepAliveStore = useKeepAliveStore();
 const router = useRouter();
-const userStore = useUserStore();
-const tagsViewStore = useTagsViewStore();
-const collapsed = ref(false);
-const isDarkTheme = ref(false);
-const isFullscreen = ref(false);
-const isMobile = ref(false);
-const siderTheme = computed(() => isDarkTheme.value ? 'dark' : 'dark'); // 统一使用暗色主题
-const isRefreshing = ref(false);
+const route = useRoute();
 
-// 路由key，用于强制刷新组件
-const routeKey = computed(() => route.path + (route.query.t || ''));
+// 需要缓存的页面
+const keepAlivePages = computed(() => keepAliveStore.getKeepAlivePages);
 
-// 当前激活的标签
-const activeKey = ref('/dashboard');
+// 侧边栏收起状态
+const isCollapse = computed(() => !appStore.sidebar.opened);
 
-// 检测是否为移动设备
-const checkMobile = () => {
-  isMobile.value = window.innerWidth < 768;
-  if (isMobile.value && !collapsed.value) {
-    collapsed.value = true;
+// 设备类型
+const device = computed(() => appStore.device);
+
+// 切换侧边栏展开/收起
+const toggleSideBar = () => {
+  appStore.toggleSidebar();
+
+  // 移动设备上点击菜单后自动收起侧边栏
+  if (device.value === 'mobile' && !isCollapse.value) {
+    appStore.closeSidebar();
   }
 };
 
-// 监听窗口大小变化，在小屏幕上自动折叠侧边栏
-const handleResize = () => {
-  checkMobile();
-  if (window.innerWidth < 992 && !collapsed.value && !isMobile.value) {
-    collapsed.value = true;
-  } else if (window.innerWidth >= 1200 && collapsed.value && !isMobile.value) {
-    collapsed.value = false;
-  }
-};
+// 监听窗口大小变化
+const resizeHandler = () => {
+  const { body } = document;
+  const width = body.clientWidth;
 
-// 切换侧边栏折叠状态
-const toggleCollapsed = () => {
-  collapsed.value = !collapsed.value;
-};
-
-// 页面加载时从本地存储加载主题设置
-onMounted(() => {
-  // 从localStorage加载主题设置
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme) {
-    isDarkTheme.value = savedTheme === 'dark';
-  }
-  
-  // 监听窗口大小变化
-  window.addEventListener('resize', handleResize);
-  checkMobile();
-  
-  // 监听全屏变化
-  document.addEventListener('fullscreenchange', handleFullscreenChange);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize);
-  document.removeEventListener('fullscreenchange', handleFullscreenChange);
-});
-
-// 根据路由变化更新标签导航
-watch(() => route.path, (path: string) => {
-  activeKey.value = path;
-  tagsViewStore.addVisitedTag(route);
-}, { immediate: true });
-
-// 处理标签点击
-const handleTagChange = (key: string) => {
-  router.push(key);
-};
-
-// 处理标签编辑（关闭）
-const handleTagEdit = (targetKey: string, action: string) => {
-  if (action === 'remove') {
-    removeVisitedTag(targetKey);
-  }
-};
-
-// 移除访问标签
-const removeVisitedTag = (path: string) => {
-  // 从store中移除标签
-  const updatedTags = tagsViewStore.removeVisitedTag(path);
-  
-  // 如果关闭的是当前标签，则需要跳转到剩余标签中的一个
-  if (path === activeKey.value) {
-    // 找到关闭标签在原数组中的位置
-    let nextPath = '/dashboard';
-    const currentTags = tagsViewStore.visitedTags;
-    const index = currentTags.findIndex(tag => tag.path === path);
-    
-    if (index > 0) {
-      nextPath = currentTags[index - 1].path;
-    } else if (currentTags.length > 1) {
-      nextPath = currentTags[1].path;
-    }
-    
-    router.push(nextPath);
-  }
-};
-
-// 关闭当前标签
-const closeCurrentTag = () => {
-  if (activeKey.value !== '/dashboard') {
-    removeVisitedTag(activeKey.value);
-  }
-};
-
-// 关闭其他标签
-const closeOtherTags = () => {
-  tagsViewStore.closeOtherTags(activeKey.value);
-  message.success('已关闭其他标签');
-};
-
-// 关闭所有标签
-const closeAllTags = () => {
-  tagsViewStore.closeAllTags();
-  router.push('/dashboard');
-  message.success('已关闭所有标签');
-};
-
-// 刷新当前页面
-const refreshCurrentPage = () => {
-  isRefreshing.value = true;
-  
-  // 从缓存中移除当前路由
-  const name = route.name as string;
-  if (name) {
-    tagsViewStore.refreshCache(name);
-  }
-  
-  // 添加随机参数强制刷新
-  const { query } = route;
-  router.replace({
-    path: route.path,
-    query: {
-      ...query,
-      t: Date.now().toString()
-    }
-  });
-  
-  // 延迟恢复显示，确保组件被完全重新创建
-  setTimeout(() => {
-    isRefreshing.value = false;
-    message.success('页面已刷新');
-  }, 500);
-};
-
-// 切换主题
-const toggleTheme = () => {
-  isDarkTheme.value = !isDarkTheme.value;
-  localStorage.setItem('theme', isDarkTheme.value ? 'dark' : 'light');
-  message.success(`已切换至${isDarkTheme.value ? '深色' : '浅色'}模式`);
-};
-
-// 切换全屏
-const toggleFullscreen = () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen();
+  if (width < 992) {
+    appStore.toggleDevice('mobile');
+    appStore.closeSidebar();
   } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
+    appStore.toggleDevice('desktop');
+    appStore.openSidebar();
+  }
+};
+
+// 移动端下点击主区域关闭侧边栏
+const closeSidebarOnClickOutside = (e: MouseEvent) => {
+  if (device.value === 'mobile' && !isCollapse.value) {
+    const target = e.target as HTMLElement;
+    if (!target.closest('.sidebar-container') && !target.closest('.hamburger-container')) {
+      appStore.closeSidebar();
     }
   }
 };
 
-// 监听全屏状态变化
-const handleFullscreenChange = () => {
-  isFullscreen.value = !!document.fullscreenElement;
-};
+// 监听路由变化
+watch(
+  () => route.path,
+  () => {
+    // 移动设备上路由变化后自动收起侧边栏
+    if (device.value === 'mobile' && !isCollapse.value) {
+      appStore.closeSidebar();
+    }
+  }
+);
+
+// 挂载时添加窗口尺寸变化监听
+onMounted(() => {
+  window.addEventListener('resize', resizeHandler);
+  document.addEventListener('click', closeSidebarOnClickOutside);
+  // 初始化设备类型
+  resizeHandler();
+});
+
+// 卸载前移除事件监听
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', resizeHandler);
+  document.removeEventListener('click', closeSidebarOnClickOutside);
+});
 </script>
 
-<style lang="less" scoped>
-.layout-container {
-  min-height: 100vh;
+<style lang="scss" scoped>
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-center {
+  align-items: center;
+}
+
+.flex-between {
+  justify-content: space-between;
+}
+
+.app-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
   
-  &.layout-mobile {
-    // 移动端特有样式
-    .main-content-wrapper {
-      margin-left: 0 !important;
-      transition: margin-left 0.3s;
-    }
-    
-    .layout-header {
-      width: 100% !important;
-      
-      .header-left {
-        .breadcrumb {
-          display: none;
-        }
-      }
-    }
-    
-    .layout-content {
-      margin: 64px 8px 0 !important;
-      padding: 8px 0 !important;
-      
-      .content-container {
-        padding: 16px !important;
-      }
+  &.hideAside {
+    .sidebar-container {
+      width: 64px;
+      transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
     }
 
-    .mobile-sider {
+    .main-container {
+      margin-left: 64px;
+      transition: margin-left 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+  }
+
+  &.openAside {
+    .sidebar-container {
+      width: 240px;
+      transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .main-container {
+      margin-left: 240px;
+      transition: margin-left 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+  }
+
+  &.mobile {
+    .main-container {
+      margin-left: 0;
+    }
+    
+    .sidebar-container {
       position: fixed;
-      z-index: 100;
-      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.45);
-      height: 100vh;
+      top: 0;
       left: 0;
-    }
-  }
-  
-  // 移动端菜单遮罩层
-  .mobile-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.45);
-    z-index: 99;
-  }
-  
-  &.layout-dark {
-    background-color: #141414;
-    
-    .layout-header {
-      background: #1f1f1f;
-      color: rgba(255, 255, 255, 0.85);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      height: 100%;
+      z-index: 1001;
+      transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
       
-      .trigger, .action-icon {
-        color: rgba(255, 255, 255, 0.85);
-        &:hover {
-          color: #1890ff;
-        }
-      }
-    }
-    
-    .tags-nav {
-      background: #1f1f1f;
-      border-color: #303030;
-      
-      :deep(.ant-tabs-tab) {
-        color: rgba(255, 255, 255, 0.65);
-      }
-      
-      :deep(.ant-tabs-tab-active) {
-        background: #111b26;
-      }
-    }
-    
-    .content-container {
-      background: #1f1f1f;
-      color: rgba(255, 255, 255, 0.85);
-      border-color: #303030;
-    }
-    
-    .layout-footer .footer-content {
-      color: rgba(255, 255, 255, 0.45);
-    }
-  }
-
-  .main-content-wrapper {
-    margin-left: v-bind('isMobile ? "0" : (collapsed ? "64px" : "240px")');
-    transition: margin-left 0.2s;
-    min-height: 100vh;
-  }
-
-  .layout-sider {
-    box-shadow: 2px 0 8px rgba(0, 21, 41, 0.15);
-    z-index: 10;
-    position: fixed;
-    left: 0;
-    height: 100vh;
-    overflow: auto;
-    transition: all 0.2s;
-
-    &::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    
-    &::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 3px;
-    }
-
-    .logo {
-      height: 64px;
-      padding: 0 16px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      background: #001529;
-      overflow: hidden;
-      cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s;
-
-      .logo-image {
-        width: 32px;
-        height: 32px;
-        margin-right: 12px;
-        transition: margin 0.3s;
-      }
-
-      h1 {
-        color: white;
-        font-size: 18px;
-        margin: 0;
-        white-space: nowrap;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        opacity: 1;
-        transition: opacity 0.3s, transform 0.3s;
+      &.is-collapse {
+        transform: translateX(-100%);
       }
     }
   }
+}
 
-  .layout-header {
-    background: #fff;
-    padding: 0;
+.sidebar-container {
+  background: var(--menu-bg-color);
+  height: 100%;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 1001;
+  transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+
+  .logo {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
-    z-index: 9;
-    position: fixed;
-    width: calc(100% - v-bind('isMobile ? "0" : (collapsed ? "64px" : "240px")'));
-    right: 0;
-    transition: all 0.2s;
-
-    .header-left {
-      display: flex;
-      align-items: center;
-
-      .trigger-wrapper {
-        display: flex;
-        align-items: center;
-      }
-
-      .trigger {
-        font-size: 18px;
-        padding: 0 24px;
-        cursor: pointer;
-        transition: all 0.3s;
-
-        &:hover {
-          color: #1890ff;
-        }
-      }
-
-      .breadcrumb {
-        margin-left: 8px;
-      }
-    }
-    
-    .header-right {
-      display: flex;
-      align-items: center;
-      margin-right: 16px;
-      
-      .action-icon {
-        font-size: 16px;
-        padding: 0 12px;
-        cursor: pointer;
-        transition: all 0.3s;
-        
-        &:hover {
-          color: #1890ff;
-        }
-      }
-    }
-  }
-
-  .tags-nav {
-    position: fixed;
-    top: 64px;
-    right: 0;
-    width: calc(100% - v-bind('collapsed ? "64px" : "240px"'));
-    height: 40px;
-    background: #fff;
-    padding: 0 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    z-index: 8;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #f0f0f0;
-
-    :deep(.ant-tabs) {
-      height: 40px;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    :deep(.ant-tabs-nav) {
-      margin: 0;
-    }
-
-    :deep(.ant-tabs-tab) {
-      background: transparent;
-      border: none;
-      border-radius: 3px;
-      margin: 4px 4px 4px 0;
-      padding: 0 10px;
-      height: 32px;
-      line-height: 32px;
-      transition: all 0.3s;
-      user-select: none;
-      
-      &:hover {
-        color: #1890ff;
-        background: #e6f7ff;
-      }
-    }
-
-    :deep(.ant-tabs-tab-active) {
-      background: #e6f7ff;
-      color: #1890ff;
-      font-weight: 500;
-    }
-
-    :deep(.ant-tabs-tab-btn) {
-      font-size: 13px;
-    }
-    
-    .tags-actions {
-      padding: 0 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      
-      .tags-action-icon {
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.3s;
-        padding: 8px;
-        border-radius: 4px;
-        
-        &:hover {
-          color: #1890ff;
-          background: #f0f0f0;
-        }
-      }
-    }
-  }
-
-  .layout-content {
-    margin: 104px 16px 0;
-    padding: 16px 0;
-    transition: all 0.2s;
-
-    .content-container {
-      padding: 24px;
-      background: #fff;
-      min-height: calc(100vh - 188px);
-      border-radius: 4px;
-      border: 1px solid #f0f0f0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-      
-      .page-loading {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 100;
-      }
-    }
-  }
-
-  .layout-footer {
-    text-align: center;
-    padding: 16px;
+    height: 64px;
+    padding-left: 20px;
+    overflow: hidden;
     background: transparent;
-    transition: all 0.2s;
+    cursor: pointer;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    transition: all 0.3s;
 
-    .footer-content {
-      color: rgba(0, 0, 0, 0.45);
-      font-size: 12px;
+    .logo-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+
+    .logo-text {
+      margin: 0;
+      margin-left: 12px;
+      color: var(--menu-text-color);
+      font-weight: 600;
+      font-size: 18px;
+      line-height: 64px;
+      white-space: nowrap;
+      transition: all 0.3s;
+    }
+
+    &.collapse-logo {
+      padding-left: 16px;
+      justify-content: center;
+
+      .logo-img {
+        margin-right: 0;
+      }
+    }
+
+    &.mobile-logo {
+      justify-content: center;
+      padding-left: 0;
     }
   }
 }
 
-/* 媒体查询适配不同设备 */
-@media (max-width: 768px) {
-  .layout-container {
-    .layout-content {
-      margin: 64px 8px 0 !important;
-      padding: 8px 0;
-      
-      .content-container {
-        padding: 12px;
-      }
+.main-container {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  transition: margin-left 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.fixed-header {
+  position: relative;
+  z-index: 999;
+  background-color: var(--header-bg-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.navbar {
+  height: 64px;
+  padding: 0;
+  position: relative;
+  background-color: var(--header-bg-color);
+  overflow: hidden;
+
+  .navbar-left {
+    height: 100%;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .navbar-right {
+    height: 100%;
+    padding-right: 20px;
+    flex-shrink: 0;
+  }
+
+  .hamburger-container {
+    line-height: 64px;
+    height: 64px;
+    padding: 0 20px;
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-shrink: 0;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.03);
     }
-    
-    .layout-header {
-      padding: 0 8px;
-      
-      .header-left {
-      .trigger {
-        padding: 0 12px;
-        }
-      }
-      
-      .header-right {
-        margin-right: 8px;
-        
-        .action-icon {
-          padding: 0 8px;
-        }
-      }
-    }
-    
-    .layout-footer {
-      padding: 12px 8px;
+  }
+
+  .right-item {
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    height: 64px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.3s;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.03);
     }
   }
 }
 
-/* 平板设备适配 */
-@media (min-width: 769px) and (max-width: 991px) {
-  .layout-container {
-    .layout-content {
-      margin: 104px 12px 0;
-      
-      .content-container {
-        padding: 16px;
-      }
-    }
-  }
+.tab-view {
+  height: 42px;
+  line-height: 42px;
+  background: var(--tabs-bg-color);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
-/* 动画过渡效果 */
+.app-main {
+  position: relative;
+  padding: 20px;
+  height: calc(100vh - 106px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--main-bg-color);
+}
+
+/* 过渡动画 */
 .fade-transform-enter-active,
 .fade-transform-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .fade-transform-enter-from {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateX(-20px);
 }
 
 .fade-transform-leave-to {
   opacity: 0;
-  transform: translateX(-20px);
+  transform: translateX(20px);
+}
+
+/* 暗色主题适配 */
+.layout-dark {
+  .fixed-header {
+    background-color: var(--header-bg-color);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .navbar {
+    background-color: var(--header-bg-color);
+
+    .hamburger-container {
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    .right-item {
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+  }
+
+  .tab-view {
+    background-color: var(--tabs-bg-color);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 992px) {
+  .navbar {
+    padding: 0;
+    
+    .right-item {
+      padding: 0 8px;
+    }
+  }
+  
+  .app-main {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    .right-item {
+      padding: 0 6px;
+      font-size: 18px;
+    }
+    
+    .hamburger-container {
+      padding: 0 12px;
+    }
+  }
+  
+  .app-main {
+    padding: 10px;
+    height: calc(100vh - 106px);
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar {
+    .navbar-right {
+      padding-right: 4px;
+    }
+    
+    .right-item {
+      padding: 0 4px;
+      font-size: 16px;
+    }
+    
+    .hamburger-container {
+      padding: 0 8px;
+    }
+  }
+  
+  .app-main {
+    padding: 8px;
+  }
 }
 </style>

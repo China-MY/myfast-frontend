@@ -1,145 +1,134 @@
 <template>
   <div class="side-menu-container">
-    <a-menu
-      v-model:selectedKeys="selectedKeys"
-      v-model:openKeys="openKeys"
-      mode="inline"
-      :theme="theme"
-      :inline-collapsed="collapsed"
+    <el-menu
+      :default-active="selectedKeys[0]"
+      :collapse="collapsed"
       :class="{ 'menu-scrollable': true }"
+      background-color="transparent"
+      text-color="rgba(255, 255, 255, 0.85)"
+      :active-text-color="'#64b5f6'"
+      :unique-opened="true"
+      :collapse-transition="false"
     >
       <template v-for="menu in menuList" :key="menu.path">
         <!-- 只有有标题的菜单项才显示 -->
         <template v-if="menu.meta && menu.meta.title">
           <!-- 有子菜单 -->
           <template v-if="menu.children && menu.children.length > 0">
-            <a-sub-menu :key="menu.path">
-              <template #icon>
-                <component :is="getIconComponent(menu.meta?.icon, menu.path)" />
-              </template>
+            <el-sub-menu :index="menu.path">
               <template #title>
-                <span>{{ menu.meta?.title }}</span>
+                <el-icon><component :is="getIconComponent(menu.meta?.icon, menu.path)" /></el-icon>
+                <span v-if="!collapsed">{{ menu.meta?.title }}</span>
               </template>
               <!-- 递归渲染子菜单项 -->
               <template v-for="subMenu in menu.children" :key="subMenu.path">
                 <!-- 第二级菜单还有子菜单 -->
                 <template v-if="subMenu.children && subMenu.children.length > 0">
-                  <a-sub-menu :key="menu.path + '/' + subMenu.path">
-                    <template #icon>
-                      <component :is="getIconComponent(subMenu.meta?.icon, subMenu.path)" />
-                    </template>
+                  <el-sub-menu :index="menu.path + '/' + subMenu.path">
                     <template #title>
-                      <span>{{ subMenu.meta?.title }}</span>
+                      <el-icon><component :is="getIconComponent(subMenu.meta?.icon, subMenu.path)" /></el-icon>
+                      <span v-if="!collapsed">{{ subMenu.meta?.title }}</span>
                     </template>
-                    <a-menu-item
+                    <el-menu-item
                       v-for="item in subMenu.children"
                       :key="menu.path + '/' + subMenu.path + '/' + item.path"
+                      :index="menu.path + '/' + subMenu.path + '/' + item.path"
                       @click="handleMenuClick(item.fullPath || (menu.path + '/' + subMenu.path + '/' + item.path))"
                     >
-                      <template #icon>
-                        <component :is="getIconComponent(item.meta?.icon, item.path)" />
-                      </template>
-                      <span>{{ item.meta?.title }}</span>
-                    </a-menu-item>
-                  </a-sub-menu>
+                      <el-icon><component :is="getIconComponent(item.meta?.icon, item.path)" /></el-icon>
+                      <span v-if="!collapsed">{{ item.meta?.title }}</span>
+                    </el-menu-item>
+                  </el-sub-menu>
                 </template>
                 <!-- 第二级菜单没有子菜单 -->
                 <template v-else>
-                  <a-menu-item
-                    :key="subMenu.fullPath || (menu.path + '/' + subMenu.path)"
+                  <el-menu-item
+                    :index="subMenu.fullPath || (menu.path + '/' + subMenu.path)"
                     @click="handleMenuClick(subMenu.fullPath || (menu.path + '/' + subMenu.path))"
                   >
-                    <template #icon>
-                      <component :is="getIconComponent(subMenu.meta?.icon, subMenu.path)" />
-                    </template>
-                    <span>{{ subMenu.meta?.title }}</span>
-                  </a-menu-item>
+                    <el-icon><component :is="getIconComponent(subMenu.meta?.icon, subMenu.path)" /></el-icon>
+                    <span v-if="!collapsed">{{ subMenu.meta?.title }}</span>
+                  </el-menu-item>
                 </template>
               </template>
-            </a-sub-menu>
+            </el-sub-menu>
           </template>
           <!-- 无子菜单 -->
           <template v-else>
-            <a-menu-item :key="menu.path" @click="handleMenuClick(menu.path)">
-              <template #icon>
-                <component :is="getIconComponent(menu.meta?.icon, menu.path)" />
-              </template>
-              <span>{{ menu.meta?.title }}</span>
-            </a-menu-item>
+            <el-menu-item :index="menu.path" @click="handleMenuClick(menu.path)">
+              <el-icon><component :is="getIconComponent(menu.meta?.icon, menu.path)" /></el-icon>
+              <span v-if="!collapsed">{{ menu.meta?.title }}</span>
+            </el-menu-item>
           </template>
         </template>
       </template>
-    </a-menu>
+    </el-menu>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, RouteRecordRaw } from 'vue-router';
+import { useAppStore } from '../../stores/modules/app';
 import {
-  DashboardOutlined,
-  TeamOutlined,
-  UserOutlined,
-  SafetyCertificateOutlined,
-  MenuOutlined,
-  BarsOutlined,
-  AppstoreOutlined,
-  SettingOutlined,
-  MonitorOutlined,
-  CloudServerOutlined,
-  ApiOutlined,
-  CodeOutlined,
-  FormOutlined,
-  IdcardOutlined,
-  FontSizeOutlined,
-  ToolOutlined,
-  DatabaseOutlined,
-  DesktopOutlined,
-  FieldTimeOutlined,
-  KeyOutlined,
-  LineChartOutlined,
-  ClockCircleOutlined,
-  UserSwitchOutlined,
-  ControlOutlined,
-  EditOutlined,
-  FileOutlined,
-  FolderOutlined,
-  ProfileOutlined
-} from '@ant-design/icons-vue';
+  Grid,
+  User,
+  Lock,
+  Menu as MenuIcon,
+  Operation,
+  SetUp,
+  Monitor,
+  Connection,
+  Document,
+  Setting,
+  Odometer,
+  Coin,
+  Timer,
+  Tools,
+  List,
+  Edit,
+  Files,
+  Collection,
+  Notebook,
+  OfficeBuilding,
+  Management,
+  Histogram,
+  Platform,
+  DataAnalysis
+} from '@element-plus/icons-vue';
+
+// 获取应用状态
+const appStore = useAppStore();
 
 // 图标组件映射
 const iconComponents: Record<string, any> = {
-  DashboardOutlined,
-  TeamOutlined,
-  UserOutlined,
-  SafetyCertificateOutlined,
-  MenuOutlined,
-  BarsOutlined,
-  AppstoreOutlined,
-  SettingOutlined,
-  MonitorOutlined,
-  CloudServerOutlined,
-  ApiOutlined,
-  CodeOutlined,
-  FormOutlined,
-  IdcardOutlined,
-  FontSizeOutlined,
-  ToolOutlined,
-  DatabaseOutlined,
-  DesktopOutlined,
-  FieldTimeOutlined,
-  KeyOutlined,
-  LineChartOutlined,
-  ClockCircleOutlined,
-  UserSwitchOutlined,
-  ControlOutlined,
-  EditOutlined,
-  FileOutlined,
-  FolderOutlined,
-  ProfileOutlined
+  Grid,
+  User,
+  Lock,
+  MenuIcon,
+  Operation,
+  SetUp,
+  Monitor,
+  Connection,
+  Document,
+  Setting,
+  Odometer,
+  Coin,
+  Timer,
+  Tools,
+  List,
+  Edit,
+  Files,
+  Collection,
+  Notebook,
+  OfficeBuilding,
+  Management,
+  Histogram,
+  Platform,
+  DataAnalysis
 };
 
-// 安全获取图标组件
+// 获取图标组件
 const getIconComponent = (iconName: unknown, path?: string): any => {
   // 优先使用meta中定义的图标
   if (iconName && typeof iconName === 'string' && iconName in iconComponents) {
@@ -148,60 +137,54 @@ const getIconComponent = (iconName: unknown, path?: string): any => {
   
   // 为特定路径提供默认图标
   if (path === '/dashboard' || path === 'dashboard') {
-    return iconComponents.LineChartOutlined; // 数据可视化图标
+    return Histogram; // 数据可视化图标
   } else if (path === 'user' || path?.includes('user')) {
-    return iconComponents.UserOutlined;
+    return User;
   } else if (path === 'role' || path?.includes('role')) {
-    return iconComponents.SafetyCertificateOutlined;
+    return Lock;
   } else if (path === 'menu' || path?.includes('menu')) {
-    return iconComponents.MenuOutlined;
+    return MenuIcon;
   } else if (path === 'dept' || path?.includes('dept')) {
-    return iconComponents.TeamOutlined;
+    return OfficeBuilding;
   } else if (path === 'post' || path?.includes('post')) {
-    return iconComponents.IdcardOutlined;
+    return Collection;
   } else if (path === 'dict' || path?.includes('dict')) {
-    return iconComponents.FontSizeOutlined;
+    return Notebook;
   } else if (path === 'config' || path?.includes('config')) {
-    return iconComponents.ControlOutlined;
+    return Setting;
   } else if (path === 'online' || path?.includes('online')) {
-    return iconComponents.UserSwitchOutlined;
+    return Platform;
   } else if (path === 'server' || path?.includes('server')) {
-    return iconComponents.CloudServerOutlined;
+    return Monitor;
   } else if (path === 'cache' || path?.includes('cache')) {
-    return iconComponents.DatabaseOutlined;
+    return DataAnalysis;
   } else if (path === 'job' || path?.includes('job')) {
-    return iconComponents.ClockCircleOutlined;
+    return Timer;
   } else if (path === 'data' || path?.includes('data')) {
-    return iconComponents.LineChartOutlined;
+    return Document;
   } else if (path === 'gen' || path?.includes('gen')) {
-    return iconComponents.CodeOutlined;
+    return Document;
   } else if (path === 'swagger' || path?.includes('swagger')) {
-    return iconComponents.ApiOutlined;
+    return Connection;
   } else if (path === 'form' || path?.includes('form')) {
-    return iconComponents.FormOutlined;
+    return Edit;
   } else if (path === '/system' || path === 'system') {
-    return iconComponents.SettingOutlined;
+    return SetUp;
   } else if (path === '/monitor' || path === 'monitor') {
-    return iconComponents.MonitorOutlined;
+    return Monitor;
   } else if (path === '/tool' || path === 'tool') {
-    return iconComponents.ToolOutlined;
+    return Tools;
   }
   
   // 默认图标
-  return iconComponents.AppstoreOutlined;
+  return Grid;
 };
 
-// 接收父组件传递的属性
-const props = defineProps({
-  collapsed: {
-    type: Boolean,
-    default: false
-  },
-  theme: {
-    type: String,
-    default: 'dark'
-  }
-});
+// 计算侧边栏收起状态
+const collapsed = computed(() => !appStore.sidebar.opened);
+
+// 计算主题
+const theme = computed(() => appStore.theme);
 
 const route = useRoute();
 const router = useRouter();
@@ -239,7 +222,7 @@ watch(() => route.path, (path) => {
   if (pathParts.length > 1) {
     // 如果路径有多层，则需要展开上层菜单
     // 构建展开的路径数组
-    const openKeyArray = [];
+    const openKeyArray: string[] = [];
     let currentPath = '';
 
     for (let i = 0; i < pathParts.length - 1; i++) {
@@ -252,7 +235,7 @@ watch(() => route.path, (path) => {
 }, { immediate: true });
 
 // 监听折叠状态变化
-watch(() => props.collapsed, (newVal) => {
+watch(collapsed, (newVal) => {
   if (newVal) {
     openKeys.value = [];
   } else {
@@ -268,7 +251,7 @@ watch(() => props.collapsed, (newVal) => {
     const pathParts = path.split('/').filter(Boolean);
     if (pathParts.length > 1) {
       // 构建展开的路径数组
-      const openKeyArray = [];
+      const openKeyArray: string[] = [];
       let currentPath = '';
 
       for (let i = 0; i < pathParts.length - 1; i++) {
@@ -393,7 +376,11 @@ const menuList = computed(() => {
 
 // 处理菜单点击事件
 const handleMenuClick = (path: string) => {
-  console.log('菜单点击路径:', path, '当前路由:', route.path);
+  // 在移动设备上，点击菜单后自动折叠侧边栏
+  if (isMobile.value) {
+    // 通过事件通知父组件关闭菜单
+    document.dispatchEvent(new CustomEvent('mobile-menu-click'));
+  }
   
   // 检查路径是否已经是完整路径（以/开头）
   if (path.startsWith('/')) {
@@ -472,7 +459,7 @@ onMounted(() => {
   const pathParts = route.path.split('/').filter(Boolean);
   if (pathParts.length > 1) {
     // 构建展开的路径数组
-    const openKeyArray = [];
+    const openKeyArray: string[] = [];
     let currentPath = '';
 
     for (let i = 0; i < pathParts.length - 1; i++) {
@@ -494,70 +481,111 @@ onBeforeUnmount(() => {
 });
 </script>
 
-<style lang="less" scoped>
+<style lang="scss" scoped>
 .side-menu-container {
   height: calc(100% - 64px);
+  background: var(--menu-bg-color);
 
   .menu-scrollable {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+    border-right: none !important;
+    background: transparent;
 
-  // 优化滚动条样式
+    // 优化滚动条样式
     &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
+      width: 6px;
+      height: 6px;
+    }
 
     &::-webkit-scrollbar-thumb {
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 3px;
     }
     
     &::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
+      background: rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  // Element Plus菜单样式调整
+  :deep(.el-menu) {
+    border-right: none;
+    background: transparent !important;
+  }
+  
+  // 折叠状态下的菜单项样式
+  :deep(.el-menu--collapse) {
+    width: 64px;
+    
+    .el-sub-menu__title {
+      padding: 0 20px !important;
+    }
+  }
+  
+  :deep(.el-sub-menu__title),
+  :deep(.el-menu-item) {
+    height: 50px;
+    line-height: 50px;
+    transition: all 0.3s;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+  }
+  
+  :deep(.el-sub-menu.is-active) > .el-sub-menu__title {
+    color: var(--sidebar-active-color) !important;
+  }
+  
+  :deep(.el-menu-item.is-active) {
+    background: rgba(100, 181, 246, 0.2) !important;
+    color: var(--sidebar-active-color) !important;
+    font-weight: 500;
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 3px;
+      height: 100%;
+      background-color: var(--sidebar-active-color);
+      transition: all 0.3s;
     }
   }
 
-  // 折叠状态下的菜单项
-  :deep(.ant-menu-inline-collapsed) {
-    .ant-menu-item {
-      padding: 0 !important;
-      display: flex;
-      justify-content: center;
-      
-      .ant-menu-title-content {
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
-    }
-    
-    .ant-menu-submenu-title {
-      padding: 0 !important;
-      display: flex;
-      justify-content: center;
-      
-      .ant-menu-title-content {
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
+  // 菜单项图标样式优化
+  :deep(.el-icon) {
+    margin-right: 10px;
+    font-size: 18px;
+    vertical-align: middle;
+  }
+  
+  // 菜单项文本样式优化
+  :deep(.el-menu-item),
+  :deep(.el-sub-menu__title) {
+    span {
+      font-size: 14px;
+      transition: opacity 0.3s, margin 0.3s;
     }
   }
 
   // 移动端特殊样式
   @media (max-width: 768px) {
-    .ant-menu-item, .ant-menu-submenu-title {
+    :deep(.el-sub-menu__title),
+    :deep(.el-menu-item) {
       height: 48px !important;
       line-height: 48px !important;
       padding-left: 16px !important;
       font-size: 14px !important;
     }
     
-    :deep(.ant-menu-submenu-arrow) {
+    :deep(.el-sub-menu__icon-arrow) {
       right: 12px !important;
     }
     
-    :deep(.ant-menu-item-icon) {
+    :deep(.el-icon) {
       font-size: 18px !important;
     }
   }

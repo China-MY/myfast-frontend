@@ -1,183 +1,205 @@
 <template>
   <div class="profile-container">
     <!-- 用户基本信息卡片 -->
-    <a-card class="user-info-card">
+    <el-card class="user-info-card">
       <div class="user-info-header">
         <div class="user-avatar">
-          <a-avatar :size="80" :src="userInfo.avatar">
-            <template #icon v-if="!userInfo.avatar"><user-outlined /></template>
-          </a-avatar>
+          <el-avatar :size="80" :src="userInfo.avatar">
+            <template #default v-if="!userInfo.avatar"><el-icon><User /></el-icon></template>
+          </el-avatar>
           <div class="avatar-edit">
-            <upload-outlined />
+            <el-icon><Upload /></el-icon>
           </div>
         </div>
         <div class="user-details">
           <h2>{{ userInfo.name }}</h2>
           <div class="user-bio">{{ userInfo.bio }}</div>
           <div class="user-tags">
-            <a-tag color="blue">{{ userInfo.role }}</a-tag>
-            <a-tag color="green">{{ userInfo.department }}</a-tag>
-            <a-tag v-if="userInfo.online" color="success">在线</a-tag>
+            <el-tag type="primary">{{ userInfo.role }}</el-tag>
+            <el-tag type="success">{{ userInfo.department }}</el-tag>
+            <el-tag v-if="userInfo.online" type="success">在线</el-tag>
           </div>
         </div>
         <div class="user-contact">
           <div class="contact-item">
-            <mail-outlined />
+            <el-icon><Message /></el-icon>
             <span>{{ userInfo.email }}</span>
           </div>
           <div class="contact-item">
-            <phone-outlined />
+            <el-icon><Phone /></el-icon>
             <span>{{ userInfo.phone }}</span>
           </div>
           <div class="contact-item">
-            <environment-outlined />
+            <el-icon><Location /></el-icon>
             <span>{{ userInfo.location }}</span>
           </div>
         </div>
       </div>
-      <a-divider />
+      <el-divider />
       <div class="action-buttons">
-        <a-button type="primary" @click="goToSettings">
-          <setting-outlined />
+        <el-button type="primary" @click="goToSettings">
+          <el-icon><Setting /></el-icon>
           修改资料
-        </a-button>
-        <a-button>
-          <message-outlined />
+        </el-button>
+        <el-button>
+          <el-icon><ChatDotRound /></el-icon>
           发送消息
-        </a-button>
+        </el-button>
       </div>
-    </a-card>
+    </el-card>
 
     <!-- 用户统计数据 -->
-    <a-row :gutter="16" class="stat-row">
-      <a-col :span="6">
-        <a-card>
-          <a-statistic title="项目数量" :value="userStats.projects" :precision="0">
-            <template #prefix>
-              <project-outlined />
-            </template>
-          </a-statistic>
-        </a-card>
-      </a-col>
-      <a-col :span="6">
-        <a-card>
-          <a-statistic title="任务完成" :value="userStats.tasksCompleted" :precision="0">
-            <template #prefix>
-              <check-circle-outlined />
-            </template>
-            <template #suffix>
+    <el-row :gutter="16" class="stat-row">
+      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
+        <el-card>
+          <div class="statistic-item">
+            <div class="statistic-title">项目数量</div>
+            <div class="statistic-value">
+              <count-to :start-val="0" :end-val="userStats.projects" :duration="2500" separator="," />
+              <el-icon><Folder /></el-icon>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
+        <el-card>
+          <div class="statistic-item">
+            <div class="statistic-title">任务完成</div>
+            <div class="statistic-value">
+              <count-to :start-val="0" :end-val="userStats.tasksCompleted" :duration="2500" separator="," />
               <span>/ {{ userStats.totalTasks }}</span>
-            </template>
-          </a-statistic>
-        </a-card>
-      </a-col>
-      <a-col :span="6">
-        <a-card>
-          <a-statistic title="团队贡献" :value="userStats.contribution" :precision="0" suffix="%">
-            <template #prefix>
-              <team-outlined />
-            </template>
-          </a-statistic>
-        </a-card>
-      </a-col>
-      <a-col :span="6">
-        <a-card>
-          <a-statistic title="积分" :value="userStats.points" :precision="0">
-            <template #prefix>
-              <trophy-outlined />
-            </template>
-          </a-statistic>
-        </a-card>
-      </a-col>
-    </a-row>
+              <el-icon><Check /></el-icon>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
+        <el-card>
+          <div class="statistic-item">
+            <div class="statistic-title">团队贡献</div>
+            <div class="statistic-value">
+              <count-to :start-val="0" :end-val="userStats.contribution" :duration="2500" separator="," />%
+              <el-icon><User /></el-icon>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
+        <el-card>
+          <div class="statistic-item">
+            <div class="statistic-title">积分</div>
+            <div class="statistic-value">
+              <count-to :start-val="0" :end-val="userStats.points" :duration="2500" separator="," />
+              <el-icon><Medal /></el-icon>
+            </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
 
     <!-- 动态和快捷操作 -->
-    <a-row :gutter="16" class="content-row">
-      <a-col :span="16">
-        <a-card title="近期动态" class="activity-card">
-          <a-tabs v-model:activeKey="activeTab">
-            <a-tab-pane key="all" tab="所有动态">
-              <a-timeline>
-                <a-timeline-item v-for="(activity, index) in activities" :key="index" :color="activity.color">
-                  <template #dot v-if="activity.icon">
-                    <component :is="activity.icon" />
-                  </template>
+    <el-row :gutter="16" class="content-row">
+      <el-col :span="16">
+        <el-card title="近期动态" class="activity-card">
+          <el-tabs v-model="activeTab">
+            <el-tab-pane name="all" label="所有动态">
+              <el-timeline>
+                <el-timeline-item v-for="(activity, index) in activities" :key="index" :type="activity.color">
+                  <el-icon v-if="activity.icon" class="timeline-icon"><component :is="activity.icon" /></el-icon>
                   <div class="activity-content">
                     <div class="activity-title">{{ activity.title }}</div>
                     <div class="activity-time">{{ activity.time }}</div>
                     <div class="activity-desc">{{ activity.description }}</div>
                   </div>
-                </a-timeline-item>
-              </a-timeline>
-            </a-tab-pane>
-            <a-tab-pane key="project" tab="项目动态">
-              <a-empty description="暂无项目动态" v-if="!projectActivities.length" />
-              <a-timeline v-else>
-                <a-timeline-item v-for="(activity, index) in projectActivities" :key="index" :color="activity.color">
+                </el-timeline-item>
+              </el-timeline>
+            </el-tab-pane>
+            <el-tab-pane name="project" label="项目动态">
+              <el-empty v-if="!projectActivities.length" description="暂无项目动态" />
+              <el-timeline v-else>
+                <el-timeline-item v-for="(activity, index) in projectActivities" :key="index" :type="activity.color">
                   <div class="activity-content">
                     <div class="activity-title">{{ activity.title }}</div>
                     <div class="activity-time">{{ activity.time }}</div>
                     <div class="activity-desc">{{ activity.description }}</div>
                   </div>
-                </a-timeline-item>
-              </a-timeline>
-            </a-tab-pane>
-            <a-tab-pane key="task" tab="任务动态">
-              <a-empty description="暂无任务动态" v-if="!taskActivities.length" />
-              <a-timeline v-else>
-                <a-timeline-item v-for="(activity, index) in taskActivities" :key="index" :color="activity.color">
+                </el-timeline-item>
+              </el-timeline>
+            </el-tab-pane>
+            <el-tab-pane name="task" label="任务动态">
+              <el-empty v-if="!taskActivities.length" description="暂无任务动态" />
+              <el-timeline v-else>
+                <el-timeline-item v-for="(activity, index) in taskActivities" :key="index" :type="activity.color">
                   <div class="activity-content">
                     <div class="activity-title">{{ activity.title }}</div>
                     <div class="activity-time">{{ activity.time }}</div>
                     <div class="activity-desc">{{ activity.description }}</div>
                   </div>
-                </a-timeline-item>
-              </a-timeline>
-            </a-tab-pane>
-          </a-tabs>
-        </a-card>
-      </a-col>
-      <a-col :span="8">
-        <a-card title="快捷操作" class="quick-actions">
-          <a-list :data-source="quickActions">
-            <template #renderItem="{ item }">
-              <a-list-item>
-                <a-button :type="item.type" :icon="item.icon" class="action-button" @click="item.action">
-                  {{ item.title }}
-                </a-button>
-              </a-list-item>
-            </template>
-          </a-list>
-        </a-card>
+                </el-timeline-item>
+              </el-timeline>
+            </el-tab-pane>
+          </el-tabs>
+        </el-card>
+      </el-col>
+      <el-col :span="8">
+        <el-card class="quick-actions">
+          <template #header>
+            <div class="card-header">
+              <span>快捷操作</span>
+            </div>
+          </template>
+          <el-space direction="vertical" style="width: 100%">
+            <el-button
+              v-for="item in quickActions" 
+              :key="item.title" 
+              :type="item.type === 'primary' ? 'primary' : ''" 
+              class="action-button" 
+              @click="item.action"
+              icon-position="left"
+            >
+              <el-icon><component :is="getIcon(item.icon)"/></el-icon>
+              {{ item.title }}
+            </el-button>
+          </el-space>
+        </el-card>
 
-        <a-card title="技能标签" class="skills-card">
+        <el-card class="skills-card">
+          <template #header>
+            <div class="card-header">
+              <span>技能标签</span>
+            </div>
+          </template>
           <div class="skills-container">
-            <a-tag v-for="skill in userSkills" :key="skill.name" :color="skill.color" class="skill-tag">
+            <el-tag v-for="skill in userSkills" :key="skill.name" :type="getTagType(skill.color)" class="skill-tag">
+              <el-icon><component :is="getIcon(skill.icon)" /></el-icon>
               {{ skill.name }}
-              <template #icon>
-                <component :is="skill.icon" />
-              </template>
-            </a-tag>
+            </el-tag>
           </div>
-        </a-card>
+        </el-card>
 
-        <a-card title="本周工作" class="work-summary">
-          <a-progress :percent="workSummary.completed" status="active" />
+        <el-card class="work-summary">
+          <template #header>
+            <div class="card-header">
+              <span>本周工作</span>
+            </div>
+          </template>
+          <el-progress :percentage="workSummary.completed" status="success" />
           <div class="summary-text">
             已完成 {{ workSummary.completedTasks }} 个任务，剩余 {{ workSummary.remainingTasks }} 个任务
           </div>
 
-          <a-list size="small" class="summary-list">
-            <a-list-item v-for="(task, index) in workSummary.recentTasks" :key="index">
-              <template #actions>
-                <a-tag :color="task.status === '已完成' ? 'success' : 'processing'">{{ task.status }}</a-tag>
+          <el-table size="small" :data="workSummary.recentTasks" class="summary-list">
+            <el-table-column prop="title" label="任务名称" />
+            <el-table-column prop="dueDate" label="截止时间" width="180" />
+            <el-table-column prop="status" label="状态" width="100">
+              <template #default="scope">
+                <el-tag :type="scope.row.status === '已完成' ? 'success' : 'primary'">{{ scope.row.status }}</el-tag>
               </template>
-              <a-list-item-meta :title="task.title" :description="task.dueDate" />
-            </a-list-item>
-          </a-list>
-        </a-card>
-      </a-col>
-    </a-row>
+            </el-table-column>
+          </el-table>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -185,23 +207,25 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { 
-  UserOutlined, 
-  MailOutlined, 
-  PhoneOutlined, 
-  EnvironmentOutlined,
-  SettingOutlined,
-  MessageOutlined,
-  ProjectOutlined,
-  CheckCircleOutlined,
-  TeamOutlined,
-  TrophyOutlined,
-  FileTextOutlined,
-  UploadOutlined,
-  CodeOutlined,
-  DatabaseOutlined,
-  AppstoreOutlined,
-  CloudOutlined
-} from '@ant-design/icons-vue';
+  User, 
+  Message, 
+  Wallet, 
+  Calendar,
+  CaretTop,
+  CaretBottom,
+  Document,
+  ChatDotRound,
+  Setting,
+  Bell,
+  List,
+  Phone,
+  Medal,
+  Check,
+  Folder,
+  Location,
+  Upload
+} from '@element-plus/icons-vue';
+import CountTo from '@/components/CountTo/index.vue';
 
 const router = useRouter();
 
@@ -236,29 +260,29 @@ const activities = ref([
     title: '完成了任务',
     description: '完成了"首页界面设计"任务',
     time: '今天 09:30',
-    color: 'green',
-    icon: 'CheckCircleOutlined'
+    color: 'success',
+    icon: 'Check'
   },
   {
     title: '创建了项目',
     description: '创建了新项目"电子商务平台优化"',
     time: '昨天 14:20',
-    color: 'blue',
-    icon: 'ProjectOutlined'
+    color: 'primary',
+    icon: 'Folder'
   },
   {
     title: '评论了任务',
     description: '在"API接口开发"任务中发表了评论',
     time: '昨天 11:30',
-    color: 'orange',
-    icon: 'MessageOutlined'
+    color: 'warning',
+    icon: 'ChatDotRound'
   },
   {
     title: '上传了文档',
     description: '上传了"系统架构设计文档v2.0"',
     time: '2023-06-14 16:45',
-    color: 'purple',
-    icon: 'FileTextOutlined'
+    color: 'danger',
+    icon: 'Document'
   }
 ]);
 
@@ -280,25 +304,25 @@ const taskActivities = computed(() => {
 const quickActions = ref([
   {
     title: '创建任务',
-    icon: 'FileTextOutlined',
+    icon: 'Document',
     type: 'primary',
     action: () => console.log('创建任务')
   },
   {
     title: '发起项目',
-    icon: 'ProjectOutlined',
+    icon: 'Folder',
     type: 'default',
     action: () => console.log('发起项目')
   },
   {
     title: '编写周报',
-    icon: 'FileTextOutlined',
+    icon: 'Document',
     type: 'default',
     action: () => console.log('编写周报')
   },
   {
     title: '预约会议',
-    icon: 'TeamOutlined',
+    icon: 'User',
     type: 'default',
     action: () => console.log('预约会议')
   }
@@ -306,13 +330,13 @@ const quickActions = ref([
 
 // 用户技能
 const userSkills = ref([
-  { name: 'Vue.js', color: 'green', icon: 'CodeOutlined' },
-  { name: 'React', color: 'blue', icon: 'CodeOutlined' },
-  { name: 'TypeScript', color: 'geekblue', icon: 'CodeOutlined' },
-  { name: 'Node.js', color: 'lime', icon: 'CodeOutlined' },
-  { name: 'MongoDB', color: 'green', icon: 'DatabaseOutlined' },
-  { name: 'UI设计', color: 'purple', icon: 'AppstoreOutlined' },
-  { name: 'AWS', color: 'orange', icon: 'CloudOutlined' }
+  { name: 'Vue.js', color: 'green', icon: 'Document' },
+  { name: 'React', color: 'blue', icon: 'Document' },
+  { name: 'TypeScript', color: 'geekblue', icon: 'Document' },
+  { name: 'Node.js', color: 'lime', icon: 'Document' },
+  { name: 'MongoDB', color: 'green', icon: 'List' },
+  { name: 'UI设计', color: 'purple', icon: 'Document' },
+  { name: 'AWS', color: 'orange', icon: 'Document' }
 ]);
 
 // 本周工作
@@ -330,6 +354,38 @@ const workSummary = ref({
 // 跳转到设置页面
 const goToSettings = () => {
   router.push('/user/settings');
+};
+
+// 转换图标名称
+const getIcon = (iconName: string) => {
+  const iconMap: Record<string, string> = {
+    'BellOutlined': 'Bell',
+    'UserOutlined': 'User',
+    'FileTextOutlined': 'Document',
+    'ToolOutlined': 'Tools',
+    'MessageOutlined': 'ChatDotRound',
+    'ProjectOutlined': 'Folder',
+    'CheckCircleOutlined': 'Check',
+    'TeamOutlined': 'User',
+    'TrophyOutlined': 'Medal',
+    'DatabaseOutlined': 'List',
+    'AppstoreOutlined': 'Menu',
+    'CloudOutlined': 'Cloudy'
+  };
+  return iconMap[iconName] || iconName;
+};
+
+// 转换标签颜色
+const getTagType = (color: string) => {
+  const colorMap: Record<string, string> = {
+    'green': 'success',
+    'blue': 'primary',
+    'geekblue': 'info',
+    'lime': 'success',
+    'purple': 'danger',
+    'orange': 'warning'
+  };
+  return colorMap[color] || '';
 };
 </script>
 
@@ -355,7 +411,7 @@ const goToSettings = () => {
           width: 24px;
           height: 24px;
           border-radius: 50%;
-          background-color: #1890ff;
+          background-color: var(--el-color-primary);
           color: white;
           display: flex;
           align-items: center;
@@ -373,12 +429,16 @@ const goToSettings = () => {
         }
         
         .user-bio {
-          color: rgba(0, 0, 0, 0.65);
+          color: var(--el-text-color-secondary);
           margin-bottom: 12px;
         }
         
         .user-tags {
           margin-bottom: 8px;
+          
+          .el-tag {
+            margin-right: 8px;
+          }
         }
       }
       
@@ -390,9 +450,9 @@ const goToSettings = () => {
           align-items: center;
           margin-bottom: 8px;
           
-          .anticon {
+          .el-icon {
             margin-right: 8px;
-            color: rgba(0, 0, 0, 0.45);
+            color: var(--el-text-color-secondary);
           }
         }
       }
@@ -407,6 +467,29 @@ const goToSettings = () => {
   
   .stat-row {
     margin-bottom: 20px;
+    
+    .statistic-item {
+      padding: 8px 0;
+      
+      .statistic-title {
+        font-size: 14px;
+        color: var(--el-text-color-secondary);
+        margin-bottom: 8px;
+      }
+      
+      .statistic-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--el-text-color-primary);
+        display: flex;
+        align-items: center;
+        
+        .el-icon {
+          margin-left: 8px;
+          color: var(--el-color-primary);
+        }
+      }
+    }
   }
   
   .content-row {
@@ -420,13 +503,17 @@ const goToSettings = () => {
         
         .activity-time {
           font-size: 12px;
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--el-text-color-secondary);
           margin: 4px 0;
         }
         
         .activity-desc {
-          color: rgba(0, 0, 0, 0.65);
+          color: var(--el-text-color-secondary);
         }
+      }
+      
+      .timeline-icon {
+        font-size: 18px;
       }
     }
     
@@ -435,8 +522,10 @@ const goToSettings = () => {
       
       .action-button {
         width: 100%;
-        text-align: left;
         margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
       }
     }
     
@@ -450,6 +539,12 @@ const goToSettings = () => {
         
         .skill-tag {
           margin-right: 0;
+          display: flex;
+          align-items: center;
+          
+          .el-icon {
+            margin-right: 4px;
+          }
         }
       }
     }
@@ -457,7 +552,7 @@ const goToSettings = () => {
     .work-summary {
       .summary-text {
         margin: 12px 0;
-        color: rgba(0, 0, 0, 0.65);
+        color: var(--el-text-color-secondary);
         font-size: 14px;
       }
       
@@ -465,6 +560,10 @@ const goToSettings = () => {
         margin-top: 16px;
       }
     }
+  }
+  
+  .card-header {
+    font-weight: bold;
   }
 }
 </style> 

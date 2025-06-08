@@ -2,140 +2,147 @@
   <div class="header-right-container">
     <!-- 搜索 - 在移动端隐藏 -->
     <div class="action-item search-input-wrapper" v-if="!isMobile">
-      <a-input-search
+      <el-input
         placeholder="站内搜索"
         style="width: 200px"
         size="small"
-        @search="onSearch"
-      />
+        v-model="searchText"
+        @keyup.enter="onSearch"
+      >
+        <template #suffix>
+          <el-icon class="cursor-pointer" @click="onSearch">
+            <Search />
+          </el-icon>
+        </template>
+      </el-input>
     </div>
 
     <!-- 布局设置 - 在移动端隐藏 -->
-    <div class="action-item" v-if="!isMobile" @click="openSettingDrawer">
-      <skin-outlined class="action-icon" />
-    </div>
+    <!-- <div class="action-item" v-if="!isMobile" @click="openSettingDrawer">
+      <el-icon class="action-icon"><Setting /></el-icon>
+    </div> -->
 
     <!-- 文档 - 在移动端隐藏 -->
-    <div class="action-item" v-if="!isMobile">
-      <a-tooltip title="系统文档">
-        <question-circle-outlined class="action-icon" />
-      </a-tooltip>
-    </div>
+    <!-- <div class="action-item" v-if="!isMobile">
+      <el-tooltip content="系统文档">
+        <el-icon class="action-icon"><QuestionFilled /></el-icon>
+      </el-tooltip>
+    </div> -->
 
     <!-- 全屏切换 - 在移动端隐藏 -->
     <div class="action-item" v-if="!isMobile">
-      <a-tooltip :title="isFullscreen ? '退出全屏' : '全屏显示'">
-        <component :is="isFullscreen ? 'FullscreenExitOutlined' : 'FullscreenOutlined'" class="action-icon" @click="toggleFullScreen" />
-      </a-tooltip>
+      <el-tooltip :content="isFullscreen ? '退出全屏' : '全屏显示'">
+        <el-icon class="action-icon" @click="toggleFullScreen">
+          <component :is="isFullscreen ? 'FullScreen' : 'FullScreen'" />
+        </el-icon>
+      </el-tooltip>
     </div>
 
     <!-- 通知中心 -->
-    <div class="action-item">
-      <a-popover
-        placement="bottomRight"
+    <!-- <div class="action-item">
+      <el-popover
+        placement="bottom-end"
         trigger="click"
-        :overlayStyle="isMobile ? { width: '250px' } : { width: '300px' }"
+        :width="isMobile ? 250 : 300"
       >
-        <template #content>
-          <a-tabs>
-            <a-tab-pane key="notice" tab="通知">
-              <a-list size="small" :data-source="notices" :pagination="false">
-                <template #renderItem="{ item }">
-                  <a-list-item>
-                    <a-list-item-meta :title="item.title" :description="isMobile ? null : item.time">
-                      <template #avatar>
-                        <a-avatar :style="{ backgroundColor: item.color }">
-                          <template #icon><notification-outlined /></template>
-                        </a-avatar>
-                      </template>
-                    </a-list-item-meta>
-                  </a-list-item>
-                </template>
-                <template #footer>
-                  <div style="text-align: center">
-                    <a-button type="text">全部已读</a-button>
-                    <a-button type="text">查看更多</a-button>
-                  </div>
-                </template>
-              </a-list>
-            </a-tab-pane>
-            <a-tab-pane key="message" tab="消息">
-              <a-list size="small" :data-source="messages" :pagination="false">
-                <template #renderItem="{ item }">
-                  <a-list-item>
-                    <a-list-item-meta :title="item.title" :description="isMobile ? null : item.time">
-                      <template #avatar>
-                        <a-avatar :style="{ backgroundColor: item.color }">
-                          <template #icon><message-outlined /></template>
-                        </a-avatar>
-                      </template>
-                    </a-list-item-meta>
-                  </a-list-item>
-                </template>
-                <template #footer>
-                  <div style="text-align: center">
-                    <a-button type="text">全部已读</a-button>
-                    <a-button type="text">查看更多</a-button>
-                  </div>
-                </template>
-              </a-list>
-            </a-tab-pane>
-          </a-tabs>
+        <template #reference>
+          <el-badge :value="noticeTotal" :max="99">
+            <el-icon class="action-icon"><Bell /></el-icon>
+          </el-badge>
         </template>
-        <a-badge :count="noticeTotal">
-          <bell-outlined class="action-icon" />
-        </a-badge>
-      </a-popover>
-    </div>
+        <el-tabs>
+          <el-tab-pane label="通知" name="notice">
+            <el-scrollbar height="300px">
+              <el-list>
+                <el-list-item v-for="item in notices" :key="item.id">
+                  <template #prefix>
+                    <el-avatar :size="32" :style="{ backgroundColor: item.color }">
+                      <el-icon><Notification /></el-icon>
+                    </el-avatar>
+                  </template>
+                  <div class="notification-content">
+                    <div class="notification-title">{{ item.title }}</div>
+                    <div class="notification-time" v-if="!isMobile">{{ item.time }}</div>
+                  </div>
+                </el-list-item>
+                <div style="text-align: center; padding: 10px 0;">
+                  <el-button text @click="markAllRead">全部已读</el-button>
+                  <el-button text @click="viewMoreNotices">查看更多</el-button>
+                </div>
+              </el-list>
+            </el-scrollbar>
+          </el-tab-pane>
+          <el-tab-pane label="消息" name="message">
+            <el-scrollbar height="300px">
+              <el-list>
+                <el-list-item v-for="item in messages" :key="item.id">
+                  <template #prefix>
+                    <el-avatar :size="32" :style="{ backgroundColor: item.color }">
+                      <el-icon><ChatLineRound /></el-icon>
+                    </el-avatar>
+                  </template>
+                  <div class="notification-content">
+                    <div class="notification-title">{{ item.title }}</div>
+                    <div class="notification-time" v-if="!isMobile">{{ item.time }}</div>
+                  </div>
+                </el-list-item>
+                <div style="text-align: center; padding: 10px 0;">
+                  <el-button text @click="markAllRead">全部已读</el-button>
+                  <el-button text @click="viewMoreMessages">查看更多</el-button>
+                </div>
+              </el-list>
+            </el-scrollbar>
+          </el-tab-pane>
+        </el-tabs>
+      </el-popover>
+    </div> -->
 
     <!-- 用户头像和下拉菜单 -->
-    <a-dropdown :overlay-style="isMobile ? { width: '120px' } : {}">
+    <el-dropdown trigger="click">
       <div class="user-info">
-        <a-avatar :src="userAvatar" :size="isMobile ? 28 : 32" />
+        <el-avatar :src="userAvatar" :size="isMobile ? 28 : 32" />
         <span class="username" v-if="!isMobile">{{ userNickname }}</span>
       </div>
-      <template #overlay>
-        <a-menu>
-          <a-menu-item key="profile" @click="goToProfile">
-            <user-outlined />
+      <template #dropdown>
+        <el-dropdown-menu :style="isMobile ? { width: '120px' } : {}">
+          <el-dropdown-item @click="goToProfile">
+            <el-icon><User /></el-icon>
             <span>个人中心</span>
-          </a-menu-item>
-          <a-menu-item key="settings" @click="goToSettings">
-            <setting-outlined />
+          </el-dropdown-item>
+          <el-dropdown-item @click="goToSettings">
+            <el-icon><Setting /></el-icon>
             <span>个人设置</span>
-          </a-menu-item>
-          <a-menu-divider />
-          <a-menu-item key="logout" @click="handleLogout">
-            <logout-outlined />
+          </el-dropdown-item>
+          <el-dropdown-item divided @click="handleLogout">
+            <el-icon><SwitchButton /></el-icon>
             <span>退出登录</span>
-          </a-menu-item>
-        </a-menu>
+          </el-dropdown-item>
+        </el-dropdown-menu>
       </template>
-    </a-dropdown>
+    </el-dropdown>
 
     <!-- 主题设置抽屉 -->
-    <a-drawer
+    <el-drawer
       title="主题设置"
-      placement="right"
-      :open="settingDrawerVisible"
-      :width="isMobile ? 250 : 300"
-      @close="settingDrawerVisible = false"
+      v-model="settingDrawerVisible"
+      :size="isMobile ? '80%' : '300px'"
+      direction="rtl"
     >
       <div class="setting-drawer-block-checbox">
         <div class="setting-drawer-block-checbox-item" @click="handleThemeChange('dark')">
           <img src="https://gw.alipayobjects.com/zos/antfincdn/XwFOFbLkSM/LCkqqYNmvBEbokSDscrm.svg" alt="暗色主题">
           <div class="setting-drawer-block-checbox-selectIcon" v-if="theme === 'dark'">
-            <check-outlined />
+            <el-icon><Check /></el-icon>
           </div>
         </div>
         <div class="setting-drawer-block-checbox-item" @click="handleThemeChange('light')">
           <img src="https://gw.alipayobjects.com/zos/antfincdn/NQ%24zoisaD2/jpRkZQMyYRryryPNtyIC.svg" alt="亮色主题">
           <div class="setting-drawer-block-checbox-selectIcon" v-if="theme === 'light'">
-            <check-outlined />
+            <el-icon><Check /></el-icon>
           </div>
         </div>
       </div>
-      <a-divider />
+      <el-divider />
 
       <div class="theme-color-block">
         <h3>主题色</h3>
@@ -147,49 +154,49 @@
             :style="{ backgroundColor: color }"
             @click="handlePrimaryColorChange(color)"
           >
-            <check-outlined v-if="primaryColor === color" />
+            <el-icon v-if="primaryColor === color"><Check /></el-icon>
           </div>
         </div>
       </div>
-      <a-divider />
+      <el-divider />
 
       <div class="other-setting">
         <h3>其他设置</h3>
         <div>
-          <a-switch :checked="fixedHeader" @change="setFixedHeader" />
+          <el-switch v-model="fixedHeader" />
           <span style="margin-left: 8px">固定头部</span>
         </div>
         <div style="margin-top: 16px">
-          <a-switch :checked="sideMenuCollapsed" @change="setSideMenuCollapsed" />
+          <el-switch v-model="sideMenuCollapsed" />
           <span style="margin-left: 8px">折叠菜单</span>
         </div>
       </div>
-    </a-drawer>
+    </el-drawer>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
-import { Modal } from 'ant-design-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  UserOutlined,
-  SettingOutlined,
-  LogoutOutlined,
-  BellOutlined,
-  FullscreenOutlined,
-  FullscreenExitOutlined,
-  QuestionCircleOutlined,
-  SkinOutlined,
-  NotificationOutlined,
-  MessageOutlined,
-  CheckOutlined,
-} from '@ant-design/icons-vue';
+  User,
+  Setting,
+  SwitchButton,
+  Bell,
+  FullScreen,
+  QuestionFilled,
+  Notification,
+  ChatLineRound,
+  Check,
+  Search
+} from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/modules/user';
 import { logoutApiV1AuthLogoutPost } from '@/api/renzheng';
 
 const router = useRouter();
 const userStore = useUserStore();
+const searchText = ref('');
 
 // 检测是否为移动设备
 const isMobile = ref(false);
@@ -228,8 +235,23 @@ const messages = ref([
 const noticeTotal = computed(() => notices.value.length + messages.value.length);
 
 // 搜索
-const onSearch = (value: string) => {
-  console.log('搜索:', value);
+const onSearch = () => {
+  console.log('搜索:', searchText.value);
+  ElMessage.info(`搜索: ${searchText.value}`);
+  searchText.value = '';
+};
+
+// 消息操作
+const markAllRead = () => {
+  ElMessage.success('已全部标为已读');
+};
+
+const viewMoreNotices = () => {
+  router.push('/notice/list');
+};
+
+const viewMoreMessages = () => {
+  router.push('/message/list');
 };
 
 // 切换全屏
@@ -292,42 +314,34 @@ const themeColors = [
 const handleThemeChange = (themeType: string) => {
   theme.value = themeType;
   // 实际应用中，这里应该修改全局样式
+  ElMessage.success(`已切换至${themeType === 'dark' ? '深色' : '浅色'}主题`);
 };
 
 const handlePrimaryColorChange = (color: string) => {
   primaryColor.value = color;
   // 实际应用中，这里应该修改主题色
-};
-
-const setFixedHeader = (checked: boolean) => {
-  fixedHeader.value = checked;
-  // 实际应用中，这里应该修改布局
-};
-
-const setSideMenuCollapsed = (checked: boolean) => {
-  sideMenuCollapsed.value = checked;
-  // 实际应用中，这里应该触发菜单折叠
+  ElMessage.success(`已切换主题色为 ${color}`);
 };
 
 // 退出登录
 const handleLogout = () => {
-  Modal.confirm({
-    title: '提示',
-    content: '确定要退出登录吗？',
-    okText: '确定',
-    cancelText: '取消',
-    onOk: async () => {
-      try {
-        // 调用登出API
-        await logoutApiV1AuthLogoutPost();
-        // 重置用户状态
-        await userStore.logout();
-        // 跳转到登录页
-        router.push('/login');
-      } catch (error) {
-        console.error('登出失败:', error);
-      }
+  ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    try {
+      // 调用登出API
+      await logoutApiV1AuthLogoutPost();
+      // 重置用户状态
+      await userStore.logout();
+      // 跳转到登录页
+      router.push('/login');
+    } catch (error) {
+      console.error('登出失败:', error);
     }
+  }).catch(() => {
+    // 取消操作
   });
 };
 
@@ -351,99 +365,212 @@ const goToSettings = () => {
   .action-item {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     height: 100%;
     padding: 0 12px;
     cursor: pointer;
     transition: all 0.3s;
+    position: relative;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.025);
+      background-color: rgba(0, 0, 0, 0.04);
     }
 
     .action-icon {
-      font-size: 16px;
+      font-size: 18px;
+      color: rgba(0, 0, 0, 0.75);
     }
   }
 
   .search-input-wrapper {
-    padding: 0 12px;
+    padding: 0 16px;
+    
+    :deep(.el-input__inner) {
+      border-radius: 40px;
+      transition: all 0.3s;
+      
+      &:focus {
+        width: 220px;
+        box-shadow: 0 0 0 2px var(--el-color-primary-light-8);
+      }
+    }
+    
+    :deep(.el-input__suffix) {
+      cursor: pointer;
+    }
   }
 
   .user-info {
     height: 100%;
-    padding: 0 12px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     cursor: pointer;
     transition: all 0.3s;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.025);
+      background-color: rgba(0, 0, 0, 0.04);
     }
 
     .username {
-      margin-left: 8px;
+      margin-left: 10px;
       font-size: 14px;
+      font-weight: 500;
+    }
   }
-}
 
-.setting-drawer-block-checbox {
-  display: flex;
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  .notification-content {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+    width: 100%;
+    overflow: hidden;
+
+    .notification-title {
+      font-size: 14px;
+      color: var(--el-text-color-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .notification-time {
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+      margin-top: 4px;
+    }
+  }
+  
+  :deep(.el-badge__content) {
+    box-shadow: 0 0 0 1px #fff;
+  }
+  
+  :deep(.el-list-item) {
+    padding: 10px 0;
+    
+    &:hover {
+      background-color: var(--el-fill-color-light);
+    }
+  }
+
+  .setting-drawer-block-checbox {
+    display: flex;
     gap: 16px;
     margin-bottom: 24px;
 
-  &-item {
-    position: relative;
+    &-item {
+      position: relative;
       width: 44%;
-    height: 64px;
+      height: 64px;
       border-radius: 4px;
-    overflow: hidden;
-    cursor: pointer;
+      overflow: hidden;
+      cursor: pointer;
       border: 1px solid #f0f0f0;
+      transition: all 0.3s;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+      }
 
-    img {
-      width: 100%;
-      height: 100%;
-    }
+      img {
+        width: 100%;
+        height: 100%;
+      }
 
-    &-selectIcon {
-      position: absolute;
-      right: 8px;
+      &-selectIcon {
+        position: absolute;
+        right: 8px;
         top: 8px;
-      color: #1890ff;
+        color: var(--el-color-primary);
+      }
     }
   }
-}
 
-.theme-color-block {
+  .theme-color-block {
     margin-bottom: 24px;
 
-  h3 {
-    margin-bottom: 12px;
-  }
-
-  &-item {
-    width: 20px;
-    height: 20px;
-      border-radius: 2px;
-    margin-right: 8px;
-    cursor: pointer;
-      display: inline-flex;
-    align-items: center;
-    justify-content: center;
-      color: #fff;
+    h3 {
+      margin-bottom: 12px;
+      font-size: 15px;
+      font-weight: 500;
     }
-    
+
+    &-item {
+      width: 24px;
+      height: 24px;
+      border-radius: 2px;
+      margin-right: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      transition: all 0.3s;
+      
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+    }
+
     .theme-color-content {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
+      margin-top: 12px;
+    }
+  }
+
+  .other-setting {
+    h3 {
+      margin-bottom: 16px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    
+    .setting-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .setting-label {
+        margin-left: 10px;
+        font-size: 14px;
+      }
+    }
   }
 }
 
-.other-setting {
-  h3 {
-    margin-bottom: 12px;
+/* 暗色主题适配 */
+:deep(.layout-dark) {
+  .header-right-container {
+    .action-item {
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      
+      .action-icon {
+        color: rgba(255, 255, 255, 0.85);
+      }
+    }
+    
+    .user-info {
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      
+      .username {
+        color: rgba(255, 255, 255, 0.85);
+      }
+    }
+    
+    .setting-drawer-block-checbox-item {
+      border-color: #303030;
     }
   }
 }
@@ -454,9 +581,13 @@ const goToSettings = () => {
     .action-item {
       padding: 0 8px;
     }
-    
+
     .user-info {
-      padding: 0 8px;
+      padding: 0 10px;
+    }
+    
+    .search-input-wrapper {
+      padding: 0 10px;
     }
   }
 }

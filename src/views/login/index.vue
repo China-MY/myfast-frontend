@@ -8,19 +8,19 @@
         </div>
         <div class="login-features animate__animated animate__fadeInUp animate__delay-1s">
           <div class="feature-item">
-            <check-circle-filled class="feature-icon" />
+            <el-icon class="feature-icon"><CircleCheck /></el-icon>
             <span>高效的权限管理</span>
           </div>
           <div class="feature-item">
-            <check-circle-filled class="feature-icon" />
+            <el-icon class="feature-icon"><CircleCheck /></el-icon>
             <span>响应式设计</span>
           </div>
           <div class="feature-item">
-            <check-circle-filled class="feature-icon" />
+            <el-icon class="feature-icon"><CircleCheck /></el-icon>
             <span>多种主题切换</span>
           </div>
           <div class="feature-item">
-            <check-circle-filled class="feature-icon" />
+            <el-icon class="feature-icon"><CircleCheck /></el-icon>
             <span>系统监控与日志</span>
           </div>
         </div>
@@ -35,134 +35,138 @@
     <div class="login-right animate__animated animate__fadeIn">
       <div class="login-form-container">
         <!-- 系统通知显示 -->
-        <a-alert v-if="noticeMessage" :message="noticeMessage" :type="noticeType" showIcon closable @close="noticeMessage = ''" style="margin-bottom: 24px" />
+        <el-alert v-if="noticeMessage" :title="noticeMessage" :type="noticeType" show-icon closable @close="noticeMessage = ''" style="margin-bottom: 24px" />
 
         <div class="login-header">
           <h2>MyFast-Admin</h2>
           <p>企业级后台管理系统</p>
         </div>
 
-        <a-tabs v-model:activeKey="activeTabKey" centered>
-          <a-tab-pane key="login" tab="账号登录">
-            <a-form
+        <el-tabs v-model="activeTabKey" class="login-tabs">
+          <el-tab-pane name="login" label="账号登录">
+            <el-form
               ref="loginFormRef"
               :model="loginForm"
               :rules="loginRules"
-              @finish="handleLoginSubmit"
+              @submit.prevent="handleLoginSubmit"
               class="login-form"
             >
-              <a-form-item name="username">
-                <a-input
-                  v-model:value="loginForm.username"
+              <el-form-item prop="username">
+                <el-input
+                  v-model="loginForm.username"
                   size="large"
                   placeholder="用户名"
                   class="login-input"
-                  allow-clear
+                  clearable
                   @keyup.enter="handleLoginSubmit"
                 >
                   <template #prefix>
-                    <UserOutlined class="input-icon" />
+                    <el-icon class="input-icon"><User /></el-icon>
                   </template>
-                </a-input>
-              </a-form-item>
+                </el-input>
+              </el-form-item>
 
-              <a-form-item name="password">
-                <a-input-password
-                  v-model:value="loginForm.password"
+              <el-form-item prop="password">
+                <el-input
+                  v-model="loginForm.password"
+                  type="password"
                   size="large"
                   placeholder="密码"
                   class="login-input"
-                  allow-clear
+                  clearable
+                  show-password
                   @keyup.enter="handleLoginSubmit"
                 >
                   <template #prefix>
-                    <LockOutlined class="input-icon" />
+                    <el-icon class="input-icon"><Lock /></el-icon>
                   </template>
-                </a-input-password>
-              </a-form-item>
+                </el-input>
+              </el-form-item>
 
               <div class="login-options">
-                <a-checkbox v-model:checked="loginForm.remember">
+                <el-checkbox v-model="loginForm.remember">
                   记住我
-                </a-checkbox>
+                </el-checkbox>
                 <a class="login-forgot" @click="handleForgotPassword">忘记密码？</a>
               </div>
 
-              <a-button
+              <el-button
                 type="primary"
-                html-type="submit"
+                native-type="submit"
                 size="large"
                 :loading="loginLoading"
                 class="login-button"
               >
                 {{ loginLoading ? '登录中...' : '登 录' }}
-              </a-button>
-            </a-form>
-          </a-tab-pane>
+              </el-button>
+            </el-form>
+          </el-tab-pane>
 
-          <a-tab-pane key="register" tab="注册账号">
-            <a-form
+          <el-tab-pane name="register" label="注册账号">
+            <el-form
               ref="registerFormRef"
               :model="registerForm"
               :rules="registerRules"
-              @finish="handleRegisterSubmit"
+              @submit.prevent="handleRegisterSubmit"
               class="login-form"
             >
-              <a-form-item name="username">
-                <a-input
-                  v-model:value="registerForm.username"
+              <el-form-item prop="username">
+                <el-input
+                  v-model="registerForm.username"
                   size="large"
                   placeholder="用户名"
                   class="login-input"
-                  allow-clear
+                  clearable
                 >
                   <template #prefix>
-                    <UserOutlined class="input-icon" />
+                    <el-icon class="input-icon"><User /></el-icon>
                   </template>
-                </a-input>
-              </a-form-item>
+                </el-input>
+              </el-form-item>
 
-              <a-form-item name="nickname">
-                <a-input
-                  v-model:value="registerForm.nickname"
+              <el-form-item prop="nickname">
+                <el-input
+                  v-model="registerForm.nickname"
                   size="large"
                   placeholder="昵称"
                   class="login-input"
-                  allow-clear
+                  clearable
                 >
                   <template #prefix>
-                    <UserOutlined class="input-icon" />
+                    <el-icon class="input-icon"><User /></el-icon>
                   </template>
-                </a-input>
-              </a-form-item>
+                </el-input>
+              </el-form-item>
 
-              <a-form-item name="email">
-                <a-input
-                  v-model:value="registerForm.email"
+              <el-form-item prop="email">
+                <el-input
+                  v-model="registerForm.email"
                   size="large"
                   placeholder="邮箱"
                   class="login-input"
-                  allow-clear
+                  clearable
                 >
                   <template #prefix>
-                    <MailOutlined class="input-icon" />
+                    <el-icon class="input-icon"><Message /></el-icon>
                   </template>
-                </a-input>
-              </a-form-item>
+                </el-input>
+              </el-form-item>
 
-              <a-form-item name="password">
-                <a-input-password
-                  v-model:value="registerForm.password"
+              <el-form-item prop="password">
+                <el-input
+                  v-model="registerForm.password"
+                  type="password"
                   size="large"
                   placeholder="密码"
                   class="login-input"
-                  allow-clear
+                  clearable
+                  show-password
                 >
                   <template #prefix>
-                    <LockOutlined class="input-icon" />
+                    <el-icon class="input-icon"><Lock /></el-icon>
                   </template>
-                </a-input-password>
-              </a-form-item>
+                </el-input>
+              </el-form-item>
 
               <!-- 密码强度指示器 -->
               <div class="password-strength-meter" v-if="registerForm.password">
@@ -180,39 +184,41 @@
                 </div>
               </div>
 
-              <a-form-item name="confirmPassword">
-                <a-input-password
-                  v-model:value="registerForm.confirmPassword"
+              <el-form-item prop="confirmPassword">
+                <el-input
+                  v-model="registerForm.confirmPassword"
+                  type="password"
                   size="large"
                   placeholder="确认密码"
                   class="login-input"
-                  allow-clear
+                  clearable
+                  show-password
                 >
                   <template #prefix>
-                    <LockOutlined class="input-icon" />
+                    <el-icon class="input-icon"><Lock /></el-icon>
                   </template>
-                </a-input-password>
-              </a-form-item>
+                </el-input>
+              </el-form-item>
 
-              <a-form-item name="agreement" valuePropName="checked">
-                <a-checkbox v-model:checked="registerForm.agreement">
+              <el-form-item prop="agreement">
+                <el-checkbox v-model="registerForm.agreement">
                   我已阅读并同意 <a href="javascript:void(0)" @click="showTerms">服务条款</a> 和 <a href="javascript:void(0)" @click="showPrivacy">隐私政策</a>
-                </a-checkbox>
-              </a-form-item>
+                </el-checkbox>
+              </el-form-item>
 
-              <a-button
+              <el-button
                 type="primary"
-                html-type="submit"
+                native-type="submit"
                 size="large"
                 :loading="registerLoading"
                 class="login-button"
                 :disabled="!registerForm.agreement"
               >
                 {{ registerLoading ? '注册中...' : '注 册' }}
-              </a-button>
-            </a-form>
-          </a-tab-pane>
-        </a-tabs>
+              </el-button>
+            </el-form>
+          </el-tab-pane>
+        </el-tabs>
 
         <div class="login-footer">
           <p>版权所有 © {{ new Date().getFullYear() }} MyFast-Admin Team</p>
@@ -221,11 +227,10 @@
     </div>
 
     <!-- 服务条款模态框 -->
-    <a-modal
-      v-model:visible="termsVisible"
+    <el-dialog
+      v-model="termsVisible"
       title="服务条款"
       width="600px"
-      :footer="null"
     >
       <div class="terms-content">
         <h3>MyFast-Admin 服务条款</h3>
@@ -239,14 +244,13 @@
           <li>MyFast-Admin 保留随时修改或中断服务的权利。</li>
         </ol>
       </div>
-    </a-modal>
+    </el-dialog>
 
     <!-- 隐私政策模态框 -->
-    <a-modal
-      v-model:visible="privacyVisible"
+    <el-dialog
+      v-model="privacyVisible"
       title="隐私政策"
       width="600px"
-      :footer="null"
     >
       <div class="terms-content">
         <h3>MyFast-Admin 隐私政策</h3>
@@ -259,19 +263,19 @@
           <li>我们采取合理的安全措施来保护您的个人信息。</li>
         </ol>
       </div>
-    </a-modal>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { reactive, ref, onMounted, computed, watch } from 'vue';
 import {
-  UserOutlined,
-  LockOutlined,
-  CheckCircleFilled,
-  MailOutlined
-} from '@ant-design/icons-vue';
-import { message, notification } from 'ant-design-vue';
+  User,
+  Lock,
+  CircleCheck,
+  Message
+} from '@element-plus/icons-vue';
+import { ElMessage, ElNotification } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/modules/user';
 import { loginByAccountApiV1AuthLoginAccountPost } from '../../api/renzheng';
@@ -348,22 +352,24 @@ const registerRules = {
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },
     {
-      validator: (rule: any, value: string) => {
+      validator: (rule: any, value: string, callback: any) => {
         if (value === registerForm.password) {
-          return Promise.resolve();
+          callback();
+        } else {
+          callback(new Error('两次输入的密码不一致'));
         }
-        return Promise.reject('两次输入的密码不一致');
       },
       trigger: 'blur'
     }
   ],
   agreement: [
     {
-      validator: (rule: any, value: boolean) => {
+      validator: (rule: any, value: boolean, callback: any) => {
         if (value) {
-          return Promise.resolve();
+          callback();
+        } else {
+          callback(new Error('请阅读并同意服务条款和隐私政策'));
         }
-        return Promise.reject('请阅读并同意服务条款和隐私政策');
       },
       trigger: 'change'
     }
@@ -430,20 +436,21 @@ const handleLoginSubmit = async () => {
       username: loginForm.username,
       password: loginForm.password
     };
-    
+
     // 调用登录API
     const response = await loginByAccountApiV1AuthLoginAccountPost(loginData) as any;
     console.log('登录响应:', response);
-    
+
     if (response.code === 200 && response.data) {
       // 保存token到cookies
       const token = response.data.access_token;
       setToken(token);
-      
-      notification.success({
-        message: '登录成功',
-        description: `欢迎回来，${loginForm.username}！`,
-        duration: 3
+
+      ElNotification({
+        title: '登录成功',
+        message: `欢迎回来，${loginForm.username}！`,
+        type: 'success',
+        duration: 3000
       });
 
       // 获取用户信息
@@ -452,7 +459,7 @@ const handleLoginSubmit = async () => {
       // 从查询参数中获取重定向地址，如果没有则跳转到仪表盘
       const redirect = router.currentRoute.value.query.redirect as string;
       console.log('重定向地址:', redirect);
-      
+
       // 跳转
       if (redirect) {
         router.push({ path: decodeURIComponent(redirect) });
@@ -485,18 +492,18 @@ const handleRegisterSubmit = async () => {
       email: registerForm.email,
       password: registerForm.password,
       dept_id: registerForm.dept_id,
-      sex: registerForm.sex, 
+      sex: registerForm.sex,
       status: registerForm.status
     };
 
     // 调用注册API
     const response = await registerUserApiV1AuthRegisterPost(registerData) as any;
-    
+
     if (response.code === 200) {
-      notification.success({
-        message: '注册成功',
-        description: '您的账号已注册成功，请登录系统',
-        duration: 3
+      ElNotification({
+        title: '注册成功',
+        type: 'success',
+        duration: 3000
       });
 
       // 切换到登录标签
@@ -522,7 +529,7 @@ const handleRegisterSubmit = async () => {
 
 // 忘记密码处理
 const handleForgotPassword = () => {
-  message.info('忘记密码功能开发中，请联系管理员重置密码');
+  ElMessage.info('忘记密码功能开发中，请联系管理员重置密码');
 };
 
 // 显示服务条款
@@ -698,6 +705,10 @@ onMounted(() => {
     }
   }
 
+  .login-tabs {
+    margin-bottom: 20px;
+  }
+
   .login-form {
     margin-top: 20px;
 
@@ -716,7 +727,7 @@ onMounted(() => {
       }
     }
 
-    .ant-form-item {
+    .el-form-item {
       margin-bottom: 24px;
     }
   }

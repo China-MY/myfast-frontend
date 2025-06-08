@@ -74,9 +74,9 @@ export async function listRolesApiV1SystemRoleListGet(
     method: 'GET',
     params: {
       // page has a default value: 1
-      page: '1',
+      page: params.page || 1,
       // page_size has a default value: 10
-      page_size: '10',
+      page_size: params.page_size || 10,
       ...params,
     },
     ...(options || {}),

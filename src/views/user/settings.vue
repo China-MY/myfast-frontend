@@ -1,432 +1,434 @@
 <template>
   <div class="settings-container">
-    <a-row :gutter="24">
-      <a-col :span="6">
-        <a-card class="settings-menu">
-          <template #title>
+    <el-row :gutter="24">
+      <el-col :span="6">
+        <el-card class="settings-menu">
+          <template #header>
             <div class="menu-title">
-              <user-outlined />
+              <el-icon><User /></el-icon>
               <span>个人设置</span>
             </div>
           </template>
-          <a-menu
+          <el-menu
             mode="vertical"
-            v-model:selectedKeys="selectedMenu"
+            v-model="selectedMenu"
             class="settings-menu-list"
             :style="{ border: 'none' }"
           >
-            <a-menu-item key="basic">
-              <template #icon>
-                <user-outlined />
-              </template>
-              基本信息
-            </a-menu-item>
-            <a-menu-item key="security">
-              <template #icon>
-                <lock-outlined />
-              </template>
-              账户安全
-            </a-menu-item>
-            <a-menu-item key="notifications">
-              <template #icon>
-                <bell-outlined />
-              </template>
-              通知设置
-            </a-menu-item>
-            <a-menu-item key="appearance">
-              <template #icon>
-                <skin-outlined />
-              </template>
-              外观设置
-            </a-menu-item>
-            <a-menu-item key="binding">
-              <template #icon>
-                <link-outlined />
-              </template>
-              账号绑定
-            </a-menu-item>
-          </a-menu>
-        </a-card>
-      </a-col>
-      <a-col :span="18">
+            <el-menu-item index="basic">
+              <el-icon><User /></el-icon>
+              <template #title>基本信息</template>
+            </el-menu-item>
+            <el-menu-item index="security">
+              <el-icon><Lock /></el-icon>
+              <template #title>账户安全</template>
+            </el-menu-item>
+            <el-menu-item index="notifications">
+              <el-icon><Bell /></el-icon>
+              <template #title>通知设置</template>
+            </el-menu-item>
+            <el-menu-item index="appearance">
+              <el-icon><Brush /></el-icon>
+              <template #title>外观设置</template>
+            </el-menu-item>
+            <el-menu-item index="binding">
+              <el-icon><Link /></el-icon>
+              <template #title>账号绑定</template>
+            </el-menu-item>
+          </el-menu>
+        </el-card>
+      </el-col>
+      <el-col :span="18">
         <!-- 基本信息设置 -->
-        <a-card v-if="selectedMenu.includes('basic')" class="settings-content">
-          <template #title>基本信息</template>
-          <a-form
+        <el-card v-if="selectedMenu.includes('basic')" class="settings-content">
+          <template #header>基本信息</template>
+          <el-form
             :model="basicInfo"
-            :label-col="{ span: 4 }"
-            :wrapper-col="{ span: 18 }"
+            label-width="120px"
             class="settings-form"
           >
-            <a-form-item label="头像" name="avatar">
+            <el-form-item label="头像" prop="avatar">
               <div class="avatar-uploader">
-                <a-avatar :size="100" :src="basicInfo.avatar">
-                  <template #icon v-if="!basicInfo.avatar"><user-outlined /></template>
-                </a-avatar>
+                <el-avatar :size="100" :src="basicInfo.avatar">
+                  <template #default v-if="!basicInfo.avatar"><el-icon><User /></el-icon></template>
+                </el-avatar>
                 <div class="upload-actions">
-                  <a-upload
-                    name="avatar"
-                    :show-upload-list="false"
+                  <el-upload
+                    class="avatar-uploader"
                     action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                    :show-file-list="false"
                     :before-upload="beforeUpload"
-                    @change="handleAvatarChange"
+                    :on-success="handleAvatarSuccess"
+                    :on-error="handleAvatarError"
                   >
-                    <a-button>
-                      <upload-outlined />
+                    <el-button>
+                      <el-icon><Upload /></el-icon>
                       更换头像
-                    </a-button>
-                  </a-upload>
+                    </el-button>
+                  </el-upload>
                   <p class="upload-hint">支持 JPG、PNG 格式，文件小于 2MB</p>
                 </div>
               </div>
-            </a-form-item>
-            <a-form-item label="用户名" name="username">
-              <a-input v-model:value="basicInfo.username" placeholder="请输入用户名" />
-            </a-form-item>
-            <a-form-item label="昵称" name="nickname">
-              <a-input v-model:value="basicInfo.nickname" placeholder="请输入昵称" />
-            </a-form-item>
-            <a-form-item label="个人简介" name="bio">
-              <a-textarea v-model:value="basicInfo.bio" :rows="4" placeholder="请输入个人简介" />
-            </a-form-item>
-            <a-form-item label="邮箱" name="email">
-              <a-input v-model:value="basicInfo.email" placeholder="请输入邮箱" />
-            </a-form-item>
-            <a-form-item label="手机号" name="phone">
-              <a-input v-model:value="basicInfo.phone" placeholder="请输入手机号" />
-            </a-form-item>
-            <a-form-item label="所在地区" name="location">
-              <a-cascader
-                v-model:value="basicInfo.location"
+            </el-form-item>
+            <el-form-item label="用户名" prop="username">
+              <el-input v-model="basicInfo.username" placeholder="请输入用户名" />
+            </el-form-item>
+            <el-form-item label="昵称" prop="nickname">
+              <el-input v-model="basicInfo.nickname" placeholder="请输入昵称" />
+            </el-form-item>
+            <el-form-item label="个人简介" prop="bio">
+              <el-input type="textarea" v-model="basicInfo.bio" :rows="4" placeholder="请输入个人简介" />
+            </el-form-item>
+            <el-form-item label="邮箱" prop="email">
+              <el-input v-model="basicInfo.email" placeholder="请输入邮箱" />
+            </el-form-item>
+            <el-form-item label="手机号" prop="phone">
+              <el-input v-model="basicInfo.phone" placeholder="请输入手机号" />
+            </el-form-item>
+            <el-form-item label="所在地区" prop="location">
+              <el-cascader
+                v-model="basicInfo.location"
                 :options="locationOptions"
                 placeholder="请选择所在地区"
               />
-            </a-form-item>
-            <a-form-item :wrapper-col="{ offset: 4, span: 18 }">
-              <a-button type="primary" @click="saveBasicInfo">保存更改</a-button>
-            </a-form-item>
-          </a-form>
-        </a-card>
+            </el-form-item>
+            <el-form-item>
+              <div class="form-buttons">
+                <el-button type="primary" @click="saveBasicInfo">保存更改</el-button>
+              </div>
+            </el-form-item>
+          </el-form>
+        </el-card>
 
         <!-- 账户安全设置 -->
-        <a-card v-if="selectedMenu.includes('security')" class="settings-content">
-          <template #title>账户安全</template>
+        <el-card v-if="selectedMenu.includes('security')" class="settings-content">
+          <template #header>账户安全</template>
           <div class="security-items">
             <div class="security-item">
               <div class="security-info">
                 <div class="security-title">
-                  <lock-outlined />
+                  <el-icon><Lock /></el-icon>
                   <span>登录密码</span>
                 </div>
                 <div class="security-desc">定期更换密码可以保护您的账号安全</div>
               </div>
-              <a-button type="link" @click="showPasswordModal">修改</a-button>
+              <el-button type="primary" link @click="showPasswordModal">修改</el-button>
             </div>
-            <a-divider style="margin: 16px 0" />
+            <el-divider />
             <div class="security-item">
               <div class="security-info">
                 <div class="security-title">
-                  <mobile-outlined />
+                  <el-icon><Iphone /></el-icon>
                   <span>手机绑定</span>
                 </div>
                 <div class="security-desc">已绑定：{{ securityInfo.phone || '未绑定' }}</div>
               </div>
-              <a-button type="link" @click="showPhoneModal">{{ securityInfo.phone ? '修改' : '绑定' }}</a-button>
+              <el-button type="primary" link @click="showPhoneModal">{{ securityInfo.phone ? '修改' : '绑定' }}</el-button>
             </div>
-            <a-divider style="margin: 16px 0" />
+            <el-divider />
             <div class="security-item">
               <div class="security-info">
                 <div class="security-title">
-                  <mail-outlined />
+                  <el-icon><Message /></el-icon>
                   <span>邮箱绑定</span>
                 </div>
                 <div class="security-desc">已绑定：{{ securityInfo.email || '未绑定' }}</div>
               </div>
-              <a-button type="link" @click="showEmailModal">{{ securityInfo.email ? '修改' : '绑定' }}</a-button>
+              <el-button type="primary" link @click="showEmailModal">{{ securityInfo.email ? '修改' : '绑定' }}</el-button>
             </div>
-            <a-divider style="margin: 16px 0" />
+            <el-divider />
             <div class="security-item">
               <div class="security-info">
                 <div class="security-title">
-                  <safety-outlined />
+                  <el-icon><Key /></el-icon>
                   <span>双因素认证</span>
                 </div>
                 <div class="security-desc">提高账号安全等级，确保账号不被他人盗用</div>
               </div>
-              <a-switch v-model:checked="securityInfo.mfaEnabled" @change="toggleMFA" />
+              <el-switch v-model="securityInfo.mfaEnabled" @change="toggleMFA" />
             </div>
-            <a-divider style="margin: 16px 0" />
+            <el-divider />
             <div class="security-item">
               <div class="security-info">
                 <div class="security-title">
-                  <history-outlined />
+                  <el-icon><Clock /></el-icon>
                   <span>登录记录</span>
                 </div>
                 <div class="security-desc">查看您的登录设备和登录记录</div>
               </div>
-              <a-button type="link" @click="showLoginHistoryModal">查看</a-button>
+              <el-button type="primary" link @click="showLoginHistoryModal">查看</el-button>
             </div>
           </div>
-        </a-card>
+        </el-card>
 
         <!-- 通知设置 -->
-        <a-card v-if="selectedMenu.includes('notifications')" class="settings-content">
-          <template #title>通知设置</template>
+        <el-card v-if="selectedMenu.includes('notifications')" class="settings-content">
+          <template #header>通知设置</template>
           <div class="notification-items">
             <div class="notification-item">
               <div class="notification-info">
                 <div class="notification-title">
-                  <message-outlined />
+                  <el-icon><Message /></el-icon>
                   <span>系统通知</span>
                 </div>
                 <div class="notification-desc">接收系统更新、维护相关的通知</div>
               </div>
               <div class="notification-actions">
-                <a-checkbox-group v-model:value="notificationSettings.system" :options="notificationOptions" />
+                <el-checkbox-group v-model="notificationSettings.system">
+                  <el-checkbox v-for="option in notificationOptions" :key="option.value" :label="option.value">{{ option.label }}</el-checkbox>
+                </el-checkbox-group>
               </div>
             </div>
-            <a-divider style="margin: 16px 0" />
+            <el-divider />
             <div class="notification-item">
               <div class="notification-info">
                 <div class="notification-title">
-                  <file-text-outlined />
+                  <el-icon><Document /></el-icon>
                   <span>任务通知</span>
                 </div>
                 <div class="notification-desc">接收任务创建、更新、评论相关的通知</div>
               </div>
               <div class="notification-actions">
-                <a-checkbox-group v-model:value="notificationSettings.task" :options="notificationOptions" />
+                <el-checkbox-group v-model="notificationSettings.task">
+                  <el-checkbox v-for="option in notificationOptions" :key="option.value" :label="option.value">{{ option.label }}</el-checkbox>
+                </el-checkbox-group>
               </div>
             </div>
-            <a-divider style="margin: 16px 0" />
+            <el-divider />
             <div class="notification-item">
               <div class="notification-info">
                 <div class="notification-title">
-                  <team-outlined />
+                  <el-icon><User /></el-icon>
                   <span>团队通知</span>
                 </div>
                 <div class="notification-desc">接收团队活动、邀请相关的通知</div>
               </div>
               <div class="notification-actions">
-                <a-checkbox-group v-model:value="notificationSettings.team" :options="notificationOptions" />
+                <el-checkbox-group v-model="notificationSettings.team">
+                  <el-checkbox v-for="option in notificationOptions" :key="option.value" :label="option.value">{{ option.label }}</el-checkbox>
+                </el-checkbox-group>
               </div>
             </div>
-            <a-divider style="margin: 16px 0" />
+            <el-divider />
             <div class="notification-item">
               <div class="notification-info">
                 <div class="notification-title">
-                  <project-outlined />
+                  <el-icon><Folder /></el-icon>
                   <span>项目通知</span>
                 </div>
                 <div class="notification-desc">接收项目更新、里程碑相关的通知</div>
               </div>
               <div class="notification-actions">
-                <a-checkbox-group v-model:value="notificationSettings.project" :options="notificationOptions" />
+                <el-checkbox-group v-model="notificationSettings.project">
+                  <el-checkbox v-for="option in notificationOptions" :key="option.value" :label="option.value">{{ option.label }}</el-checkbox>
+                </el-checkbox-group>
               </div>
             </div>
-            <a-form-item :wrapper-col="{ span: 24 }" style="margin-top: 24px; text-align: right;">
-              <a-button type="primary" @click="saveNotificationSettings">保存设置</a-button>
-            </a-form-item>
+            <div class="form-buttons">
+              <el-button type="primary" @click="saveNotificationSettings">保存设置</el-button>
+            </div>
           </div>
-        </a-card>
+        </el-card>
 
         <!-- 外观设置 -->
-        <a-card v-if="selectedMenu.includes('appearance')" class="settings-content">
-          <template #title>外观设置</template>
-          <a-form :label-col="{ span: 4 }" :wrapper-col="{ span: 18 }" class="settings-form">
-            <a-form-item label="主题模式" name="themeMode">
-              <a-radio-group v-model:value="appearanceSettings.themeMode" button-style="solid">
-                <a-radio-button value="light">
-                  <template #icon><bulb-outlined /></template>
-                  浅色模式
-                </a-radio-button>
-                <a-radio-button value="dark">
-                  <template #icon><bulb-filled /></template>
-                  深色模式
-                </a-radio-button>
-                <a-radio-button value="auto">
-                  <template #icon><sync-outlined /></template>
-                  跟随系统
-                </a-radio-button>
-              </a-radio-group>
-            </a-form-item>
-            <a-form-item label="主题色" name="themeColor">
-              <a-radio-group v-model:value="appearanceSettings.themeColor">
-                <a-tooltip title="默认蓝">
-                  <a-radio value="#1890ff" style="color: transparent;">
+        <el-card v-if="selectedMenu.includes('appearance')" class="settings-content">
+          <template #header>外观设置</template>
+          <el-form label-width="120px" class="settings-form">
+            <el-form-item label="主题模式" prop="themeMode">
+              <el-radio-group v-model="appearanceSettings.themeMode">
+                <el-radio-button label="light">
+                  <el-icon><Sunny /></el-icon> 浅色模式
+                </el-radio-button>
+                <el-radio-button label="dark">
+                  <el-icon><Moon /></el-icon> 深色模式
+                </el-radio-button>
+                <el-radio-button label="auto">
+                  <el-icon><Refresh /></el-icon> 跟随系统
+                </el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="主题色" prop="themeColor">
+              <el-radio-group v-model="appearanceSettings.themeColor">
+                <el-tooltip content="默认蓝" placement="top">
+                  <el-radio label="#1890ff" style="color: transparent;">
                     <div class="color-block" style="background-color: #1890ff;"></div>
-                  </a-radio>
-                </a-tooltip>
-                <a-tooltip title="薄暮红">
-                  <a-radio value="#f5222d" style="color: transparent;">
+                  </el-radio>
+                </el-tooltip>
+                <el-tooltip content="薄暮红" placement="top">
+                  <el-radio label="#f5222d" style="color: transparent;">
                     <div class="color-block" style="background-color: #f5222d;"></div>
-                  </a-radio>
-                </a-tooltip>
-                <a-tooltip title="火山橙">
-                  <a-radio value="#fa541c" style="color: transparent;">
+                  </el-radio>
+                </el-tooltip>
+                <el-tooltip content="火山橙" placement="top">
+                  <el-radio label="#fa541c" style="color: transparent;">
                     <div class="color-block" style="background-color: #fa541c;"></div>
-                  </a-radio>
-                </a-tooltip>
-                <a-tooltip title="日暮黄">
-                  <a-radio value="#faad14" style="color: transparent;">
+                  </el-radio>
+                </el-tooltip>
+                <el-tooltip content="日暮黄" placement="top">
+                  <el-radio label="#faad14" style="color: transparent;">
                     <div class="color-block" style="background-color: #faad14;"></div>
-                  </a-radio>
-                </a-tooltip>
-                <a-tooltip title="极光绿">
-                  <a-radio value="#52c41a" style="color: transparent;">
+                  </el-radio>
+                </el-tooltip>
+                <el-tooltip content="极光绿" placement="top">
+                  <el-radio label="#52c41a" style="color: transparent;">
                     <div class="color-block" style="background-color: #52c41a;"></div>
-                  </a-radio>
-                </a-tooltip>
-                <a-tooltip title="极客蓝">
-                  <a-radio value="#2f54eb" style="color: transparent;">
+                  </el-radio>
+                </el-tooltip>
+                <el-tooltip content="极客蓝" placement="top">
+                  <el-radio label="#2f54eb" style="color: transparent;">
                     <div class="color-block" style="background-color: #2f54eb;"></div>
-                  </a-radio>
-                </a-tooltip>
-                <a-tooltip title="酱紫">
-                  <a-radio value="#722ed1" style="color: transparent;">
+                  </el-radio>
+                </el-tooltip>
+                <el-tooltip content="酱紫" placement="top">
+                  <el-radio label="#722ed1" style="color: transparent;">
                     <div class="color-block" style="background-color: #722ed1;"></div>
-                  </a-radio>
-                </a-tooltip>
-              </a-radio-group>
-            </a-form-item>
-            <a-form-item label="导航模式" name="layoutMode">
-              <a-radio-group v-model:value="appearanceSettings.layoutMode">
-                <a-radio-button value="side">侧边菜单</a-radio-button>
-                <a-radio-button value="top">顶部菜单</a-radio-button>
-                <a-radio-button value="mix">混合菜单</a-radio-button>
-              </a-radio-group>
-            </a-form-item>
-            <a-form-item label="内容区域宽度" name="contentWidth">
-              <a-radio-group v-model:value="appearanceSettings.contentWidth">
-                <a-radio-button value="fixed">固定宽度</a-radio-button>
-                <a-radio-button value="fluid">流式宽度</a-radio-button>
-              </a-radio-group>
-            </a-form-item>
-            <a-form-item label="固定头部" name="fixedHeader">
-              <a-switch v-model:checked="appearanceSettings.fixedHeader" />
-            </a-form-item>
-            <a-form-item label="固定侧边栏" name="fixedSidebar">
-              <a-switch v-model:checked="appearanceSettings.fixedSidebar" />
-            </a-form-item>
-            <a-form-item label="分割菜单" name="splitMenus">
-              <a-switch v-model:checked="appearanceSettings.splitMenus" />
-            </a-form-item>
-            <a-form-item :wrapper-col="{ offset: 4, span: 18 }">
-              <a-button type="primary" @click="saveAppearanceSettings">保存设置</a-button>
-              <a-button style="margin-left: 8px" @click="resetAppearanceSettings">恢复默认</a-button>
-            </a-form-item>
-          </a-form>
-        </a-card>
+                  </el-radio>
+                </el-tooltip>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="导航模式" prop="layoutMode">
+              <el-radio-group v-model="appearanceSettings.layoutMode">
+                <el-radio-button label="side">侧边菜单</el-radio-button>
+                <el-radio-button label="top">顶部菜单</el-radio-button>
+                <el-radio-button label="mix">混合菜单</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="内容区域宽度" prop="contentWidth">
+              <el-radio-group v-model="appearanceSettings.contentWidth">
+                <el-radio-button label="fixed">固定宽度</el-radio-button>
+                <el-radio-button label="fluid">流式宽度</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="固定头部" prop="fixedHeader">
+              <el-switch v-model="appearanceSettings.fixedHeader" />
+            </el-form-item>
+            <el-form-item label="固定侧边栏" prop="fixedSidebar">
+              <el-switch v-model="appearanceSettings.fixedSidebar" />
+            </el-form-item>
+            <el-form-item label="分割菜单" prop="splitMenus">
+              <el-switch v-model="appearanceSettings.splitMenus" />
+            </el-form-item>
+            <el-form-item>
+              <div class="form-buttons">
+                <el-button type="primary" @click="saveAppearanceSettings">保存设置</el-button>
+                <el-button @click="resetAppearanceSettings">恢复默认</el-button>
+              </div>
+            </el-form-item>
+          </el-form>
+        </el-card>
 
         <!-- 账号绑定 -->
-        <a-card v-if="selectedMenu.includes('binding')" class="settings-content">
-          <template #title>账号绑定</template>
+        <el-card v-if="selectedMenu.includes('binding')" class="settings-content">
+          <template #header>账号绑定</template>
           <div class="binding-items">
             <div class="binding-item">
               <div class="binding-info">
                 <div class="binding-icon wechat">
-                  <WechatOutlined />
+                  <el-icon><ChatDotRound /></el-icon>
                 </div>
                 <div class="binding-details">
                   <div class="binding-name">绑定微信</div>
                   <div class="binding-desc">{{ bindingInfo.wechat ? '已绑定' : '未绑定' }}</div>
                 </div>
               </div>
-              <a-button 
-                :type="bindingInfo.wechat ? 'default' : 'primary'"
+              <el-button 
+                :type="bindingInfo.wechat ? '' : 'primary'"
                 @click="handleBinding('wechat')"
               >
                 {{ bindingInfo.wechat ? '解除绑定' : '立即绑定' }}
-              </a-button>
+              </el-button>
             </div>
-            <a-divider style="margin: 16px 0" />
+            <el-divider />
             <div class="binding-item">
               <div class="binding-info">
                 <div class="binding-icon dingding">
-                  <DingdingOutlined />
+                  <el-icon><Bell /></el-icon>
                 </div>
                 <div class="binding-details">
                   <div class="binding-name">绑定钉钉</div>
                   <div class="binding-desc">{{ bindingInfo.dingding ? '已绑定' : '未绑定' }}</div>
                 </div>
               </div>
-              <a-button 
-                :type="bindingInfo.dingding ? 'default' : 'primary'"
+              <el-button 
+                :type="bindingInfo.dingding ? '' : 'primary'"
                 @click="handleBinding('dingding')"
               >
                 {{ bindingInfo.dingding ? '解除绑定' : '立即绑定' }}
-              </a-button>
+              </el-button>
             </div>
-            <a-divider style="margin: 16px 0" />
+            <el-divider />
             <div class="binding-item">
               <div class="binding-info">
                 <div class="binding-icon alipay">
-                  <AlipayOutlined />
+                  <el-icon><Money /></el-icon>
                 </div>
                 <div class="binding-details">
                   <div class="binding-name">绑定支付宝</div>
                   <div class="binding-desc">{{ bindingInfo.alipay ? '已绑定' : '未绑定' }}</div>
                 </div>
               </div>
-              <a-button 
-                :type="bindingInfo.alipay ? 'default' : 'primary'"
+              <el-button 
+                :type="bindingInfo.alipay ? '' : 'primary'"
                 @click="handleBinding('alipay')"
               >
                 {{ bindingInfo.alipay ? '解除绑定' : '立即绑定' }}
-              </a-button>
+              </el-button>
             </div>
           </div>
-        </a-card>
-      </a-col>
-    </a-row>
+        </el-card>
+      </el-col>
+    </el-row>
 
     <!-- 密码修改弹窗 -->
-    <a-modal
-      v-model:visible="passwordModalVisible"
+    <el-dialog
+      v-model="passwordModalVisible"
       title="修改密码"
-      :maskClosable="false"
-      @ok="handlePasswordChange"
+      :close-on-click-modal="false"
+      width="500px"
     >
-      <a-form :model="passwordForm" :rules="passwordRules" ref="passwordFormRef">
-        <a-form-item name="oldPassword" label="当前密码">
-          <a-input-password v-model:value="passwordForm.oldPassword" placeholder="请输入当前密码" />
-        </a-form-item>
-        <a-form-item name="newPassword" label="新密码">
-          <a-input-password v-model:value="passwordForm.newPassword" placeholder="请输入新密码" />
-        </a-form-item>
-        <a-form-item name="confirmPassword" label="确认新密码">
-          <a-input-password v-model:value="passwordForm.confirmPassword" placeholder="请再次输入新密码" />
-        </a-form-item>
-      </a-form>
-    </a-modal>
+      <el-form :model="passwordForm" :rules="passwordRules" ref="passwordFormRef" label-width="100px">
+        <el-form-item label="当前密码" prop="oldPassword">
+          <el-input v-model="passwordForm.oldPassword" type="password" placeholder="请输入当前密码" show-password />
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPassword">
+          <el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" show-password />
+        </el-form-item>
+        <el-form-item label="确认新密码" prop="confirmPassword">
+          <el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请再次输入新密码" show-password />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="passwordModalVisible = false">取消</el-button>
+          <el-button type="primary" @click="handlePasswordChange">确认</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed } from 'vue';
-import { message } from 'ant-design-vue';
+import { ref, reactive } from 'vue';
+import { ElMessage } from 'element-plus';
 import {
-  UserOutlined,
-  LockOutlined,
-  BellOutlined,
-  SkinOutlined,
-  LinkOutlined,
-  UploadOutlined,
-  MobileOutlined,
-  MailOutlined,
-  SafetyOutlined,
-  HistoryOutlined,
-  MessageOutlined,
-  FileTextOutlined,
-  TeamOutlined,
-  ProjectOutlined,
-  BulbOutlined,
-  BulbFilled,
-  SyncOutlined,
-  WechatOutlined,
-  DingdingOutlined,
-  AlipayOutlined
-} from '@ant-design/icons-vue';
+  User,
+  Lock,
+  Bell,
+  Brush,
+  Link,
+  Upload,
+  Iphone,
+  Message,
+  Key,
+  Clock,
+  Document,
+  Folder,
+  Sunny,
+  Moon,
+  Refresh,
+  ChatDotRound,
+  Money
+} from '@element-plus/icons-vue';
 
 // 当前选中的菜单
 const selectedMenu = ref(['basic']);
@@ -484,34 +486,31 @@ const locationOptions = [
 
 // 保存基本信息
 const saveBasicInfo = () => {
-  message.success('基本信息保存成功');
+  ElMessage.success('基本信息保存成功');
 };
 
 // 头像上传前检查
 const beforeUpload = (file: File) => {
   const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
   if (!isJpgOrPng) {
-    message.error('您只能上传 JPG/PNG 格式的图片!');
+    ElMessage.error('您只能上传 JPG/PNG 格式的图片!');
   }
   const isLt2M = file.size / 1024 / 1024 < 2;
   if (!isLt2M) {
-    message.error('图片必须小于 2MB!');
+    ElMessage.error('图片必须小于 2MB!');
   }
   return isJpgOrPng && isLt2M;
 };
 
-// 头像上传变化
-const handleAvatarChange = (info: any) => {
-  if (info.file.status === 'uploading') {
-    return;
-  }
-  if (info.file.status === 'done') {
-    // 获取上传后的URL
-    basicInfo.value.avatar = info.file.response.url;
-    message.success('头像上传成功');
-  } else if (info.file.status === 'error') {
-    message.error('头像上传失败');
-  }
+// 头像上传成功
+const handleAvatarSuccess = (response: any) => {
+  basicInfo.value.avatar = response.url;
+  ElMessage.success('头像上传成功');
+};
+
+// 头像上传失败
+const handleAvatarError = () => {
+  ElMessage.error('头像上传失败');
 };
 
 // 安全信息
@@ -561,7 +560,7 @@ const handlePasswordChange = () => {
     .validate()
     .then(() => {
       // 调用密码修改API
-      message.success('密码修改成功');
+      ElMessage.success('密码修改成功');
       passwordModalVisible.value = false;
       // 重置表单
       passwordForm.oldPassword = '';
@@ -575,23 +574,23 @@ const handlePasswordChange = () => {
 
 // 显示手机绑定弹窗
 const showPhoneModal = () => {
-  message.info('打开手机绑定弹窗');
+  ElMessage.info('打开手机绑定弹窗');
 };
 
 // 显示邮箱绑定弹窗
 const showEmailModal = () => {
-  message.info('打开邮箱绑定弹窗');
+  ElMessage.info('打开邮箱绑定弹窗');
 };
 
 // 切换双因素认证
 const toggleMFA = (checked: boolean) => {
   securityInfo.value.mfaEnabled = checked;
-  message.success(`双因素认证已${checked ? '开启' : '关闭'}`);
+  ElMessage.success(`双因素认证已${checked ? '开启' : '关闭'}`);
 };
 
 // 显示登录记录弹窗
 const showLoginHistoryModal = () => {
-  message.info('打开登录记录弹窗');
+  ElMessage.info('打开登录记录弹窗');
 };
 
 // 通知设置
@@ -610,7 +609,7 @@ const notificationSettings = ref({
 
 // 保存通知设置
 const saveNotificationSettings = () => {
-  message.success('通知设置保存成功');
+  ElMessage.success('通知设置保存成功');
 };
 
 // 外观设置
@@ -626,7 +625,7 @@ const appearanceSettings = ref({
 
 // 保存外观设置
 const saveAppearanceSettings = () => {
-  message.success('外观设置保存成功');
+  ElMessage.success('外观设置保存成功');
 };
 
 // 重置外观设置
@@ -640,7 +639,7 @@ const resetAppearanceSettings = () => {
     fixedSidebar: true,
     splitMenus: false
   };
-  message.success('已恢复默认设置');
+  ElMessage.success('已恢复默认设置');
 };
 
 // 账号绑定信息
@@ -655,11 +654,11 @@ const handleBinding = (type: string) => {
   if (bindingInfo.value[type as keyof typeof bindingInfo.value]) {
     // 已绑定，执行解绑
     bindingInfo.value[type as keyof typeof bindingInfo.value] = false;
-    message.success(`解除${type}绑定成功`);
+    ElMessage.success(`解除${type}绑定成功`);
   } else {
     // 未绑定，执行绑定
     bindingInfo.value[type as keyof typeof bindingInfo.value] = true;
-    message.success(`${type}绑定成功`);
+    ElMessage.success(`${type}绑定成功`);
   }
 };
 </script>
@@ -675,7 +674,7 @@ const handleBinding = (type: string) => {
       display: flex;
       align-items: center;
       
-      .anticon {
+      .el-icon {
         margin-right: 8px;
       }
     }
@@ -696,7 +695,7 @@ const handleBinding = (type: string) => {
         margin-left: 24px;
         
         .upload-hint {
-          color: rgba(0, 0, 0, 0.45);
+          color: var(--el-text-color-secondary);
           margin-top: 8px;
           font-size: 12px;
         }
@@ -716,13 +715,13 @@ const handleBinding = (type: string) => {
             display: flex;
             align-items: center;
             
-            .anticon {
+            .el-icon {
               margin-right: 8px;
             }
           }
           
           .security-desc, .notification-desc {
-            color: rgba(0, 0, 0, 0.45);
+            color: var(--el-text-color-secondary);
             font-size: 14px;
           }
         }
@@ -747,7 +746,7 @@ const handleBinding = (type: string) => {
             }
             
             &.dingding {
-              background-color: #1890ff;
+              background-color: var(--el-color-primary);
               color: white;
             }
             
@@ -764,7 +763,7 @@ const handleBinding = (type: string) => {
             }
             
             .binding-desc {
-              color: rgba(0, 0, 0, 0.45);
+              color: var(--el-text-color-secondary);
               font-size: 14px;
             }
           }
@@ -780,6 +779,17 @@ const handleBinding = (type: string) => {
       vertical-align: middle;
       margin-right: 8px;
     }
+  }
+  
+  .form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  
+  .el-divider {
+    margin: 16px 0;
   }
 }
 </style> 

@@ -1,0 +1,62 @@
+/* 
+* 全局样式重置
+* 主要用于解决浏览器标签栏和内容区冲突问题
+*/
+
+/* 覆盖Edge/Chrome顶部的收藏夹栏样式，防止与应用标签导航冲突 */
+.has-tabbar {
+  z-index: -1 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* 重置基础元素样式 */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+  overflow: auto;
+}
+
+/* 确保内容区可以滚动，避免双滚动条 */
+.el-container, .el-main {
+  overflow-x: hidden;
+}
+
+/* 防止浏览器顶部标签遮挡应用内标签 */
+.browser-tabs-covers {
+  position: relative;
+  z-index: 1000;
+}
+
+/* 调整所有弹出元素的z-index，确保显示在浏览器标签栏之上 */
+.el-message, 
+.el-notification,
+.el-drawer,
+.el-dialog,
+.el-popover,
+.el-tooltip__popper {
+  z-index: 9999 !important;
+}
+
+/* 调整边框设置，使布局更统一 */
+.layout-container {
+  border-top: none !important;
+}
+
+/* 为所有可滚动容器添加平滑滚动 */
+.scrollable {
+  overflow: auto;
+  scroll-behavior: smooth;
+}
+
+/* 标签导航区域的特殊处理 */
+.el-tabs__nav-wrap {
+  position: relative;
+  z-index: 100;
+} 

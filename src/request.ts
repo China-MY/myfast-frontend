@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { AxiosResponse, AxiosRequestConfig } from 'axios'
-import { message } from 'ant-design-vue'
+import { ElMessage } from 'element-plus'
 import { getToken, removeToken } from '@/utils/auth'
 import router from '@/router'
 import type { ApiResponse } from '@/types/user'
@@ -58,7 +58,7 @@ myAxios.interceptors.response.use(
         console.log('未登录状态, 当前路径:', window.location.pathname)
         // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
         if (!window.location.pathname.includes('/login')) {
-          message.warning('请先登录')
+          ElMessage.warning('请先登录')
           // 使用router进行导航而不是直接修改location
           const redirect = encodeURIComponent(window.location.pathname)
           router.push(`/login?redirect=${redirect}`)
@@ -68,7 +68,7 @@ myAxios.interceptors.response.use(
       // API请求失败但服务器正常响应
       if (data && data.code && data.code !== 200) {
         // 只显示消息，但不阻止后续处理
-        message.error(data.msg || '请求失败')
+        ElMessage.error(data.msg || '请求失败')
       }
       
       // 直接返回服务器响应的原始数据
@@ -101,7 +101,7 @@ myAxios.interceptors.response.use(
         removeToken()
         // 如果不在登录页，则跳转到登录页
         if (!window.location.pathname.includes('/login')) {
-          message.error(errorMessage)
+          ElMessage.error(errorMessage)
           // 使用router进行导航
           setTimeout(() => {
             router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`)
@@ -126,7 +126,7 @@ myAxios.interceptors.response.use(
     
     // 如果不是401错误(已在上面处理)，则显示错误消息
     if (error.response?.status !== 401) {
-      message.error(errorMessage)
+      ElMessage.error(errorMessage)
     }
     
     // 返回一个标准格式的错误响应

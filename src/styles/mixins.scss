@@ -1,0 +1,236 @@
+// 引入变量
+@use './variables.scss' as vars;
+
+// 弹性布局混合宏
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@mixin flex-end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// 文本处理混合宏
+@mixin text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@mixin multi-ellipsis($lines: 2) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $lines;
+  overflow: hidden;
+}
+
+// 滚动条美化
+@mixin scrollbar {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+// 交互效果
+@mixin hover-effect {
+  transition: all vars.$transition-duration vars.$transition-ease;
+
+  &:hover {
+    color: vars.$primary-color;
+    background-color: vars.$primary-light-9;
+  }
+}
+
+@mixin hover-text-effect {
+  transition: all vars.$transition-duration-fast;
+  
+  &:hover {
+    color: vars.$primary-color;
+  }
+}
+
+@mixin hover-scale {
+  transition: transform vars.$transition-duration-fast;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+@mixin hover-lift {
+  transition: transform vars.$transition-duration-fast, box-shadow vars.$transition-duration-fast;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: vars.$box-shadow-base;
+  }
+}
+
+@mixin transition-all {
+  transition: all vars.$transition-duration vars.$transition-ease;
+}
+
+// 响应式设计
+@mixin mobile {
+  @media (max-width: vars.$breakpoint-sm) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: vars.$breakpoint-sm) and (max-width: vars.$breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: vars.$breakpoint-md) {
+    @content;
+  }
+}
+
+@mixin large-desktop {
+  @media (min-width: vars.$breakpoint-lg) {
+    @content;
+  }
+}
+
+// 元素样式设置
+@mixin card {
+  background-color: var(--el-bg-color);
+  border-radius: vars.$border-radius-base;
+  box-shadow: vars.$box-shadow-light;
+  padding: vars.$spacing-medium;
+  transition: all vars.$transition-duration;
+  
+  &:hover {
+    box-shadow: vars.$box-shadow-base;
+  }
+}
+
+@mixin indicator {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 2px;
+    background-color: vars.$primary-color;
+    border-radius: vars.$border-radius-small;
+    transition: all vars.$transition-duration;
+  }
+}
+
+@mixin left-indicator {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 16px;
+    background-color: vars.$primary-color;
+    border-radius: vars.$border-radius-small;
+    transition: all vars.$transition-duration;
+  }
+}
+
+// 文本样式
+@mixin text-default {
+  color: vars.$text-color;
+  font-size: vars.$font-size-base;
+  line-height: 1.5;
+}
+
+@mixin text-secondary {
+  color: vars.$text-color-secondary;
+  font-size: vars.$font-size-small;
+  line-height: 1.5;
+}
+
+@mixin heading-1 {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: vars.$spacing-medium;
+  color: vars.$text-color;
+}
+
+@mixin heading-2 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: vars.$spacing-base;
+  color: vars.$text-color;
+}
+
+@mixin heading-3 {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: vars.$spacing-small;
+  color: vars.$text-color;
+}
+
+// 动画效果
+@mixin animation-fade-in {
+  animation: fadeIn vars.$transition-duration-slow both;
+}
+
+@mixin animation-slide-in {
+  animation: slideInUp vars.$transition-duration-slow both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translate3d(0, 20px, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+} 
