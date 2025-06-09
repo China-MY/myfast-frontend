@@ -441,9 +441,9 @@ const handleLoginSubmit = async () => {
     const response = await loginByAccountApiV1AuthLoginAccountPost(loginData) as any;
     console.log('登录响应:', response);
 
-    if (response.code === 200 && response.data) {
+    if (response.data && response.data.code === 200) {
       // 保存token到cookies
-      const token = response.data.access_token;
+      const token = response.data.data.access_token;
       setToken(token);
 
       ElNotification({
@@ -467,7 +467,7 @@ const handleLoginSubmit = async () => {
         router.push({ path: '/dashboard' });
       }
     } else {
-      noticeMessage.value = response.msg || '登录失败：用户名或密码错误';
+      noticeMessage.value = response.data?.msg || '登录失败：用户名或密码错误';
       noticeType.value = 'error';
     }
   } catch (error: any) {
