@@ -278,8 +278,8 @@ import {
 import { ElMessage, ElNotification } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/modules/user';
-import { loginByAccountApiV1AuthLoginAccountPost } from '../../api/renzheng';
-import { registerUserApiV1AuthRegisterPost } from '../../api/zhuce';
+import { loginByAccountApiV1AuthLoginAccountPost } from '@/api/renzheng';
+import { registerUserApiV1AuthRegisterPost } from '@/api/zhuce';
 import { setToken } from '@/utils/auth';
 
 // 表单引用

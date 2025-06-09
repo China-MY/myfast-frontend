@@ -4,826 +4,680 @@
       <h1 class="dashboard-title">MyFast-Admin</h1>
       <p class="dashboard-desc">MyFast-Admin是一个企业级开发框架</p>
     </div>
-    
-    <div class="stat-cards">
-      <el-row :gutter="30">
-        <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
-          <el-card shadow="never" class="stat-card">
-            <div class="stat-card-inner">
-              <div class="stat-icon">
-                <el-icon><User /></el-icon>
+
+    <!-- 统计卡片区域 -->
+    <el-row :gutter="20" class="statistics-row">
+      <el-col :xs="24" :sm="12" :md="6" v-for="(item, index) in statisticsData" :key="index">
+        <el-card shadow="hover" class="statistics-card">
+          <div class="statistics-card-inner">
+            <div class="statistics-icon" :style="{ backgroundColor: item.bgColor }">
+              <el-icon>
+                <component :is="item.icon"></component>
+              </el-icon>
+            </div>
+            <div class="statistics-info">
+              <div class="statistics-value">{{ item.value }}</div>
+              <div class="statistics-title">{{ item.title }}</div>
+            </div>
+          </div>
+          <div class="statistics-footer">
+            <span>{{ item.footer }}</span>
+            <el-icon v-if="item.increase"><ArrowUp /></el-icon>
+            <el-icon v-else><ArrowDown /></el-icon>
+            <span>{{ item.rate }}</span>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 图表区域 -->
+    <el-row :gutter="20" class="chart-row">
+      <el-col :xs="24" :sm="24" :md="12">
+        <el-card shadow="hover" class="chart-card">
+          <template #header>
+            <div class="chart-header">
+              <span>用户增长趋势</span>
+              <el-radio-group v-model="userGrowthTimeRange" size="small">
+                <el-radio-button label="week">本周</el-radio-button>
+                <el-radio-button label="month">本月</el-radio-button>
+                <el-radio-button label="year">全年</el-radio-button>
+              </el-radio-group>
+            </div>
+          </template>
+          <div class="chart-container" ref="userGrowthChart"></div>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="12">
+        <el-card shadow="hover" class="chart-card">
+          <template #header>
+            <div class="chart-header">
+              <span>系统资源占用</span>
+              <el-switch
+                v-model="realTimeMonitor"
+                active-text="实时"
+                inactive-text="静态"
+                size="small"
+              />
+            </div>
+          </template>
+          <div class="chart-container" ref="resourceChart"></div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 最近活动 -->
+    <el-row :gutter="20" class="activity-row">
+      <el-col :xs="24" :sm="24" :md="16">
+        <el-card shadow="hover" class="activity-card">
+          <template #header>
+            <div class="activity-header">
+              <span>最近活动</span>
+              <el-button type="primary" size="small" plain>查看全部</el-button>
+            </div>
+          </template>
+          <el-timeline>
+            <el-timeline-item
+              v-for="(activity, index) in recentActivities"
+              :key="index"
+              :timestamp="activity.time"
+              :type="activity.type"
+              :color="activity.color"
+            >
+              <div class="activity-content">
+                <span class="activity-user">{{ activity.user }}</span>
+                <span>{{ activity.action }}</span>
+                <el-tag v-if="activity.tag" size="small" :type="activity.tagType">{{ activity.tag }}</el-tag>
               </div>
-              <div class="stat-content">
-                <div class="stat-title">用户总数</div>
-                <div class="stat-value">
-                  <count-to :start-val="0" :end-val="1577536" :duration="2500" separator="," />
-                  <span class="stat-trend positive">
-                    <el-icon><CaretTop /></el-icon>12%
-                  </span>
-                </div>
-                <div class="stat-desc">较上周增长</div>
+            </el-timeline-item>
+          </el-timeline>
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="24" :md="8">
+        <el-card shadow="hover" class="todo-card">
+          <template #header>
+            <div class="todo-header">
+              <span>待办事项</span>
+              <el-button type="primary" size="small" plain @click="addNewTodo">新增</el-button>
+            </div>
+          </template>
+          <el-empty v-if="todoList.length === 0" description="暂无待办事项"></el-empty>
+          <div v-else class="todo-list">
+            <div v-for="(todo, index) in todoList" :key="index" class="todo-item">
+              <el-checkbox v-model="todo.completed" @change="toggleTodo(index)">
+                <span :class="{ 'todo-completed': todo.completed }">{{ todo.title }}</span>
+              </el-checkbox>
+              <div class="todo-actions">
+                <el-tag size="small" :type="todo.priority === 'high' ? 'danger' : todo.priority === 'medium' ? 'warning' : 'info'">
+                  {{ todo.priority === 'high' ? '紧急' : todo.priority === 'medium' ? '普通' : '低优' }}
+                </el-tag>
+                <el-button type="danger" size="small" icon="Delete" circle plain @click="removeTodo(index)"></el-button>
               </div>
             </div>
-          </el-card>
-        </el-col>
-        
-        <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
-          <el-card shadow="never" class="stat-card">
-            <div class="stat-card-inner">
-              <div class="stat-icon blue">
-                <el-icon><List /></el-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-title">订单数量</div>
-                <div class="stat-value">
-                  <count-to :start-val="0" :end-val="743044" :duration="2500" separator="," />
-                  <span class="stat-trend positive">
-                    <el-icon><CaretTop /></el-icon>5.2%
-                  </span>
-                </div>
-                <div class="stat-desc">较上周增长</div>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        
-        <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
-          <el-card shadow="never" class="stat-card">
-            <div class="stat-card-inner">
-              <div class="stat-icon green">
-                <el-icon><Money /></el-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-title">总收入</div>
-                <div class="stat-value">
-                  ¥<count-to :start-val="0" :end-val="359481600" :duration="2500" separator="," />
-                  <span class="stat-trend positive">
-                    <el-icon><CaretTop /></el-icon>8.3%
-                  </span>
-                </div>
-                <div class="stat-desc">较上周增长</div>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-        
-        <el-col :xs="24" :sm="12" :md="6" :lg="6" :xl="6">
-          <el-card shadow="never" class="stat-card">
-            <div class="stat-card-inner">
-              <div class="stat-icon orange">
-                <el-icon><Calendar /></el-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-title">本月活跃</div>
-                <div class="stat-value">
-                  <count-to :start-val="0" :end-val="571536" :duration="2500" separator="," />
-                  <span class="stat-trend negative">
-                    <el-icon><CaretBottom /></el-icon>2.3%
-                  </span>
-                </div>
-                <div class="stat-desc">较上周下降</div>
-              </div>
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
-    
-    <div class="chart-container">
-      <el-row :gutter="30">
-        <el-col :xs="24" :sm="24" :md="16" :lg="16" :xl="16">
-          <el-card shadow="never" class="chart-card">
-            <template #header>
-              <div class="chart-header">
-                <span class="chart-title">月度销售趋势</span>
-                <div class="chart-actions">
-                  <el-radio-group v-model="salesTimeRange" size="small">
-                    <el-radio-button label="day">日</el-radio-button>
-                    <el-radio-button label="week">周</el-radio-button>
-                    <el-radio-button label="month">月</el-radio-button>
-                    <el-radio-button label="year">年</el-radio-button>
-                  </el-radio-group>
-                </div>
-              </div>
-            </template>
-            <div class="chart-placeholder" ref="salesChart">
-              <el-empty v-if="!salesChartInstance" description="图表加载中..." />
-            </div>
-          </el-card>
-        </el-col>
-        
-        <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8">
-          <el-card shadow="never" class="chart-card">
-            <template #header>
-              <div class="chart-header">
-                <span class="chart-title">销售分布</span>
-              </div>
-            </template>
-            <div class="chart-placeholder" ref="pieChart">
-              <el-empty v-if="!pieChartInstance" description="图表加载中..." />
-            </div>
-          </el-card>
-        </el-col>
-      </el-row>
-    </div>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, nextTick, watch } from 'vue';
+import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import * as echarts from 'echarts'
 import { 
+  ArrowUp, 
+  ArrowDown, 
+  Goods, 
   User, 
   ShoppingCart, 
-  Wallet, 
-  Calendar,
-  ArrowUp,
-  ArrowDown,
-  Document,
-  ChatLineRound,
-  Tools,
-  Bell,
-  List,
   Money,
-  CaretTop,
-  CaretBottom
-} from '@element-plus/icons-vue';
-import * as echarts from 'echarts/core';
-import { 
-  LineChart, 
-  BarChart,
-  PieChart
-} from 'echarts/charts';
-import {
-  TitleComponent,
-  TooltipComponent,
-  GridComponent,
-  LegendComponent
-} from 'echarts/components';
-import { CanvasRenderer } from 'echarts/renderers';
-import CountTo from '@/components/CountTo/index.vue';
+  Delete
+} from '@element-plus/icons-vue'
 
-// 注册必须的组件
-echarts.use([
-  LineChart,
-  BarChart,
-  PieChart,
-  TitleComponent,
-  TooltipComponent,
-  GridComponent,
-  LegendComponent,
-  CanvasRenderer
-]);
-
-// 图表类型
-const chartType = ref('month');
-
-// 图表实例
-let salesChartInstance: echarts.ECharts | null = null;
-let pieChartInstance: echarts.ECharts | null = null;
-const salesChart = ref<HTMLElement | null>(null);
-const pieChart = ref<HTMLElement | null>(null);
-
-// 活动标签页
-const activityActiveKey = ref('1');
-const activityTabs = [
-  { key: '1', tab: '系统消息' },
-  { key: '2', tab: '用户反馈' },
-];
-
-// 解析图标组件
-const resolveIcon = (iconName: string) => {
-  const iconMap: Record<string, any> = {
-    'BellOutlined': Bell,
-    'UserOutlined': User,
-    'FileTextOutlined': Document,
-    'ToolOutlined': Tools,
-    'MessageOutlined': ChatLineRound
-  };
-  return iconMap[iconName] || Bell;
-};
-
-// 活动列表数据
-const activityList = ref([
-  { 
-    title: '系统更新完成', 
-    description: '系统已成功更新到最新版本v2.3.0', 
-    time: '2023-06-15 10:30',
-    icon: 'BellOutlined',
-    color: '#1890ff'
+// 统计数据
+const statisticsData = ref([
+  {
+    title: '活跃用户',
+    value: '14,396',
+    icon: 'User',
+    footer: '较上月',
+    increase: true,
+    rate: '12%',
+    bgColor: '#409EFF'
   },
-  { 
-    title: '新用户注册', 
-    description: '用户张三已成功注册系统', 
-    time: '2023-06-14 15:20',
-    icon: 'UserOutlined',
-    color: '#52c41a'
+  {
+    title: '订单数量',
+    value: '6,421',
+    icon: 'ShoppingCart',
+    footer: '较昨日',
+    increase: true,
+    rate: '8.5%',
+    bgColor: '#67C23A'
   },
-  { 
-    title: '数据备份', 
-    description: '系统数据已自动备份完成', 
-    time: '2023-06-14 03:00',
-    icon: 'FileTextOutlined',
-    color: '#722ed1'
+  {
+    title: '商品总数',
+    value: '9,854',
+    icon: 'Goods',
+    footer: '本月新增',
+    increase: false,
+    rate: '2.1%',
+    bgColor: '#E6A23C'
   },
-  { 
-    title: '服务器维护', 
-    description: '服务器将于今晚22:00进行例行维护', 
-    time: '2023-06-13 16:45',
-    icon: 'ToolOutlined',
-    color: '#fa8c16'
-  },
-  { 
-    title: '用户反馈', 
-    description: '收到3条新的用户反馈', 
-    time: '2023-06-12 09:15',
-    icon: 'MessageOutlined',
-    color: '#eb2f96'
-  },
-]);
+  {
+    title: '总收入',
+    value: '￥98,423',
+    icon: 'Money',
+    footer: '较上季度',
+    increase: true,
+    rate: '15.3%',
+    bgColor: '#F56C6C'
+  }
+])
 
-// 待办事项列表
+// 用户增长图表
+const userGrowthChart = ref<HTMLElement | null>(null)
+const userGrowthTimeRange = ref('week')
+let userGrowthChartInstance: echarts.ECharts | null = null
+
+// 系统资源图表
+const resourceChart = ref<HTMLElement | null>(null)
+const realTimeMonitor = ref(false)
+let resourceChartInstance: echarts.ECharts | null = null
+
+// 最近活动
+const recentActivities = ref([
+  {
+    user: '管理员',
+    action: '创建了新用户',
+    time: '2023-12-01 10:30',
+    type: 'primary',
+    color: '#409EFF',
+    tag: '用户管理',
+    tagType: ''
+  },
+  {
+    user: '系统',
+    action: '检测到服务器负载过高',
+    time: '2023-12-01 09:15',
+    type: 'warning',
+    color: '#E6A23C',
+    tag: '系统警告',
+    tagType: 'warning'
+  },
+  {
+    user: '张三',
+    action: '更新了产品价格',
+    time: '2023-11-30 16:45',
+    type: 'info',
+    color: '#909399',
+    tag: '产品管理',
+    tagType: 'info'
+  },
+  {
+    user: '李四',
+    action: '完成了订单处理',
+    time: '2023-11-30 14:20',
+    type: 'success',
+    color: '#67C23A',
+    tag: '订单系统',
+    tagType: 'success'
+  },
+  {
+    user: '王五',
+    action: '提交了错误报告',
+    time: '2023-11-29 11:05',
+    type: 'danger',
+    color: '#F56C6C',
+    tag: 'Bug修复',
+    tagType: 'danger'
+  }
+])
+
+// 待办事项
 const todoList = ref([
-  { title: '完成月度报表', done: false, priority: 'urgent' },
-  { title: '审核新用户申请', done: false, priority: 'normal' },
-  { title: '更新系统文档', done: true, priority: 'normal' },
-  { title: '准备产品发布会', done: false, priority: 'urgent' },
-  { title: '召开团队周会', done: false, priority: 'normal' },
-]);
+  {
+    title: '完成系统需求分析',
+    completed: false,
+    priority: 'high'
+  },
+  {
+    title: '修复用户登录问题',
+    completed: false,
+    priority: 'high'
+  },
+  {
+    title: '更新产品文档',
+    completed: true,
+    priority: 'medium'
+  },
+  {
+    title: '准备周报',
+    completed: false,
+    priority: 'medium'
+  },
+  {
+    title: '检查系统安全性',
+    completed: false,
+    priority: 'low'
+  }
+])
 
-// 初始化销售趋势图表
-const initSalesChart = () => {
-  if (salesChart.value) {
-    salesChartInstance = echarts.init(salesChart.value);
-    
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        borderColor: 'rgba(0, 0, 0, 0.05)',
-        borderWidth: 1,
-        textStyle: {
-          color: '#333'
+// 添加新待办
+const addNewTodo = () => {
+  todoList.value.unshift({
+    title: '新建待办事项',
+    completed: false,
+    priority: 'medium'
+  })
+}
+
+// 移除待办
+const removeTodo = (index: number) => {
+  todoList.value.splice(index, 1)
+}
+
+// 切换待办状态
+const toggleTodo = (index: number) => {
+  const todo = todoList.value[index]
+  todo.completed = !todo.completed
+}
+
+// 初始化用户增长图表
+const initUserGrowthChart = () => {
+  if (!userGrowthChart.value) return
+  
+  if (userGrowthChartInstance) {
+    userGrowthChartInstance.dispose()
+  }
+  
+  userGrowthChartInstance = echarts.init(userGrowthChart.value)
+  
+  const option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: userGrowthTimeRange.value === 'week' 
+        ? ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        : userGrowthTimeRange.value === 'month'
+          ? ['第1周', '第2周', '第3周', '第4周']
+          : ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: '新增用户',
+        type: 'line',
+        smooth: true,
+        areaStyle: {
+          opacity: 0.3
         },
-        axisPointer: {
-          type: 'shadow',
-          shadowStyle: {
-            color: 'rgba(0, 0, 0, 0.03)'
-          }
+        lineStyle: {
+          width: 3
+        },
+        itemStyle: {
+          color: '#409EFF'
+        },
+        data: userGrowthTimeRange.value === 'week'
+          ? [120, 132, 101, 134, 90, 230, 210]
+          : userGrowthTimeRange.value === 'month'
+            ? [520, 632, 701, 834]
+            : [320, 332, 301, 334, 390, 330, 320, 432, 501, 534, 690, 730]
+      },
+      {
+        name: '活跃用户',
+        type: 'line',
+        smooth: true,
+        areaStyle: {
+          opacity: 0.3
+        },
+        lineStyle: {
+          width: 3
+        },
+        itemStyle: {
+          color: '#67C23A'
+        },
+        data: userGrowthTimeRange.value === 'week'
+          ? [220, 182, 191, 234, 290, 330, 310]
+          : userGrowthTimeRange.value === 'month'
+            ? [1220, 1182, 1191, 1234]
+            : [820, 932, 901, 934, 1290, 1330, 1320, 1432, 1501, 1534, 1590, 1630]
+      }
+    ]
+  }
+  
+  userGrowthChartInstance.setOption(option)
+}
+
+// 初始化系统资源图表
+const initResourceChart = () => {
+  if (!resourceChart.value) return
+  
+  if (resourceChartInstance) {
+    resourceChartInstance.dispose()
+  }
+  
+  resourceChartInstance = echarts.init(resourceChart.value)
+  
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross',
+        label: {
+          backgroundColor: '#6a7985'
         }
-      },
-      legend: {
-        data: ['订单量', '销售额', '利润'],
-        right: '4%',
-        top: '0%',
-        textStyle: {
-          fontSize: 12
-        }
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        top: '40px',
-        containLabel: true
-      },
-      xAxis: {
+      }
+    },
+    legend: {
+      data: ['CPU使用率', '内存使用率', '磁盘使用率', '网络流量']
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: [
+      {
         type: 'category',
         boundaryGap: false,
-        data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
-        axisLine: {
-          lineStyle: {
-            color: '#eaeaea'
-          }
-        },
-        axisTick: {
-          show: false
-        },
-        axisLabel: {
-          color: '#999'
-        }
-      },
-      yAxis: {
+        data: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00']
+      }
+    ],
+    yAxis: [
+      {
         type: 'value',
-        splitLine: {
-          lineStyle: {
-            color: '#f5f5f5'
-          }
-        },
-        axisLine: {
-          show: false
-        },
-        axisTick: {
-          show: false
-        },
+        max: 100,
         axisLabel: {
-          color: '#999'
+          formatter: '{value}%'
         }
+      }
+    ],
+    series: [
+      {
+        name: 'CPU使用率',
+        type: 'line',
+        smooth: true,
+        emphasis: {
+          focus: 'series'
+        },
+        itemStyle: {
+          color: '#F56C6C'
+        },
+        data: [25, 30, 45, 70, 65, 55, 40]
       },
-      series: [
-        {
-          name: '订单量',
-          type: 'line',
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          showSymbol: false,
-          lineStyle: {
-            width: 3,
-            shadowColor: 'rgba(0, 0, 0, 0.1)',
-            shadowBlur: 10,
-            shadowOffsetY: 5
-          },
-          itemStyle: {
-            borderWidth: 2
-          },
-          emphasis: {
-            focus: 'series'
-          },
-          areaStyle: {
-            color: {
-              type: 'linear',
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                {
-                  offset: 0,
-                  color: 'rgba(64, 158, 255, 0.2)'
-                },
-                {
-                  offset: 1,
-                  color: 'rgba(64, 158, 255, 0.01)'
-                }
-              ]
-            }
-          },
-          data: [250, 330, 324, 418, 435, 535, 622, 680, 750, 820, 880, 940]
+      {
+        name: '内存使用率',
+        type: 'line',
+        smooth: true,
+        emphasis: {
+          focus: 'series'
         },
-        {
-          name: '销售额',
-          type: 'line',
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          showSymbol: false,
-          lineStyle: {
-            width: 3,
-            shadowColor: 'rgba(0, 0, 0, 0.1)',
-            shadowBlur: 10,
-            shadowOffsetY: 5
-          },
-          itemStyle: {
-            borderWidth: 2
-          },
-          emphasis: {
-            focus: 'series'
-          },
-          areaStyle: {
-            color: {
-              type: 'linear',
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                {
-                  offset: 0,
-                  color: 'rgba(83, 194, 64, 0.2)'
-                },
-                {
-                  offset: 1,
-                  color: 'rgba(83, 194, 64, 0.01)'
-                }
-              ]
-            }
-          },
-          data: [82000, 93200, 101000, 134000, 154000, 180000, 210000, 230000, 264000, 280000, 320000, 350000]
+        itemStyle: {
+          color: '#E6A23C'
         },
-        {
-          name: '利润',
-          type: 'line',
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          showSymbol: false,
-          lineStyle: {
-            width: 3,
-            shadowColor: 'rgba(0, 0, 0, 0.1)',
-            shadowBlur: 10,
-            shadowOffsetY: 5
-          },
-          itemStyle: {
-            borderWidth: 2
-          },
-          emphasis: {
-            focus: 'series'
-          },
-          areaStyle: {
-            color: {
-              type: 'linear',
-              x: 0,
-              y: 0,
-              x2: 0,
-              y2: 1,
-              colorStops: [
-                {
-                  offset: 0,
-                  color: 'rgba(255, 153, 0, 0.2)'
-                },
-                {
-                  offset: 1,
-                  color: 'rgba(255, 153, 0, 0.01)'
-                }
-              ]
-            }
-          },
-          data: [32000, 38000, 42000, 48000, 55000, 62000, 68000, 74000, 81000, 89000, 96000, 104000]
-        }
-      ]
-    };
-    
-    salesChartInstance.setOption(option);
+        data: [45, 48, 52, 60, 65, 68, 63]
+      },
+      {
+        name: '磁盘使用率',
+        type: 'line',
+        smooth: true,
+        emphasis: {
+          focus: 'series'
+        },
+        itemStyle: {
+          color: '#409EFF'
+        },
+        data: [55, 56, 58, 60, 62, 64, 66]
+      },
+      {
+        name: '网络流量',
+        type: 'line',
+        smooth: true,
+        emphasis: {
+          focus: 'series'
+        },
+        itemStyle: {
+          color: '#67C23A'
+        },
+        data: [10, 15, 35, 40, 50, 45, 25]
+      }
+    ]
   }
-};
+  
+  resourceChartInstance.setOption(option)
+}
 
-// 初始化销售分布图表
-const initPieChart = () => {
-  if (pieChart.value) {
-    pieChartInstance = echarts.init(pieChart.value);
-    
-    const option = {
-      tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/>{b}: {c} ({d}%)',
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        borderColor: 'rgba(0, 0, 0, 0.05)',
-        borderWidth: 1,
-        textStyle: {
-          color: '#333'
-        }
-      },
-      legend: {
-        orient: 'vertical',
-        right: '5%',
-        top: 'center',
-        itemGap: 12,
-        itemWidth: 10,
-        itemHeight: 10,
-        textStyle: {
-          fontSize: 12
-        },
-        data: ['电子产品', '服装', '食品', '家居', '其他']
-      },
-      series: [
-        {
-          name: '销售分布',
-          type: 'pie',
-          radius: ['50%', '70%'],
-          center: ['30%', '50%'],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 8,
-            borderColor: '#fff',
-            borderWidth: 2
-          },
-          label: {
-            show: false,
-            position: 'center'
-          },
-          emphasis: {
-            label: {
-              show: true,
-              fontSize: '16',
-              fontWeight: 'bold'
-            },
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.2)'
-            }
-          },
-          labelLine: {
-            show: false
-          },
-          data: [
-            { value: 135300000, name: '电子产品' },
-            { value: 89600000, name: '服装' },
-            { value: 64900000, name: '食品' },
-            { value: 42500000, name: '家居' },
-            { value: 27100000, name: '其他' }
-          ]
-        }
-      ]
-    };
-    
-    pieChartInstance.setOption(option);
-  }
-};
-
-// 监听窗口大小变化，重新调整图表大小
+// 监听屏幕尺寸变化，调整图表大小
 const handleResize = () => {
-  salesChartInstance?.resize();
-  pieChartInstance?.resize();
-};
+  userGrowthChartInstance?.resize()
+  resourceChartInstance?.resize()
+}
+
+// 监听时间范围变化
+watch(userGrowthTimeRange, () => {
+  nextTick(() => {
+    initUserGrowthChart()
+  })
+})
+
+// 监听实时监控开关
+watch(realTimeMonitor, (newVal) => {
+  if (newVal) {
+    // 模拟实时数据更新
+    const timer = setInterval(() => {
+      if (!realTimeMonitor.value) {
+        clearInterval(timer)
+        return
+      }
+      
+      if (resourceChartInstance) {
+        const option = resourceChartInstance.getOption()
+        const series = option.series as echarts.SeriesOption[]
+        
+        // 更新CPU使用率数据
+        const cpuData = series[0].data as number[]
+        cpuData.shift()
+        cpuData.push(Math.floor(Math.random() * 50) + 30)
+        
+        // 更新内存使用率数据
+        const memData = series[1].data as number[]
+        memData.shift()
+        memData.push(Math.floor(Math.random() * 20) + 50)
+        
+        // 更新图表
+        resourceChartInstance.setOption({
+          series: [
+            { data: cpuData },
+            { data: memData },
+            series[2],
+            series[3]
+          ]
+        })
+      }
+    }, 3000)
+    
+    return () => clearInterval(timer)
+  }
+})
 
 onMounted(() => {
   nextTick(() => {
-    initSalesChart();
-    initPieChart();
-    window.addEventListener('resize', handleResize);
-  });
-});
+    initUserGrowthChart()
+    initResourceChart()
+    window.addEventListener('resize', handleResize)
+  })
+})
 
-// 监听图表类型变化
-watch(chartType, () => {
-  // 这里可以根据不同的图表类型加载不同的数据
-  // 简化实现，仅示意
-  if (salesChartInstance) {
-    const xAxisData = chartType.value === 'day' ? 
-      Array.from({length: 30}, (_, i) => `${i+1}日`) :
-      chartType.value === 'week' ? 
-        ['第1周', '第2周', '第3周', '第4周'] :
-        chartType.value === 'month' ? 
-          ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'] :
-          ['2020年', '2021年', '2022年', '2023年'];
-          
-    salesChartInstance.setOption({
-      xAxis: {
-        data: xAxisData
-      }
-    });
-  }
-});
-
-const salesTimeRange = ref('month');
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  userGrowthChartInstance?.dispose()
+  resourceChartInstance?.dispose()
+})
 </script>
 
 <style lang="less" scoped>
 .dashboard-container {
-  padding: 0;
+  padding: 20px;
+}
+
+.dashboard-header {
+  margin-bottom: 24px;
+  text-align: center;
   
-  .dashboard-header {
-    margin-bottom: 24px;
+  .dashboard-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #303133;
+    margin-bottom: 8px;
+  }
+  
+  .dashboard-desc {
+    font-size: 16px;
+    color: #606266;
+  }
+}
+
+.statistics-row {
+  margin-bottom: 20px;
+}
+
+.statistics-card {
+  height: 120px;
+  
+  .statistics-card-inner {
+    display: flex;
+    align-items: center;
+  }
+  
+  .statistics-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 16px;
     
-    .dashboard-title {
+    .el-icon {
       font-size: 28px;
-      font-weight: 600;
-      color: var(--el-text-color-primary);
-      margin: 0 0 10px 0;
-      position: relative;
-      
-      &:after {
-        content: '';
-        position: absolute;
-        left: 0;
-        bottom: -5px;
-        width: 50px;
-        height: 4px;
-        background: var(--el-color-primary);
-        border-radius: 2px;
-      }
-    }
-    
-    .dashboard-desc {
-      font-size: 16px;
-      color: var(--el-text-color-secondary);
-      margin: 0;
+      color: #fff;
     }
   }
   
-  .stat-cards {
-    margin-bottom: 50px;
+  .statistics-info {
+    flex: 1;
     
-    .stat-card {
-      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-      border-radius: 12px;
-      border: none;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
-      margin-bottom: 30px;
-      
-      &:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-      }
-      
-      .stat-card-inner {
-        display: flex;
-        align-items: center;
-        padding: 16px;
-      }
-      
-      .stat-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, var(--el-color-primary-light-8) 0%, var(--el-color-primary) 100%);
-        color: #fff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 20px;
-        font-size: 28px;
-        
-        &.blue {
-          background: linear-gradient(135deg, var(--el-color-info-light-8) 0%, var(--el-color-info) 100%);
-        }
-        
-        &.green {
-          background: linear-gradient(135deg, var(--el-color-success-light-8) 0%, var(--el-color-success) 100%);
-        }
-        
-        &.orange {
-          background: linear-gradient(135deg, var(--el-color-warning-light-8) 0%, var(--el-color-warning) 100%);
-        }
-      }
-      
-      .stat-content {
-        flex: 1;
-      }
-      
-      .stat-title {
-        font-size: 16px;
-        color: var(--el-text-color-secondary);
-        margin-bottom: 10px;
-      }
-      
-      .stat-value {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--el-text-color-primary);
-        display: flex;
-        align-items: center;
-        line-height: 1.2;
-      }
-      
-      .stat-trend {
-        font-size: 14px;
-        margin-left: 12px;
-        display: flex;
-        align-items: center;
-        font-weight: 500;
-        padding: 4px 8px;
-        border-radius: 10px;
-        
-        &.positive {
-          color: var(--el-color-success);
-          background-color: var(--el-color-success-light-9);
-        }
-        
-        &.negative {
-          color: var(--el-color-danger);
-          background-color: var(--el-color-danger-light-9);
-        }
-      }
-      
-      .stat-desc {
-        font-size: 14px;
-        color: var(--el-text-color-secondary);
-        margin-top: 6px;
-      }
+    .statistics-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #303133;
+      margin-bottom: 4px;
+    }
+    
+    .statistics-title {
+      font-size: 14px;
+      color: #606266;
+    }
+  }
+  
+  .statistics-footer {
+    margin-top: 16px;
+    font-size: 13px;
+    color: #909399;
+    
+    .el-icon {
+      margin: 0 4px;
+    }
+  }
+}
+
+.chart-row {
+  margin-bottom: 20px;
+}
+
+.chart-card {
+  margin-bottom: 20px;
+  
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    span {
+      font-size: 16px;
+      font-weight: 500;
     }
   }
   
   .chart-container {
-    margin-top: 20px;
+    height: 350px;
+  }
+}
+
+.activity-card, .todo-card {
+  margin-bottom: 20px;
+  
+  .activity-header, .todo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     
-    .chart-card {
-      margin-bottom: 40px;
-      border-radius: 12px;
-      border: none;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
-      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
-      
-      &:hover {
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-      }
-      
-      .chart-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 20px;
-        border-bottom: 1px solid var(--el-border-color-lighter);
-      }
-      
-      .chart-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--el-text-color-primary);
-      }
-      
-      .chart-placeholder {
-        height: 350px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+    span {
+      font-size: 16px;
+      font-weight: 500;
     }
   }
 }
 
-// 响应式布局调整
-@media (max-width: 768px) {
-  .dashboard-container {
-    .dashboard-header {
-      .dashboard-title {
-        font-size: 24px;
-      }
-      
-      .dashboard-desc {
-        font-size: 14px;
-      }
-    }
-    
-    .stat-cards {
-      .stat-card {
-        margin-bottom: 20px;
-        
-        .stat-icon {
-          width: 56px;
-          height: 56px;
-          font-size: 24px;
-          margin-right: 16px;
-        }
-        
-        .stat-title {
-          font-size: 14px;
-        }
-        
-        .stat-value {
-          font-size: 24px;
-        }
-      }
-    }
-    
-    .chart-container {
-      .chart-card {
-        .chart-placeholder {
-          height: 280px;
-        }
-      }
-    }
+.activity-content {
+  .activity-user {
+    font-weight: 500;
+    margin-right: 8px;
+  }
+  
+  .el-tag {
+    margin-left: 8px;
   }
 }
 
-// 暗色模式适配
-:deep(.is-dark) {
-  .dashboard-header {
-    .dashboard-title {
-      color: rgba(255, 255, 255, 0.85);
-    }
-    
-    .dashboard-desc {
-      color: rgba(255, 255, 255, 0.65);
-    }
-  }
+.todo-list {
+  max-height: 350px;
+  overflow-y: auto;
   
-  .stat-card {
-    background-color: var(--card-bg-color);
-    border-color: transparent;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  .todo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #EBEEF5;
     
-    &:hover {
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    &:last-child {
+      border-bottom: none;
     }
     
-    .stat-title, .stat-desc {
-      color: rgba(255, 255, 255, 0.65);
+    .todo-completed {
+      text-decoration: line-through;
+      color: #909399;
     }
     
-    .stat-value {
-      color: rgba(255, 255, 255, 0.85);
-    }
-    
-    .stat-trend {
-      &.positive {
-        background-color: rgba(82, 196, 26, 0.15);
-      }
+    .todo-actions {
+      display: flex;
+      align-items: center;
       
-      &.negative {
-        background-color: rgba(245, 34, 45, 0.15);
+      .el-tag {
+        margin-right: 8px;
       }
-    }
-  }
-  
-  .chart-card {
-    background-color: var(--card-bg-color);
-    border-color: transparent;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    
-    &:hover {
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-    }
-    
-    .chart-title {
-      color: rgba(255, 255, 255, 0.85);
-    }
-    
-    .chart-header {
-      border-bottom-color: rgba(255, 255, 255, 0.1);
     }
   }
 }

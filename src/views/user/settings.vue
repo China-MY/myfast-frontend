@@ -11,7 +11,8 @@
           </template>
           <el-menu
             mode="vertical"
-            v-model="selectedMenu"
+            :default-active="activeMenu"
+            @select="handleMenuSelect"
             class="settings-menu-list"
             :style="{ border: 'none' }"
           >
@@ -40,7 +41,7 @@
       </el-col>
       <el-col :span="18">
         <!-- 基本信息设置 -->
-        <el-card v-if="selectedMenu.includes('basic')" class="settings-content">
+        <el-card v-if="activeMenu === 'basic'" class="settings-content">
           <template #header>基本信息</template>
           <el-form
             :model="basicInfo"
@@ -101,7 +102,7 @@
         </el-card>
 
         <!-- 账户安全设置 -->
-        <el-card v-if="selectedMenu.includes('security')" class="settings-content">
+        <el-card v-if="activeMenu === 'security'" class="settings-content">
           <template #header>账户安全</template>
           <div class="security-items">
             <div class="security-item">
@@ -162,7 +163,7 @@
         </el-card>
 
         <!-- 通知设置 -->
-        <el-card v-if="selectedMenu.includes('notifications')" class="settings-content">
+        <el-card v-if="activeMenu === 'notifications'" class="settings-content">
           <template #header>通知设置</template>
           <div class="notification-items">
             <div class="notification-item">
@@ -231,7 +232,7 @@
         </el-card>
 
         <!-- 外观设置 -->
-        <el-card v-if="selectedMenu.includes('appearance')" class="settings-content">
+        <el-card v-if="activeMenu === 'appearance'" class="settings-content">
           <template #header>外观设置</template>
           <el-form label-width="120px" class="settings-form">
             <el-form-item label="主题模式" prop="themeMode">
@@ -318,7 +319,7 @@
         </el-card>
 
         <!-- 账号绑定 -->
-        <el-card v-if="selectedMenu.includes('binding')" class="settings-content">
+        <el-card v-if="activeMenu === 'binding'" class="settings-content">
           <template #header>账号绑定</template>
           <div class="binding-items">
             <div class="binding-item">
@@ -431,7 +432,12 @@ import {
 } from '@element-plus/icons-vue';
 
 // 当前选中的菜单
-const selectedMenu = ref(['basic']);
+const activeMenu = ref('basic');
+
+// 处理菜单选择
+const handleMenuSelect = (index: string) => {
+  activeMenu.value = index;
+};
 
 // 基本信息表单数据
 const basicInfo = ref({

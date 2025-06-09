@@ -71,17 +71,18 @@ myAxios.interceptors.response.use(
         ElMessage.error(data.msg || '请求失败')
       }
       
-      // 直接返回服务器响应的原始数据
-      return data
+      // 直接返回原始响应，保留axios的response结构，而不是只返回data
+      return response
     } catch (err) {
       console.error('响应处理错误:', err)
       console.log('原始响应:', response)
-      // 返回一个统一的错误格式，避免前端组件崩溃
-      return {
+      // 修改为返回修改后的响应对象，而不是直接返回一个新对象
+      response.data = {
         code: 500,
         msg: '响应处理失败',
         data: null
       }
+      return response
     }
   },
   function (error) {
@@ -129,12 +130,14 @@ myAxios.interceptors.response.use(
       ElMessage.error(errorMessage)
     }
     
-    // 返回一个标准格式的错误响应
+    // 创建一个模拟的响应对象
     return Promise.resolve({
-      code: statusCode,
-      msg: errorMessage,
-      data: null
-    })
+      data: {
+        code: statusCode,
+        msg: errorMessage,
+        data: null
+      }
+    } as AxiosResponse)
   },
 )
 
