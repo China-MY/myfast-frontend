@@ -12,42 +12,42 @@
     >
       <template v-for="menu in menuList" :key="menu.path">
         <!-- 只有有标题的菜单项才显示 -->
-        <template v-if="menu.meta && menu.meta.title">
+        <template v-if="menu.menu_name || menu.title || menu.meta?.title">
           <!-- 有子菜单 -->
           <template v-if="menu.children && menu.children.length > 0">
             <el-sub-menu :index="menu.path">
               <template #title>
-                <el-icon><component :is="getIconComponent(menu.meta?.icon, menu.path)" /></el-icon>
-                <span v-if="!collapsed">{{ menu.meta?.title }}</span>
+                <el-icon><component :is="getIconComponent(menu.icon || menu.meta?.icon, menu.path)" /></el-icon>
+                <span v-if="!collapsed">{{ menu.meta?.title || menu.menu_name || menu.title }}</span>
               </template>
               <!-- 递归渲染子菜单项 -->
               <template v-for="subMenu in menu.children" :key="subMenu.path">
                 <!-- 第二级菜单还有子菜单 -->
                 <template v-if="subMenu.children && subMenu.children.length > 0">
-                  <el-sub-menu :index="menu.path + '/' + subMenu.path">
+                  <el-sub-menu :index="getFullPath(menu.path, subMenu.path)">
                     <template #title>
-                      <el-icon><component :is="getIconComponent(subMenu.meta?.icon, subMenu.path)" /></el-icon>
-                      <span v-if="!collapsed">{{ subMenu.meta?.title }}</span>
+                      <el-icon><component :is="getIconComponent(subMenu.icon || subMenu.meta?.icon, subMenu.path)" /></el-icon>
+                      <span v-if="!collapsed">{{ subMenu.meta?.title || subMenu.menu_name || subMenu.title }}</span>
                     </template>
                     <el-menu-item
                       v-for="item in subMenu.children"
-                      :key="menu.path + '/' + subMenu.path + '/' + item.path"
-                      :index="menu.path + '/' + subMenu.path + '/' + item.path"
-                      @click="handleMenuClick(item.fullPath || (menu.path + '/' + subMenu.path + '/' + item.path))"
+                      :key="getFullPath(menu.path, subMenu.path, item.path)"
+                      :index="getFullPath(menu.path, subMenu.path, item.path)"
+                      @click="handleMenuClick(getFullPath(menu.path, subMenu.path, item.path))"
                     >
-                      <el-icon><component :is="getIconComponent(item.meta?.icon, item.path)" /></el-icon>
-                      <span v-if="!collapsed">{{ item.meta?.title }}</span>
+                      <el-icon><component :is="getIconComponent(item.icon || item.meta?.icon, item.path)" /></el-icon>
+                      <span v-if="!collapsed">{{ item.meta?.title || item.menu_name || item.title }}</span>
                     </el-menu-item>
                   </el-sub-menu>
                 </template>
                 <!-- 第二级菜单没有子菜单 -->
                 <template v-else>
                   <el-menu-item
-                    :index="subMenu.fullPath || (menu.path + '/' + subMenu.path)"
-                    @click="handleMenuClick(subMenu.fullPath || (menu.path + '/' + subMenu.path))"
+                    :index="getFullPath(menu.path, subMenu.path)"
+                    @click="handleMenuClick(getFullPath(menu.path, subMenu.path))"
                   >
-                    <el-icon><component :is="getIconComponent(subMenu.meta?.icon, subMenu.path)" /></el-icon>
-                    <span v-if="!collapsed">{{ subMenu.meta?.title }}</span>
+                    <el-icon><component :is="getIconComponent(subMenu.icon || subMenu.meta?.icon, subMenu.path)" /></el-icon>
+                    <span v-if="!collapsed">{{ subMenu.meta?.title || subMenu.menu_name || subMenu.title }}</span>
                   </el-menu-item>
                 </template>
               </template>
@@ -56,8 +56,8 @@
           <!-- 无子菜单 -->
           <template v-else>
             <el-menu-item :index="menu.path" @click="handleMenuClick(menu.path)">
-              <el-icon><component :is="getIconComponent(menu.meta?.icon, menu.path)" /></el-icon>
-              <span v-if="!collapsed">{{ menu.meta?.title }}</span>
+              <el-icon><component :is="getIconComponent(menu.icon || menu.meta?.icon, menu.path)" /></el-icon>
+              <span v-if="!collapsed">{{ menu.meta?.title || menu.menu_name || menu.title }}</span>
             </el-menu-item>
           </template>
         </template>
@@ -68,8 +68,11 @@
 
 <script lang="ts" setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
-import { useRoute, useRouter, RouteRecordRaw } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router';
 import { useAppStore } from '../../stores/modules/app';
+import { getUserMenusApiV1SystemMenuUserGet } from '@/api/caidanguanli';
+import { menuState } from '@/router';
 import {
   Grid,
   User,
@@ -209,12 +212,18 @@ const handleResize = () => {
 watch(() => route.path, (path) => {
   console.log('路由变化:', path);
   
-  // 特殊处理数据可视化路径
-  if (path === '/dashboard') {
-    selectedKeys.value = ['/dashboard'];
+  // 特殊处理仪表盘路径
+  if (path === '/' || path === '/index') {
+    selectedKeys.value = ['/index'];
     return;
   }
   
+  // 处理重定向路径，不改变选中状态
+  if (path.startsWith('/redirect')) {
+    return;
+  }
+  
+  // 更新选中的菜单项
   selectedKeys.value = [path];
 
   // 找出应该展开的菜单
@@ -231,6 +240,7 @@ watch(() => route.path, (path) => {
     }
 
     openKeys.value = openKeyArray;
+    console.log('展开菜单:', openKeyArray);
   }
 }, { immediate: true });
 
@@ -264,189 +274,146 @@ watch(collapsed, (newVal) => {
   }
 });
 
-// 从路由获取菜单数据
-const menuList = computed(() => {
-  // 过滤出不需要隐藏的路由作为菜单
-  const routes = router.getRoutes()
-    .filter(route => {
-      // 排除登录、404和动态路径的路由
-      if (route.path === '/login' || route.path === '/404' || route.path.includes('/:')) {
-        return false;
-      }
-      // 排除带有hidden标记的路由
-      if (route.meta && route.meta.hidden) {
-        return false;
-      }
-      // 排除没有名称或标题的路由
-      if ((!route.name && !route.meta?.title) || !route.path) {
-        return false;
-      }
-      return true;
-    });
+// 菜单数据
+const menuList = ref<any[]>([]);
+// 使用路由模块中的全局菜单加载状态
+const menuLoaded = computed(() => menuState.menuLoaded);
 
-  // 构建菜单树
-  const rootRoutes = routes.filter(route => {
-    // 处理根路由，确保dashboard作为一级菜单
-    if (route.path === '/dashboard') {
-      return true;
-    }
-    // 其他常规一级菜单(例如/system、/monitor等)
-    return route.path === '/' || route.path.split('/').length === 2;
-  });
-  
-  console.log('菜单根路由:', rootRoutes);
-
-  // 处理根路由
-  const menuData = rootRoutes.map(route => {
-    // 查找子路由
-    const children = routes
-      .filter(r => {
-        // 对于数据可视化，确保它不会有子路由
-        if (route.path === '/dashboard') {
-          return false;
-        }
-        
-        // 排除没有名称或标题的子路由
-        if (!r.name && !r.meta?.title) {
-          return false;
-        }
-        
-        // 查找直接子路由
-        const isDirectChild = r.path.startsWith(route.path + '/') &&
-                              r.path.split('/').length === route.path.split('/').length + 1;
-        return isDirectChild;
-      })
-      .map(child => {
-        // 提取子路由路径，保留完整路径以便于导航
-        // 将 '/system/role' 保留为 '/system/role' 而不是简化为 'role'
-        const fullPath = child.path;
-        const path = child.path.replace(route.path + '/', '');
-
-        // 查找第三级路由
-        const grandChildren = routes
-          .filter(r => {
-            // 排除没有名称或标题的孙路由
-            if (!r.name && !r.meta?.title) {
-              return false;
-            }
-            
-            // 查找当前子路由的子路由
-            const isGrandChild = r.path.startsWith(child.path + '/') &&
-                                r.path.split('/').length === child.path.split('/').length + 1;
-            return isGrandChild;
-          })
-          .map(grandChild => {
-            const grandFullPath = grandChild.path;
-            const grandPath = grandChild.path.replace(child.path + '/', '');
-            return {
-              path: grandPath,
-              fullPath: grandFullPath, // 保存完整路径
-              name: grandChild.name,
-              meta: grandChild.meta || { title: grandChild.name }
-            };
-          });
-
-        return {
-          path,
-          fullPath, // 保存完整路径
-          name: child.name,
-          meta: child.meta || { title: child.name },
-          children: grandChildren.length > 0 ? grandChildren : undefined
-        };
-      });
-
-    return {
-      path: route.path,
-      name: route.name,
-      meta: route.meta || { title: route.name },
-      children: children.length > 0 ? children : undefined
-    };
-  }).filter(menu => {
-    // 过滤掉没有标题或名称的菜单项
-    if (!menu.meta?.title && !menu.name) {
-      return false;
-    }
-    // 根路由只有在有子路由时才显示
-    return menu.path !== '/' || (menu.children && menu.children.length > 0);
-  });
-  
-  console.log('过滤后的菜单数据:', menuData);
-  return menuData;
-});
-
-// 处理菜单点击事件
-const handleMenuClick = (path: string) => {
-  // 在移动设备上，点击菜单后自动折叠侧边栏
-  if (isMobile.value) {
-    // 通过事件通知父组件关闭菜单
-    document.dispatchEvent(new CustomEvent('mobile-menu-click'));
+// 获取菜单数据
+const fetchMenuData = async () => {
+  // 如果菜单已经加载过，直接使用全局菜单数据
+  if (menuState.menuLoaded && menuState.menuData) {
+    console.log('使用全局菜单数据');
+    menuList.value = menuState.menuData;
+    // 打印菜单结构，用于调试
+    console.log('菜单数据结构:', JSON.stringify(menuList.value.slice(0, 2), null, 2));
+    return;
   }
-  
-  // 检查路径是否已经是完整路径（以/开头）
-  if (path.startsWith('/')) {
-    console.log('使用完整路径导航:', path);
-    if (path === route.path) {
-      console.log('路径相同，强制刷新');
-      router.replace({
-        path: '/redirect' as any,
-        query: { path: path, t: Date.now().toString() }
-      }).then(() => {
-        router.replace(path);
-      }).catch((err) => {
-        console.error('导航错误:', err);
-        // 直接强制刷新页面
-        window.location.href = path;
-      });
-    } else {
-      router.push(path).catch((err) => {
-        console.error('导航错误:', err);
-        // 导航失败时尝试直接修改地址
-        window.location.href = path;
-      });
+
+  // 如果有正在进行的菜单加载请求，等待其完成
+  if (menuState.loadingPromise) {
+    console.log('等待已有菜单加载请求完成');
+    await menuState.loadingPromise;
+    if (menuState.menuData) {
+      menuList.value = menuState.menuData;
+      // 打印菜单结构，用于调试
+      console.log('菜单数据结构:', JSON.stringify(menuList.value.slice(0, 2), null, 2));
     }
     return;
   }
-  
-  // 如果是相对路径，需要构建完整路径
-  // 处理二级菜单，例如 '/system' + '/' + 'role' 需要转换为 '/system/role'
-  if (path.includes('/')) {
-    // 这种情况通常是已经拼接好的路径，例如 'system/role'
-    // 确保路径以/开头
-    if (!path.startsWith('/')) {
-      path = '/' + path;
-    }
-    console.log('转换后的路径:', path);
+
+  try {
+    // 创建新的菜单加载请求
+    const requestPromise = getUserMenusApiV1SystemMenuUserGet();
+    menuState.loadingPromise = requestPromise as unknown as Promise<any>;
+    const res = await requestPromise;
     
-    if (path === route.path) {
-      console.log('路径相同，强制刷新');
-      router.replace({
-        path: '/redirect' as any,
-        query: { path: path, t: Date.now().toString() }
-      }).then(() => {
-        router.replace(path);
-      }).catch((err) => {
-        console.error('导航错误:', err);
-        // 直接强制刷新页面
-        window.location.href = path;
-      });
+    console.log('SideMenu获取菜单响应:', res);
+    
+    if (res?.data?.code === 200 && res.data.data && Array.isArray(res.data.data)) {
+      menuList.value = res.data.data;
+      menuState.menuData = res.data.data;
+      menuState.menuLoaded = true;
+      console.log('从后端获取的菜单数据:', res.data.data);
+      // 打印菜单结构，用于调试
+      console.log('菜单数据结构:', JSON.stringify(res.data.data.slice(0, 2), null, 2));
+    } else if (res?.data && Array.isArray(res.data)) {
+      // 兼容直接返回数组的情况
+      menuList.value = res.data;
+      menuState.menuData = res.data;
+      menuState.menuLoaded = true;
+      console.log('从后端获取的菜单数据(直接数组):', res.data);
+      // 打印菜单结构，用于调试
+      console.log('菜单数据结构:', JSON.stringify(res.data.slice(0, 2), null, 2));
     } else {
-      router.push(path).catch((err) => {
-        console.error('导航错误:', err);
-        // 导航失败时尝试直接修改地址
-        window.location.href = path;
-      });
+      console.error('获取菜单数据失败:', res);
     }
+  } catch (error) {
+    console.error('获取菜单出错:', error);
+  } finally {
+    menuState.loadingPromise = null;
+  }
+};
+
+// 菜单点击处理
+const handleMenuClick = (path: string) => {
+  console.log('菜单点击原始路径:', path);
+  
+  // 如果路径包含http或https，表示外链
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    window.open(path, '_blank');
     return;
   }
   
-  // 处理一级菜单，例如 '/dashboard'
-  console.log('处理一级菜单:', path);
-  router.push(path).catch((err) => {
-    console.error('导航错误:', err);
-    // 导航失败时尝试直接修改地址
-    window.location.href = path;
-  });
+  // 规范化路径，处理特殊情况
+  let normalizedPath = path;
+  
+  // 特殊处理系统管理菜单项路径
+  if (path.includes('/system/')) {
+    const pathParts = path.split('/').filter(Boolean);
+    // 提取最后一级路径，如user、role等
+    if (pathParts.length >= 2) {
+      const lastPart = pathParts[pathParts.length - 1];
+      console.log('系统管理菜单项:', lastPart);
+      // 特殊处理常见菜单项
+      if (['user', 'role', 'menu', 'dept', 'post', 'dict', 'config'].includes(lastPart)) {
+        normalizedPath = `/system/${lastPart}`;
+      }
+    }
+  }
+  
+  // 处理监控菜单项路径
+  if (path.includes('/monitor/')) {
+    const pathParts = path.split('/').filter(Boolean);
+    if (pathParts.length >= 2) {
+      const lastPart = pathParts[pathParts.length - 1];
+      console.log('监控菜单项:', lastPart);
+      if (['online', 'job', 'data', 'server', 'cache'].includes(lastPart)) {
+        normalizedPath = `/monitor/${lastPart}`;
+      }
+    }
+  }
+  
+  // 处理工具菜单项路径
+  if (path.includes('/tool/')) {
+    const pathParts = path.split('/').filter(Boolean);
+    if (pathParts.length >= 2) {
+      const lastPart = pathParts[pathParts.length - 1];
+      console.log('工具菜单项:', lastPart);
+      if (['gen', 'swagger', 'build'].includes(lastPart)) {
+        normalizedPath = `/tool/${lastPart}`;
+      }
+    }
+  }
+  
+  console.log('菜单点击最终路径:', normalizedPath);
+  
+  // 正常导航
+  if (normalizedPath) {
+    // 如果路径相同，使用redirect进行刷新
+    if (normalizedPath === route.path) {
+      router.replace({
+        path: `/redirect${normalizedPath}`,
+        query: { t: Date.now() }
+      });
+    } else {
+      // 否则正常导航
+      router.push(normalizedPath);
+    }
+  }
 };
+
+// 初始化时获取菜单数据
+const initMenus = async () => {
+  // 获取菜单数据
+  await fetchMenuData();
+  
+  // 标记初始化完成
+  initialized.value = true;
+};
+
+// 使用ref标记初始化状态
+const initialized = ref(false);
 
 // 自动展开当前路由对应的菜单
 onMounted(() => {
@@ -474,11 +441,62 @@ onMounted(() => {
   if (route.path === '/dashboard') {
     selectedKeys.value = ['/dashboard'];
   }
+  
+  // 获取菜单数据
+  initMenus();
+  
+  // 注册自定义事件处理auth/info轮询控制
+  const stopPolling = () => {
+    console.log('停止不必要的auth/info轮询');
+    // 创建自定义事件通知停止轮询
+    const event = new CustomEvent('stop-auth-polling');
+    document.dispatchEvent(event);
+  };
+  
+  // 5秒后尝试停止轮询
+  setTimeout(stopPolling, 5000);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize);
 });
+
+// 处理路径拼接问题
+const getFullPath = (parentPath: string, childPath: string, grandchildPath?: string): string => {
+  console.log('拼接路径:', parentPath, childPath, grandchildPath || '');
+  
+  // 如果子路径本身就是完整路径，直接返回
+  if (childPath.startsWith('/')) {
+    if (grandchildPath) {
+      return childPath + (grandchildPath.startsWith('/') ? grandchildPath : `/${grandchildPath}`);
+    }
+    return childPath;
+  }
+  
+  // 规范化父路径，确保以/结尾
+  let normalizedParent = parentPath;
+  if (!normalizedParent.startsWith('/')) {
+    normalizedParent = '/' + normalizedParent;
+  }
+  if (!normalizedParent.endsWith('/')) {
+    normalizedParent = normalizedParent + '/';
+  }
+  
+  // 规范化子路径，去掉开头的/
+  const normalizedChild = childPath.startsWith('/') ? childPath.substring(1) : childPath;
+  
+  // 如果有孙子路径，继续拼接
+  if (grandchildPath) {
+    const normalizedGrandchild = grandchildPath.startsWith('/') ? grandchildPath.substring(1) : grandchildPath;
+    const result = `${normalizedParent}${normalizedChild}/${normalizedGrandchild}`;
+    console.log('拼接完成路径:', result);
+    return result;
+  }
+  
+  const result = `${normalizedParent}${normalizedChild}`;
+  console.log('拼接完成路径:', result);
+  return result;
+};
 </script>
 
 <style lang="scss" scoped>

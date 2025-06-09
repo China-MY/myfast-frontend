@@ -11,6 +11,9 @@
       <el-button type="primary" class="filter-item" @click="handleQuery">
         查询
       </el-button>
+      <el-button type="info" class="filter-item" @click="handleReset">
+        重置
+      </el-button>
       <el-button type="success" class="filter-item" @click="handleAdd">
         新增
       </el-button>
@@ -67,7 +70,7 @@
     <el-dialog
       :title="dialogTitle"
       v-model="dialogVisible"
-      width="500px"
+      width="600px"
       append-to-body
     >
       <el-form
@@ -98,9 +101,26 @@
             placeholder="请输入备注"
           />
         </el-form-item>
+        
+        <!-- 菜单权限 -->
+        <el-form-item label="菜单权限">
+          <div class="tree-container">
+            <el-tree
+              ref="menuTreeRef"
+              :data="menuOptions"
+              :props="{ label: 'menu_name', children: 'children' }"
+              show-checkbox
+              node-key="menu_id"
+              :default-checked-keys="roleForm.menu_ids"
+              :check-strictly="false"
+              empty-text="正在加载菜单数据..."
+            />
+          </div>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="info" @click="resetForm">重 置</el-button>
         <el-button type="primary" @click="submitForm">确 定</el-button>
       </template>
     </el-dialog>
@@ -109,7 +129,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox, ElConfigProvider } from 'element-plus'
+import { ElMessage, ElMessageBox, ElConfigProvider, ElTree } from 'element-plus'
 import type { FormInstance } from 'element-plus'
 import {
   listRolesApiV1SystemRoleListGet,
@@ -118,6 +138,7 @@ import {
   deleteRoleApiV1SystemRoleRoleIdDelete,
   getRoleApiV1SystemRoleRoleIdGet
 } from '@/api/jiaoseguanli'
+import { getMenuTreeApiV1SystemMenuTreeGet } from '@/api/caidanguanli'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 
 // Element Plus 本地化配置
@@ -142,6 +163,11 @@ const loading = ref(false)
 const roleList = ref<any[]>([])
 const total = ref(0)
 
+// 菜单树选择器
+const menuTreeRef = ref<InstanceType<typeof ElTree>>()
+const menuOptions = ref<any[]>([])
+const menuLoading = ref(false)
+
 // 查询参数
 const queryParams = reactive({
   page: 1,
@@ -160,7 +186,8 @@ const roleForm = reactive({
   role_key: '',
   role_sort: 0,
   status: '0',
-  remark: ''
+  remark: '',
+  menu_ids: [] as number[]
 })
 
 // 表单验证规则
@@ -185,7 +212,30 @@ const roleRules = {
 // 初始化
 onMounted(() => {
   getList()
+  getMenuTree()
 })
+
+// 获取菜单树数据
+const getMenuTree = async () => {
+  menuLoading.value = true
+  try {
+    console.log('开始获取菜单树数据')
+    const response = await getMenuTreeApiV1SystemMenuTreeGet()
+    console.log('菜单树响应:', response)
+    
+    if (response.data && response.data.code === 200) {
+      menuOptions.value = response.data.data || []
+      console.log('菜单树数据加载成功:', menuOptions.value)
+    } else {
+      ElMessage.error('获取菜单数据失败')
+    }
+  } catch (error) {
+    console.error('获取菜单树失败:', error)
+    ElMessage.error('获取菜单数据失败')
+  } finally {
+    menuLoading.value = false
+  }
+}
 
 // 获取角色列表
 const getList = async () => {
@@ -235,6 +285,12 @@ const resetForm = () => {
   roleForm.role_sort = 0
   roleForm.status = '0'
   roleForm.remark = ''
+  roleForm.menu_ids = []
+  
+  // 清空菜单选择
+  if (menuTreeRef.value) {
+    menuTreeRef.value.setCheckedKeys([])
+  }
 }
 
 // 添加角色
@@ -271,6 +327,15 @@ const handleEdit = async (row: any) => {
         roleForm.role_sort = roleData.role_sort || 0
         roleForm.status = roleData.status || '0'
         roleForm.remark = roleData.remark || ''
+        
+        // 设置菜单权限IDs
+        roleForm.menu_ids = roleData.menu_ids || []
+        console.log('角色关联菜单IDs:', roleForm.menu_ids)
+        
+        // 设置选中的菜单节点
+        if (menuTreeRef.value) {
+          menuTreeRef.value.setCheckedKeys(roleForm.menu_ids)
+        }
       } else {
         // 如果直接返回的是角色数据
         ElMessage.warning('获取角色数据格式异常')
@@ -302,6 +367,15 @@ const submitForm = async () => {
     if (!valid) return
     
     try {
+      // 获取选中的菜单IDs
+      const menuIds = menuTreeRef.value ? menuTreeRef.value.getCheckedKeys(false) as number[] : []
+      // 半选中的菜单IDs
+      const halfMenuIds = menuTreeRef.value ? menuTreeRef.value.getHalfCheckedKeys() as number[] : []
+      
+      // 合并所有选中的菜单ID
+      const allMenuIds = [...menuIds, ...halfMenuIds]
+      console.log('提交的菜单IDs:', allMenuIds)
+      
       if (isEdit.value && roleForm.role_id) {
         // 更新角色
         await updateRoleApiV1SystemRoleRoleIdPut(
@@ -310,7 +384,9 @@ const submitForm = async () => {
             role_name: roleForm.role_name,
             role_key: roleForm.role_key,
             role_sort: roleForm.role_sort,
-            status: roleForm.status
+            status: roleForm.status,
+            remark: roleForm.remark,
+            menu_ids: allMenuIds // 提交菜单权限
           }
         )
         ElMessage.success('修改成功')
@@ -320,7 +396,9 @@ const submitForm = async () => {
           role_name: roleForm.role_name,
           role_key: roleForm.role_key,
           role_sort: roleForm.role_sort,
-          status: roleForm.status
+          status: roleForm.status,
+          remark: roleForm.remark,
+          menu_ids: allMenuIds // 提交菜单权限
         })
         ElMessage.success('新增成功')
       }
@@ -341,9 +419,19 @@ const handleDelete = (row: any) => {
     type: 'warning'
   }).then(async () => {
     try {
-      await deleteRoleApiV1SystemRoleRoleIdDelete({ role_id: row.role_id })
-      ElMessage.success('删除成功')
-      getList()
+      console.log('开始删除角色，ID:', row.role_id)
+      const response = await deleteRoleApiV1SystemRoleRoleIdDelete({ role_id: row.role_id }, { 
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (response.data && response.data.code === 200) {
+        ElMessage.success('删除成功')
+        getList()
+      } else {
+        ElMessage.error(response.data?.msg || '删除失败')
+      }
     } catch (error) {
       console.error('删除角色失败:', error)
       ElMessage.error('删除失败')
@@ -360,6 +448,13 @@ const handleSizeChange = (size: number) => {
 // 页码变化
 const handleCurrentChange = (page: number) => {
   queryParams.page = page
+  getList()
+}
+
+// 重置按钮操作
+const handleReset = () => {
+  queryParams.role_name = ''
+  queryParams.page = 1
   getList()
 }
 </script>
@@ -394,5 +489,14 @@ const handleCurrentChange = (page: number) => {
   margin-right: 15px;
   font-size: 14px;
   color: #606266;
+}
+
+/* 菜单树样式 */
+.tree-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  padding: 10px;
 }
 </style> 

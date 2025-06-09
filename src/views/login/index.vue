@@ -464,7 +464,7 @@ const handleLoginSubmit = async () => {
       if (redirect) {
         router.push({ path: decodeURIComponent(redirect) });
       } else {
-        router.push({ path: '/dashboard' });
+        router.push({ path: '/index' });
       }
     } else {
       noticeMessage.value = response.data?.msg || '登录失败：用户名或密码错误';
@@ -484,43 +484,58 @@ const handleRegisterSubmit = async () => {
   try {
     await registerFormRef.value.validate();
     registerLoading.value = true;
+    
+    console.log('开始处理注册请求');
 
     // 准备注册数据
-    const registerData: API.UserCreate = {
+    const registerData = {
       username: registerForm.username,
       nickname: registerForm.nickname,
       email: registerForm.email,
       password: registerForm.password,
       dept_id: registerForm.dept_id,
       sex: registerForm.sex,
-      status: registerForm.status
+      status: registerForm.status,
+      // 确保设置了默认角色
+      role_ids: [2] // 默认普通用户角色
     };
+    
+    console.log('注册数据:', JSON.stringify(registerData));
 
     // 调用注册API
-    const response = await registerUserApiV1AuthRegisterPost(registerData) as any;
+    try {
+      const response = await registerUserApiV1AuthRegisterPost(registerData);
+      console.log('注册API响应:', response);
+      
+      if (response.data && response.data.code === 200) {
+        ElNotification({
+          title: '注册成功',
+          type: 'success',
+          duration: 3000
+        });
 
-    if (response.code === 200) {
-      ElNotification({
-        title: '注册成功',
-        type: 'success',
-        duration: 3000
-      });
+        // 切换到登录标签
+        activeTabKey.value = 'login';
 
-      // 切换到登录标签
-      activeTabKey.value = 'login';
+        // 清空注册表单
+        registerFormRef.value.resetFields();
 
-      // 清空注册表单
-      registerFormRef.value.resetFields();
-
-      // 自动填充登录表单的用户名
-      loginForm.username = registerForm.username;
-    } else {
-      noticeMessage.value = response.msg || '注册失败，请稍后再试';
+        // 自动填充登录表单的用户名
+        loginForm.username = registerForm.username;
+      } else {
+        noticeMessage.value = response.data?.msg || '注册失败，请稍后再试';
+        noticeType.value = 'error';
+        console.error('注册失败，服务器响应:', response);
+      }
+    } catch (apiError: any) {
+      console.error('注册API调用失败:', apiError);
+      console.error('错误详情:', apiError.response?.data || apiError.message);
+      noticeMessage.value = apiError.response?.data?.msg || apiError.message || '注册失败，请稍后再试';
       noticeType.value = 'error';
     }
   } catch (error: any) {
-    console.error('注册失败:', error);
-    noticeMessage.value = error.message || '注册失败，请稍后再试';
+    console.error('表单验证失败:', error);
+    noticeMessage.value = error.message || '表单验证失败，请检查输入';
     noticeType.value = 'error';
   } finally {
     registerLoading.value = false;

@@ -35,7 +35,7 @@
       border
     >
       <el-table-column prop="menu_name" label="菜单名称" :show-overflow-tooltip="true" width="180" />
-      <el-table-column prop="icon" label="图标" align="center" width="60" />
+      <!-- <el-table-column prop="icon" label="图标" align="center" width="60" /> -->
       <el-table-column prop="order_num" label="排序" align="center" width="60" />
       <el-table-column prop="perms" label="权限标识" :show-overflow-tooltip="true" width="180" />
       <el-table-column prop="path" label="路由地址" :show-overflow-tooltip="true" />
