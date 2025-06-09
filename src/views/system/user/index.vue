@@ -92,25 +92,54 @@
       <!-- 右侧用户列表区域 -->
       <el-col :span="19">
         <div class="filter-container">
-          <el-input
-            v-model="queryParams.keyword"
-            placeholder="用户名/姓名/手机号"
-            style="width: 200px;"
-            class="filter-item"
-            @keyup.enter="handleSearch"
-          />
-          <el-select v-model="queryParams.status" placeholder="状态" clearable style="width: 120px;" class="filter-item">
-            <el-option label="启用" value="0" />
-            <el-option label="禁用" value="1" />
-          </el-select>
-          <el-select v-model="queryParams.sex" placeholder="性别" clearable style="width: 120px;" class="filter-item">
-            <el-option label="男" value="0" />
-            <el-option label="女" value="1" />
-            <el-option label="未知" value="2" />
-          </el-select>
-          <el-button type="primary" class="filter-item" @click="handleSearch">搜索</el-button>
-          <el-button type="primary" class="filter-item" @click="handleAdd">新增</el-button>
-          <el-button type="warning" class="filter-item" @click="handleRetry">重试</el-button>
+          <el-form :inline="true" :model="queryParams" @submit.native.prevent="handleSearch">
+            <el-form-item label="用户名">
+              <el-input
+                v-model="queryParams.username"
+                placeholder="请输入用户名"
+                clearable
+                style="width: 180px;"
+                @keyup.enter="handleSearch"
+              />
+            </el-form-item>
+            <el-form-item label="姓名">
+              <el-input
+                v-model="queryParams.nickname"
+                placeholder="请输入姓名"
+                clearable
+                style="width: 180px;"
+                @keyup.enter="handleSearch"
+              />
+            </el-form-item>
+<!--            <el-form-item label="手机号">-->
+<!--              <el-input-->
+<!--                v-model="queryParams.phonenumber"-->
+<!--                placeholder="请输入手机号"-->
+<!--                clearable-->
+<!--                style="width: 180px;"-->
+<!--                @keyup.enter="handleSearch"-->
+<!--              />-->
+<!--            </el-form-item>-->
+            <el-form-item label="状态">
+              <el-select v-model="queryParams.status" placeholder="请选择状态" clearable style="width: 120px;">
+                <el-option label="启用" value="0" />
+                <el-option label="禁用" value="1" />
+              </el-select>
+            </el-form-item>
+<!--            <el-form-item label="性别">-->
+<!--              <el-select v-model="queryParams.sex" placeholder="请选择性别" clearable style="width: 120px;">-->
+<!--                <el-option label="男" value="0" />-->
+<!--                <el-option label="女" value="1" />-->
+<!--                <el-option label="未知" value="2" />-->
+<!--              </el-select>-->
+<!--            </el-form-item>-->
+            <el-form-item>
+              <el-button type="primary" @click="handleSearch">搜索</el-button>
+              <el-button type="info" @click="resetQuery">重置</el-button>
+              <el-button type="primary" @click="handleAdd">新增</el-button>
+<!--              <el-button type="warning" @click="handleRetry">重试</el-button>-->
+            </el-form-item>
+          </el-form>
         </div>
 
         <el-table
@@ -146,9 +175,9 @@
           <el-table-column label="角色" width="120" align="center">
             <template #default="scope">
               <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-                <span 
-                  v-for="role in scope.row.roles" 
-                  :key="role.role_id" 
+                <span
+                  v-for="role in scope.row.roles"
+                  :key="role.role_id"
                   :class="role.role_key === 'admin' ? 'admin-role-tag' : 'role-tag'"
                 >
                   {{ role.role_name }}
@@ -233,10 +262,10 @@
               <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password />
             </el-form-item>
             <el-form-item label="部门" prop="dept_id">
-              <el-select 
-                v-model="form.dept_id" 
-                placeholder="请选择部门" 
-                clearable 
+              <el-select
+                v-model="form.dept_id"
+                placeholder="请选择部门"
+                clearable
                 style="width: 100%;"
                 filterable
               >
@@ -386,7 +415,9 @@ const loading = ref(false)
 const queryParams = reactive({
   page: 1,
   pageSize: 10,
-  keyword: '',
+  username: '',
+  nickname: '',
+  phonenumber: '',
   status: '',
   sex: '',
   dept_id: null as number | null | undefined,
@@ -413,52 +444,54 @@ const formatDate = (dateStr?: string) => {
 // 错误信息状态
 const errorMsg = ref('')
 
-// 用户列表重试
-const handleRetry = () => {
-  errorMsg.value = ''
-  getUserList()
-}
 
 // 获取用户列表
 const getUserList = async () => {
   loading.value = true
   errorMsg.value = ''
-  
+
   try {
     console.log('准备获取用户列表，原始参数:', queryParams)
-    
+
     // 准备API请求参数，处理兼容性问题
     const apiParams: any = {
       page: queryParams.page,
       pageSize: queryParams.pageSize
     }
-    
+
     // 处理可选参数，undefined和空字符串不发送
-    if (queryParams.keyword) apiParams.keyword = queryParams.keyword
+    if (queryParams.username) apiParams.username = queryParams.username
+    if (queryParams.nickname) apiParams.nickname = queryParams.nickname
+    if (queryParams.phonenumber) apiParams.phonenumber = queryParams.phonenumber
     if (queryParams.status !== '') apiParams.status = queryParams.status
     if (queryParams.sex !== '') apiParams.sex = queryParams.sex
-    
+
     // 添加部门和角色筛选条件
     if (queryParams.dept_id !== null && queryParams.dept_id !== undefined) {
       apiParams.dept_id = queryParams.dept_id
     }
-    
+
     if (queryParams.role_id !== null && queryParams.role_id !== undefined) {
       apiParams.role_id = queryParams.role_id
     }
-    
+
     console.log('发送API请求参数:', apiParams)
-    const response = await readUsersApiV1SystemUserGet(apiParams)
-    
+
+    // 直接使用request而不是封装的API函数，以便更好地控制参数
+    const response = await request('/api/v1/system/user/', {
+      method: 'GET',
+      params: apiParams
+    })
+
     // 打印完整响应，帮助调试
     console.log('获取用户列表响应:', response)
-    
+
     // 获取response.data中的数据
     const res = response.data
-    
+
     if (res && res.code === 200) {
       console.log('获取用户列表成功，数据:', res.rows)
-      
+
       // 处理用户数据，确保部门信息的一致性
       const processedData = (res.rows || []).map((user: any) => {
         // 处理部门信息
@@ -466,9 +499,9 @@ const getUserList = async () => {
           // 如果有部门ID但没有部门对象，尝试从deptList中查找
           const deptInfo = deptList.value.find(d => d.dept_id === user.dept_id)
           if (deptInfo) {
-            user.dept = { 
+            user.dept = {
               dept_id: deptInfo.dept_id,
-              dept_name: deptInfo.dept_name 
+              dept_name: deptInfo.dept_name
             }
             user.dept_name = deptInfo.dept_name
           }
@@ -476,10 +509,10 @@ const getUserList = async () => {
           // 如果有部门对象但没有dept_name，添加一个
           user.dept_name = user.dept.dept_name
         }
-        
+
         return user
       })
-      
+
       // API返回的数据结构是rows，转换为组件需要的类型
       tableData.value = processedData as unknown as User[]
       // 从pageInfo中获取total
@@ -501,6 +534,14 @@ const getUserList = async () => {
 // 搜索
 const handleSearch = () => {
   queryParams.page = 1
+  // 打印搜索参数，确保值正确传递
+  console.log('搜索参数:', {
+    username: queryParams.username,
+    nickname: queryParams.nickname,
+    phonenumber: queryParams.phonenumber,
+    status: queryParams.status,
+    sex: queryParams.sex,
+  })
   getUserList()
 }
 
@@ -576,7 +617,7 @@ const resetForm = () => {
   form.sex = '0'
   form.dept_id = null
   form.roleIds = []
-  
+
   if (formRef.value) {
     formRef.value.resetFields()
   }
@@ -599,14 +640,14 @@ const handleEdit = async (row: User) => {
     if (roleList.value.length === 0) {
       await getRoleList()
     }
-    
+
     const response = await readUserApiV1SystemUserUserIdGet({ user_id: row.user_id })
     const res = response.data
-    
+
     if (res && res.code === 200) {
       const userData = res.data as any || {}
       console.log('获取到的用户详细数据:', userData)
-      
+
       form.user_id = userData.user_id || 0
       form.username = userData.username || ''
       form.nickname = userData.nickname || ''
@@ -614,7 +655,7 @@ const handleEdit = async (row: User) => {
       form.email = userData.email || ''
       form.status = userData.status || '0'
       form.sex = userData.sex || '0'
-      
+
       // 处理部门ID
       if (userData.dept && userData.dept.dept_id) {
         // 如果返回了完整的部门对象
@@ -625,13 +666,13 @@ const handleEdit = async (row: User) => {
       } else {
         form.dept_id = null
       }
-      
+
       console.log('用户部门信息:', {
         rawDept: userData.dept,
         rawDeptId: userData.dept_id,
         formDeptId: form.dept_id
       })
-      
+
       // 设置用户角色
       if (userData.roles && Array.isArray(userData.roles)) {
         form.roleIds = userData.roles.map((role: any) => role.role_id)
@@ -643,7 +684,7 @@ const handleEdit = async (row: User) => {
         form.roleIds = []
         console.log('未找到角色信息，设置空数组')
       }
-      
+
       dialogType.value = 'edit'
       dialogVisible.value = true
     } else {
@@ -658,14 +699,14 @@ const handleEdit = async (row: User) => {
 // 提交表单
 const submitForm = async () => {
   if (!formRef.value) return
-  
+
   await formRef.value.validate(async (valid) => {
     if (!valid) return
-    
+
     try {
       // 打印表单数据，用于调试
       console.log('表单数据:', JSON.stringify(form))
-      
+
       // 准备提交的用户数据
       const userData = {
         username: form.username,
@@ -678,19 +719,19 @@ const submitForm = async () => {
         // 确保roleIds是数组格式
         role_ids: form.roleIds // 注意: 将roleIds改为后端实际期望的字段名 role_ids
       } as any
-      
+
       console.log('提交的用户数据:', JSON.stringify(userData))
-      
+
       // 如果是新增用户，添加密码字段
       if (dialogType.value === 'add') {
         userData.password = form.password
-        
+
         // 确保角色数据正确传递
         console.log('新增用户的角色数据:', userData.role_ids)
-        
+
         const response = await createUserApiV1SystemUserPost(userData)
         const res = response.data
-        
+
         if (res && res.code === 200) {
           ElMessage.success('添加用户成功')
           dialogVisible.value = false
@@ -704,7 +745,7 @@ const submitForm = async () => {
           { user_id: form.user_id },
           userData
         )
-        
+
         const res = response.data
         if (res && res.code === 200) {
           ElMessage.success('更新用户成功')
@@ -732,7 +773,7 @@ const handleDelete = (row: User) => {
     try {
       const response = await deleteUserApiV1SystemUserUserIdDelete({ user_id: row.user_id })
       const res = response.data
-      
+
       if (res && res.code === 200) {
         ElMessage.success('删除用户成功')
         getUserList()
@@ -785,7 +826,7 @@ const handleResetPwd = (row: User) => {
   if (resetPwdFormRef.value) {
     resetPwdFormRef.value.resetFields()
   }
-  
+
   currentUserId.value = row.user_id
   resetPwdDialogVisible.value = true
 }
@@ -793,16 +834,16 @@ const handleResetPwd = (row: User) => {
 // 提交重置密码
 const submitResetPwd = async () => {
   if (!resetPwdFormRef.value) return
-  
+
   await resetPwdFormRef.value.validate(async (valid) => {
     if (!valid) return
-    
+
     try {
       const response = await resetPasswordApiV1SystemUserUserIdResetPasswordPut(
         { user_id: currentUserId.value },
         { password: resetPwdForm.password }
       )
-      
+
       const res = response.data
       if (res && res.code === 200) {
         ElMessage.success('重置密码成功')
@@ -821,7 +862,7 @@ const submitResetPwd = async () => {
 const getDeptList = async () => {
   try {
     // 静默加载部门数据，忽略API错误
-    
+
     // 如果部门列表为空，则使用默认数据
     if (!deptList.value.length) {
       deptList.value = [
@@ -846,9 +887,9 @@ const getRoleList = async () => {
       const response = await request('/api/v1/system/role/list', {
         method: 'GET'
       });
-      
+
       const res = response.data;
-      
+
       if (res && res.code === 200) {
         // 正确处理后端返回的角色数据
         if (Array.isArray(res.rows)) {
@@ -861,7 +902,7 @@ const getRoleList = async () => {
     } catch (apiError) {
       // 忽略API错误，使用默认数据
     }
-    
+
     // 如果角色列表为空，则使用默认数据
     if (!roleList.value.length) {
       roleList.value = [
@@ -888,7 +929,7 @@ const getDeptName = (deptId: number | null) => {
 // 根据部门ID获取部门名称
 const getDeptNameById = (deptId: number): string => {
   if (!deptId) return '-'
-  
+
   const dept = deptList.value.find(d => d.dept_id === deptId)
   return dept ? dept.dept_name : '-'
 }
@@ -945,11 +986,11 @@ const initDeptTree = () => {
       { dept_id: 1, dept_name: '研发部门' }
     ];
   }
-  
+
   try {
     // 构建部门树结构
     const treeData = buildDeptTree(deptList.value)
-    
+
     // 添加"所有部门"根节点
     deptTreeData.value = [
       {
@@ -958,9 +999,9 @@ const initDeptTree = () => {
       },
       ...treeData
     ]
-    
+
     console.log('部门树初始化完成:', deptTreeData.value)
-    
+
     // 默认选中"所有部门"
     setTimeout(() => {
       if (deptTreeRef.value) {
@@ -989,14 +1030,14 @@ const initRoleTree = () => {
         role_name: '所有角色',
         role_key: 'all'
       },
-      ...roleList.value.map(role => ({ 
-        ...role, 
-        children: [] 
+      ...roleList.value.map(role => ({
+        ...role,
+        children: []
       }))
     ]
-    
+
     console.log('角色树初始化完成:', roleTreeData.value)
-    
+
     // 默认选中"所有角色"
     setTimeout(() => {
       if (roleTreeRef.value) {
@@ -1019,7 +1060,7 @@ const initRoleTree = () => {
 // 点击部门节点
 const handleDeptNodeClick = (data: any) => {
   console.log('点击部门节点:', data)
-  
+
   if (data.dept_id === 0) {
     // 点击"所有部门"，清除筛选
     selectedDeptId.value = null
@@ -1029,16 +1070,16 @@ const handleDeptNodeClick = (data: any) => {
     selectedDeptId.value = data.dept_id
     queryParams.dept_id = data.dept_id
   }
-  
+
   // 由于筛选条件变化，重置页码
   queryParams.page = 1
-  
+
   // 打印当前筛选状态
-  console.log('部门筛选状态更新:', { 
-    selectedDeptId: selectedDeptId.value, 
-    queryParams: { ...queryParams } 
+  console.log('部门筛选状态更新:', {
+    selectedDeptId: selectedDeptId.value,
+    queryParams: { ...queryParams }
   })
-  
+
   // 重新获取用户列表
   getUserList()
 }
@@ -1046,7 +1087,7 @@ const handleDeptNodeClick = (data: any) => {
 // 点击角色节点
 const handleRoleNodeClick = (data: any) => {
   console.log('点击角色节点:', data)
-  
+
   if (data.role_id === 0) {
     // 点击"所有角色"，清除筛选
     selectedRoleId.value = null
@@ -1056,16 +1097,16 @@ const handleRoleNodeClick = (data: any) => {
     selectedRoleId.value = data.role_id
     queryParams.role_id = data.role_id
   }
-  
+
   // 由于筛选条件变化，重置页码
   queryParams.page = 1
-  
+
   // 打印当前筛选状态
-  console.log('角色筛选状态更新:', { 
+  console.log('角色筛选状态更新:', {
     selectedRoleId: selectedRoleId.value,
     queryParams: { ...queryParams }
   })
-  
+
   // 重新获取用户列表
   getUserList()
 }
@@ -1075,7 +1116,7 @@ const resetDeptFilter = () => {
   // 重置选择状态
   selectedDeptId.value = null
   queryParams.dept_id = undefined
-  
+
   // 选中"所有部门"节点
   if (deptTreeRef.value) {
     try {
@@ -1092,7 +1133,7 @@ const resetDeptFilter = () => {
       }, 300)
     }
   }
-  
+
   // 更新用户列表
   console.log('重置部门筛选，当前筛选参数:', queryParams)
   getUserList()
@@ -1103,7 +1144,7 @@ const resetRoleFilter = () => {
   // 重置选择状态
   selectedRoleId.value = null
   queryParams.role_id = undefined
-  
+
   // 选中"所有角色"节点
   if (roleTreeRef.value) {
     try {
@@ -1120,9 +1161,28 @@ const resetRoleFilter = () => {
       }, 300)
     }
   }
-  
+
   // 更新用户列表
   console.log('重置角色筛选，当前筛选参数:', queryParams)
+  getUserList()
+}
+
+// 重置查询条件
+const resetQuery = () => {
+  queryParams.username = ''
+  queryParams.nickname = ''
+  queryParams.phonenumber = ''
+  queryParams.status = ''
+  queryParams.sex = ''
+  queryParams.dept_id = null
+  queryParams.role_id = null
+  queryParams.page = 1
+  getUserList()
+}
+
+// 重试
+const handleRetry = () => {
+  errorMsg.value = ''
   getUserList()
 }
 
@@ -1132,11 +1192,11 @@ onMounted(async () => {
   try {
     // 首先获取部门和角色列表
     await Promise.all([getDeptList(), getRoleList()]);
-    
+
     // 初始化部门树和角色树
     initDeptTree();
     initRoleTree();
-    
+
     // 然后获取用户列表
     await getUserList();
   } catch (error) {
@@ -1269,4 +1329,4 @@ onMounted(async () => {
   border: 1px solid #fde2e2;
   color: #f56c6c;
 }
-</style> 
+</style>
