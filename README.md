@@ -94,6 +94,8 @@ myfast-frontend/                      # 前端项目根目录
 
 ```bash
 git clone https://gitee.com/myxzgzs/myfast-frontend.git
+或
+git clone https://github.com/China-MY/myfast-frontend.git
 cd myfast-frontend
 ```
 
