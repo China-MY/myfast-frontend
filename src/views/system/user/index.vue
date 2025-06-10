@@ -172,6 +172,20 @@
               <span v-else>-</span>
             </template>
           </el-table-column>
+          <el-table-column label="岗位" width="120" align="center">
+            <template #default="scope">
+              <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                <span
+                  v-for="post in scope.row.posts"
+                  :key="post.post_id"
+                  class="post-tag"
+                >
+                  {{ post.post_name }}
+                </span>
+                <span v-if="!scope.row.posts || scope.row.posts.length === 0">-</span>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column label="角色" width="120" align="center">
             <template #default="scope">
               <div style="display: flex; flex-wrap: wrap; gap: 4px;">
@@ -277,6 +291,26 @@
                 />
               </el-select>
             </el-form-item>
+            <el-form-item label="岗位" prop="postIds">
+              <el-select
+                v-model="form.postIds"
+                multiple
+                collapse-tags
+                placeholder="请选择岗位"
+                style="width: 100%;"
+                filterable
+              >
+                <el-option
+                  v-for="post in postList"
+                  :key="post.post_id"
+                  :label="post.post_name"
+                  :value="post.post_id"
+                >
+                  <span style="float: left">{{ post.post_name }}</span>
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{ post.post_code }}</span>
+                </el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item label="角色" prop="roleIds">
               <el-select
                 v-model="form.roleIds"
@@ -357,6 +391,9 @@ import {
   listDeptsApiV1SystemDeptGet,
   getDeptOptionsApiV1SystemDeptSelectOptionsGet
 } from '@/api/bumenguanli'
+import {
+  listPostsApiV1SystemPostListGet
+} from '@/api/gangweiguanli'
 
 // Element Plus 本地化配置
 const locale = zhCn
@@ -398,6 +435,11 @@ interface User {
     role_id: number
     role_name: string
     role_key: string
+  }> | null
+  posts?: Array<{
+    post_id: number
+    post_name: string
+    post_code: string
   }> | null
   dept?: {
     dept_id: number
@@ -577,12 +619,14 @@ const form = reactive({
   status: '0',
   sex: '0',
   dept_id: null as number | null,
-  roleIds: [] as number[]
+  roleIds: [] as number[],
+  postIds: [] as number[]
 })
 
 // 部门列表和角色列表
 const deptList = ref<Array<{dept_id: number, dept_name: string}>>([])
 const roleList = ref<Array<{role_id: number, role_name: string, role_key: string}>>([])
+const postList = ref<Array<{post_id: number, post_name: string, post_code: string}>>([])
 
 // 表单验证规则
 const rules = {
@@ -606,6 +650,9 @@ const rules = {
   ],
   roleIds: [
     { type: 'array', required: true, message: '请至少选择一个角色', trigger: 'change' }
+  ],
+  postIds: [
+    { type: 'array', required: true, message: '请至少选择一个岗位', trigger: 'change' }
   ]
 }
 
@@ -621,6 +668,7 @@ const resetForm = () => {
   form.sex = '0'
   form.dept_id = null
   form.roleIds = []
+  form.postIds = []
 
   if (formRef.value) {
     formRef.value.resetFields()
@@ -643,6 +691,9 @@ const handleEdit = async (row: User) => {
     }
     if (roleList.value.length === 0) {
       await getRoleList()
+    }
+    if (postList.value.length === 0) {
+      await getPostList()
     }
 
     const response = await readUserApiV1SystemUserUserIdGet({ user_id: row.user_id })
@@ -689,6 +740,18 @@ const handleEdit = async (row: User) => {
         console.log('未找到角色信息，设置空数组')
       }
 
+      // 设置用户岗位
+      if (userData.posts && Array.isArray(userData.posts)) {
+        form.postIds = userData.posts.map((post: any) => post.post_id)
+        console.log('设置的岗位IDs:', form.postIds)
+      } else if (userData.post_ids && Array.isArray(userData.post_ids)) {
+        form.postIds = userData.post_ids
+        console.log('从post_ids设置的岗位:', form.postIds)
+      } else {
+        form.postIds = []
+        console.log('未找到岗位信息，设置空数组')
+      }
+
       dialogType.value = 'edit'
       dialogVisible.value = true
     } else {
@@ -720,8 +783,9 @@ const submitForm = async () => {
         sex: form.sex,
         status: form.status,
         dept_id: form.dept_id,
-        // 确保roleIds是数组格式
-        role_ids: form.roleIds // 注意: 将roleIds改为后端实际期望的字段名 role_ids
+        // 确保roleIds和postIds是数组格式
+        role_ids: Array.isArray(form.roleIds) ? form.roleIds : [],
+        post_ids: Array.isArray(form.postIds) ? form.postIds : []
       } as any
 
       console.log('提交的用户数据:', JSON.stringify(userData))
@@ -730,8 +794,9 @@ const submitForm = async () => {
       if (dialogType.value === 'add') {
         userData.password = form.password
 
-        // 确保角色数据正确传递
+        // 确保角色和岗位数据正确传递
         console.log('新增用户的角色数据:', userData.role_ids)
+        console.log('新增用户的岗位数据:', userData.post_ids)
 
         const response = await createUserApiV1SystemUserPost(userData)
         const res = response.data
@@ -937,6 +1002,50 @@ const getRoleList = async () => {
     roleList.value = [
       { role_id: 1, role_name: '超级管理员', role_key: 'admin' },
       { role_id: 2, role_name: '普通角色', role_key: 'common' }
+    ];
+  }
+}
+
+// 获取岗位列表
+const getPostList = async () => {
+  try {
+    console.log('正在获取岗位列表...');
+    
+    // 使用岗位管理API获取数据
+    const response = await listPostsApiV1SystemPostListGet({});
+    console.log('岗位列表响应数据:', response);
+    
+    // 处理API返回数据结构
+    const res = response.data || response;
+    
+    if (res.code === 200 && res.rows) {
+      // 将API返回的岗位列表转换为组件需要的格式
+      postList.value = res.rows.map((post: any) => ({
+        post_id: post.post_id,
+        post_name: post.post_name || '',
+        post_code: post.post_code || ''
+      }));
+      console.log('成功获取岗位列表:', postList.value);
+    } else {
+      console.error('获取岗位列表失败，使用默认数据');
+      // 使用默认岗位数据
+      if (!postList.value.length) {
+        postList.value = [
+          { post_id: 1, post_name: '董事长', post_code: 'ceo' },
+          { post_id: 2, post_name: '项目经理', post_code: 'se' },
+          { post_id: 3, post_name: '人力资源', post_code: 'hr' },
+          { post_id: 4, post_name: '普通员工', post_code: 'user' }
+        ];
+      }
+    }
+  } catch (error) {
+    console.error('获取岗位列表出错:', error);
+    // 使用默认岗位数据，不显示错误
+    postList.value = [
+      { post_id: 1, post_name: '董事长', post_code: 'ceo' },
+      { post_id: 2, post_name: '项目经理', post_code: 'se' },
+      { post_id: 3, post_name: '人力资源', post_code: 'hr' },
+      { post_id: 4, post_name: '普通员工', post_code: 'user' }
     ];
   }
 }
@@ -1220,14 +1329,15 @@ const handleRetry = () => {
   getUserList()
 }
 
-// 页面加载时获取用户列表、部门列表和角色列表
+// 页面加载时获取用户列表、部门列表、角色列表和岗位列表
 onMounted(async () => {
   // 先获取部门列表，因为用户列表中可能需要部门信息
   console.log('页面加载，开始获取数据');
   try {
-    // 首先获取部门和角色列表
+    // 首先获取部门、角色和岗位列表
     await getDeptList();
     await getRoleList();
+    await getPostList();
 
     // 初始化部门树和角色树
     initDeptTree();
@@ -1342,8 +1452,8 @@ onMounted(async () => {
   font-weight: bold;
 }
 
-/* 自定义角色和部门标签样式 */
-.role-tag, .dept-tag {
+/* 自定义角色、部门和岗位标签样式 */
+.role-tag, .dept-tag, .post-tag {
   display: inline-block;
   padding: 2px 6px;
   border-radius: 4px;
@@ -1363,6 +1473,12 @@ onMounted(async () => {
   background-color: #ecf5ff;
   border: 1px solid #d9ecff;
   color: #409eff;
+}
+
+.post-tag {
+  background-color: #f4f4f5;
+  border: 1px solid #e9e9eb;
+  color: #909399;
 }
 
 .admin-role-tag {
