@@ -93,7 +93,7 @@ myfast-frontend/                      # 前端项目根目录
 1. 克隆仓库
 
 ```bash
-git clone https://github.com/yourusername/myfast-admin.git
+git clone https://gitee.com/myxzgzs/myfast-frontend.git
 cd myfast-frontend
 ```
 
