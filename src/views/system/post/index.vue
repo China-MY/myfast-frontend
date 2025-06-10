@@ -75,7 +75,7 @@
         <el-config-provider :locale="locale">
           <div>
             <!-- 添加自定义的总数显示 -->
-            <span class="total-text">共 {{ total }} 条记录</span>
+            
             <el-pagination
               v-if="total > 0"
               :total="total"
@@ -88,6 +88,7 @@
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
             />
+            <span class="total-text">共 {{ total }} 条记录</span>
           </div>
         </el-config-provider>
       </div>

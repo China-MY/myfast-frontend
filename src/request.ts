@@ -167,6 +167,11 @@ myAxios.interceptors.response.use(
 
     // 响应错误处理
     console.log('API请求失败:', error.message || '未知错误');
+    // 详细记录错误对象结构，帮助调试
+    if (error.response) {
+      console.log('错误响应状态码:', error.response.status);
+      console.log('错误响应数据:', error.response.data);
+    }
 
     let errorMessage = '未知错误'
     let statusCode = 500
@@ -175,8 +180,24 @@ myAxios.interceptors.response.use(
       // 服务器返回了错误状态码
       statusCode = error.response.status
 
+      // 尝试从响应数据中获取详细错误信息
+      if (error.response.data) {
+        const responseData = error.response.data;
+        
+        // 检查常见的错误信息字段
+        if (responseData.detail) {
+          errorMessage = responseData.detail;
+        } else if (responseData.msg) {
+          errorMessage = responseData.msg;
+        } else if (responseData.message) {
+          errorMessage = responseData.message;
+        } else if (typeof responseData === 'string') {
+          errorMessage = responseData;
+        }
+      }
+
       if (statusCode === 401) {
-        errorMessage = '登录状态已过期，请重新登录'
+        errorMessage = errorMessage || '登录状态已过期，请重新登录'
         // 清除token
         removeToken()
         // 如果不在登录页，则跳转到登录页
@@ -188,13 +209,16 @@ myAxios.interceptors.response.use(
           }, 100)
         }
       } else if (statusCode === 403) {
-        errorMessage = '拒绝访问'
+        errorMessage = errorMessage || '拒绝访问'
       } else if (statusCode === 404) {
-        errorMessage = '请求的资源不存在'
+        errorMessage = errorMessage || '请求的资源不存在'
       } else if (statusCode === 500) {
-        errorMessage = '服务器错误，请联系管理员'
+        errorMessage = errorMessage || '服务器错误，请联系管理员'
+      } else if (statusCode === 400) {
+        // 对于400错误，优先使用后端返回的错误信息
+        errorMessage = errorMessage || '请求参数错误'
       } else {
-        errorMessage = `请求失败: ${error.message}`
+        errorMessage = errorMessage || `请求失败: ${error.message}`
       }
     } else if (error.request) {
       // 请求发出但没有收到响应

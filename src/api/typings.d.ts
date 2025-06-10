@@ -234,118 +234,66 @@ declare namespace API {
   }
 
   type DictDataCreate = {
-    /** Dict Sort */
-    dict_sort?: number | null
-    /** Dict Label */
+    /** Dict Sort 字典排序 */
+    dict_sort?: number
+    /** Dict Label 字典标签 */
     dict_label: string
-    /** Dict Value */
+    /** Dict Value 字典键值 */
     dict_value: string
-    /** Dict Type */
+    /** Dict Type 字典类型 */
     dict_type: string
-    /** Css Class */
+    /** Css Class 样式属性 */
     css_class?: string | null
-    /** List Class */
+    /** List Class 表格回显样式 */
     list_class?: string | null
-    /** Is Default */
-    is_default?: string | null
-    /** Status */
-    status?: string | null
-    /** Remark */
+    /** Is Default 是否默认（Y是 N否） */
+    is_default?: string
+    /** Status 状态（0正常 1停用） */
+    status?: string
+    /** Remark 备注 */
     remark?: string | null
-  }
-
-  type DictDataOut = {
-    /** Dict Sort */
-    dict_sort?: number | null
-    /** Dict Label */
-    dict_label?: string | null
-    /** Dict Value */
-    dict_value?: string | null
-    /** Dict Type */
-    dict_type?: string | null
-    /** Css Class */
-    css_class?: string | null
-    /** List Class */
-    list_class?: string | null
-    /** Is Default */
-    is_default?: string | null
-    /** Status */
-    status?: string | null
-    /** Remark */
-    remark?: string | null
-    /** Dict Code */
-    dict_code: number
-    /** Create Time */
-    create_time: string
-    /** Update Time */
-    update_time?: string | null
-    /** Create By */
-    create_by?: string | null
-    /** Update By */
-    update_by?: string | null
   }
 
   type DictDataUpdate = {
-    /** Dict Sort */
+    /** Dict Sort 字典排序 */
     dict_sort?: number | null
-    /** Dict Label */
+    /** Dict Label 字典标签 */
     dict_label?: string | null
-    /** Dict Value */
+    /** Dict Value 字典键值 */
     dict_value?: string | null
-    /** Dict Type */
+    /** Dict Type 字典类型 */
     dict_type?: string | null
-    /** Css Class */
+    /** Css Class 样式属性 */
     css_class?: string | null
-    /** List Class */
+    /** List Class 表格回显样式 */
     list_class?: string | null
-    /** Is Default */
+    /** Is Default 是否默认（Y是 N否） */
     is_default?: string | null
-    /** Status */
+    /** Status 状态（0正常 1停用） */
     status?: string | null
-    /** Remark */
+    /** Remark 备注 */
     remark?: string | null
   }
 
   type DictTypeCreate = {
-    /** Dict Name */
+    /** Dict Name 字典名称 */
     dict_name: string
-    /** Dict Type */
+    /** Dict Type 字典类型 */
     dict_type: string
-    /** Status */
-    status?: string | null
-    /** Remark */
+    /** Status 状态（0正常 1停用） */
+    status?: string
+    /** Remark 备注 */
     remark?: string | null
-  }
-
-  type DictTypeOut = {
-    /** Dict Name */
-    dict_name?: string | null
-    /** Dict Type */
-    dict_type?: string | null
-    /** Status */
-    status?: string | null
-    /** Remark */
-    remark?: string | null
-    /** Dict Id */
-    dict_id: number
-    /** Create Time */
-    create_time: string
-    /** Update Time */
-    update_time?: string | null
-    /** Create By */
-    create_by?: string | null
-    /** Update By */
-    update_by?: string | null
   }
 
   type DictTypeUpdate = {
-    /** Dict Name */
+    /** Dict Name 字典名称 */
     dict_name?: string | null
-    /** Dict Type */
+    /** Dict Type 字典类型 */
     dict_type?: string | null
-    /** Status */
+    /** Status 状态（0正常 1停用） */
     status?: string | null
-    /** Remark */
+    /** Remark 备注 */
     remark?: string | null
   }
 
@@ -396,6 +344,10 @@ declare namespace API {
   }
 
   type getDictDataByTypeApiV1SystemDictDataTypeDictTypeGetParams = {
+    dict_type: string
+  }
+
+  type getDictDataOptionsApiV1SystemDictDataOptionsDictTypeGetParams = {
     dict_type: string
   }
 
@@ -548,19 +500,19 @@ declare namespace API {
   }
 
   type listDictDataApiV1SystemDictDataListGetParams = {
+    page?: number
+    page_size?: number
     dict_type?: string | null
     dict_label?: string | null
     status?: string | null
-    page?: number
-    page_size?: number
   }
 
   type listDictTypesApiV1SystemDictTypeListGetParams = {
+    page?: number
+    page_size?: number
     dict_name?: string | null
     dict_type?: string | null
     status?: string | null
-    page?: number
-    page_size?: number
   }
 
   type listJobLogsApiV1MonitorJobLogListGetParams = {
@@ -801,6 +753,16 @@ declare namespace API {
     total?: number
   }
 
+  type PageResponseModel = {
+    /** Code 响应状态码：200成功，其他为失败 */
+    code?: number
+    /** Msg 响应消息 */
+    msg?: string
+    /** Rows 数据列表 */
+    rows?: any[]
+    pageInfo?: PageInfo
+  }
+
   type PageResponseModelListConfigOut_ = {
     /** Code 响应状态码：200成功，其他为失败 */
     code?: number
@@ -808,26 +770,6 @@ declare namespace API {
     msg?: string
     /** Rows 数据列表 */
     rows?: ConfigOut[][]
-    pageInfo?: PageInfo
-  }
-
-  type PageResponseModelListDictDataOut_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Rows 数据列表 */
-    rows?: DictDataOut[][]
-    pageInfo?: PageInfo
-  }
-
-  type PageResponseModelListDictTypeOut_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Rows 数据列表 */
-    rows?: DictTypeOut[][]
     pageInfo?: PageInfo
   }
 
@@ -861,13 +803,13 @@ declare namespace API {
     pageInfo?: PageInfo
   }
 
-  type PageResponseModelListPostOut_ = {
+  type PageResponseModelPostOut_ = {
     /** Code 响应状态码：200成功，其他为失败 */
     code?: number
     /** Msg 响应消息 */
     msg?: string
     /** Rows 数据列表 */
-    rows?: PostOut[][]
+    rows?: PostOut[]
     pageInfo?: PageInfo
   }
 
@@ -879,6 +821,15 @@ declare namespace API {
     /** Rows 数据列表 */
     rows?: User[]
     pageInfo?: PageInfo
+  }
+
+  type PostBrief = {
+    /** Post Id 岗位ID */
+    post_id: number
+    /** Post Name 岗位名称 */
+    post_name: string
+    /** Post Code 岗位编码 */
+    post_code: string
   }
 
   type PostCreate = {
@@ -991,24 +942,6 @@ declare namespace API {
     data?: Record<string, any> | null
   }
 
-  type ResponseModelDictDataOut_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** 响应数据 */
-    data?: DictDataOut | null
-  }
-
-  type ResponseModelDictTypeOut_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** 响应数据 */
-    data?: DictTypeOut | null
-  }
-
   type ResponseModelJobOut_ = {
     /** Code 响应状态码：200成功，其他为失败 */
     code?: number
@@ -1043,24 +976,6 @@ declare namespace API {
     msg?: string
     /** Data 响应数据 */
     data?: Record<string, any>[] | null
-  }
-
-  type ResponseModelListDictDataOut_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Data 响应数据 */
-    data?: DictDataOut[] | null
-  }
-
-  type ResponseModelListDictTypeOut_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Data 响应数据 */
-    data?: DictTypeOut[] | null
   }
 
   type ResponseModelListMenuOut_ = {
@@ -1343,6 +1258,8 @@ declare namespace API {
     roles?: RoleBrief[] | null
     /** 用户部门 */
     dept?: DeptBrief | null
+    /** Posts 用户岗位列表 */
+    posts?: PostBrief[] | null
   }
 
   type UserCreate = {

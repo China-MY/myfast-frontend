@@ -246,6 +246,7 @@ const staticComponents = {
   'system/dept/index': () => import('@/views/system/dept/index.vue').catch(() => import('@/views/error/404.vue')),
   'system/dict/index': () => import('@/views/system/dict/index.vue').catch(() => import('@/views/error/404.vue')),
   'system/post/index': () => import('@/views/system/post/index.vue').catch(() => import('@/views/error/404.vue')),
+  'system/config/index': () => import('@/views/system/config/index.vue').catch(() => import('@/views/error/404.vue')),
   
   // 监控页面
   'monitor/online/index': () => import('@/views/monitor/online/index.vue').catch(() => import('@/views/error/404.vue')),

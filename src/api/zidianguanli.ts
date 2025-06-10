@@ -2,12 +2,12 @@
 /* eslint-disable */
 import request from '@/request'
 
-/** 创建字典数据 创建新字典数据 POST /api/v1/system/dict/data */
+/** Create Dict Data 创建字典数据 POST /api/v1/system/dict/data */
 export async function createDictDataApiV1SystemDictDataPost(
   body: API.DictDataCreate,
   options?: { [key: string]: any }
 ) {
-  return request<API.ResponseModelDictDataOut_>('/api/v1/system/dict/data', {
+  return request<API.ResponseModel>('/api/v1/system/dict/data', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -17,21 +17,21 @@ export async function createDictDataApiV1SystemDictDataPost(
   })
 }
 
-/** 获取字典数据详情 根据字典编码获取字典数据详情 GET /api/v1/system/dict/data/${param0} */
+/** Get Dict Data 根据编码获取字典数据 GET /api/v1/system/dict/data/${param0} */
 export async function getDictDataApiV1SystemDictDataDictCodeGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getDictDataApiV1SystemDictDataDictCodeGetParams,
   options?: { [key: string]: any }
 ) {
   const { dict_code: param0, ...queryParams } = params
-  return request<API.ResponseModelDictDataOut_>(`/api/v1/system/dict/data/${param0}`, {
+  return request<API.ResponseModel>(`/api/v1/system/dict/data/${param0}`, {
     method: 'GET',
     params: { ...queryParams },
     ...(options || {}),
   })
 }
 
-/** 更新字典数据 更新字典数据信息 PUT /api/v1/system/dict/data/${param0} */
+/** Update Dict Data 更新字典数据 PUT /api/v1/system/dict/data/${param0} */
 export async function updateDictDataApiV1SystemDictDataDictCodePut(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.updateDictDataApiV1SystemDictDataDictCodePutParams,
@@ -39,7 +39,7 @@ export async function updateDictDataApiV1SystemDictDataDictCodePut(
   options?: { [key: string]: any }
 ) {
   const { dict_code: param0, ...queryParams } = params
-  return request<API.ResponseModelDictDataOut_>(`/api/v1/system/dict/data/${param0}`, {
+  return request<API.ResponseModel>(`/api/v1/system/dict/data/${param0}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ export async function updateDictDataApiV1SystemDictDataDictCodePut(
   })
 }
 
-/** 删除字典数据 删除指定字典数据 DELETE /api/v1/system/dict/data/${param0} */
+/** Delete Dict Data 删除字典数据 DELETE /api/v1/system/dict/data/${param0} */
 export async function deleteDictDataApiV1SystemDictDataDictCodeDelete(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.deleteDictDataApiV1SystemDictDataDictCodeDeleteParams,
@@ -64,45 +64,60 @@ export async function deleteDictDataApiV1SystemDictDataDictCodeDelete(
   })
 }
 
-/** 获取字典数据列表 分页获取字典数据列表 GET /api/v1/system/dict/data/list */
+/** List Dict Data 获取字典数据列表(带分页) GET /api/v1/system/dict/data/list */
 export async function listDictDataApiV1SystemDictDataListGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.listDictDataApiV1SystemDictDataListGetParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.PageResponseModelListDictDataOut_>('/api/v1/system/dict/data/list', {
+  return request<API.PageResponseModel>('/api/v1/system/dict/data/list', {
     method: 'GET',
     params: {
       // page has a default value: 1
       page: '1',
       // page_size has a default value: 10
       page_size: '10',
+
       ...params,
     },
     ...(options || {}),
   })
 }
 
-/** 根据字典类型获取字典数据 根据字典类型获取字典数据列表 GET /api/v1/system/dict/data/type/${param0} */
-export async function getDictDataByTypeApiV1SystemDictDataTypeDictTypeGet(
+/** Get Dict Data Options 根据字典类型获取选项列表，用于前端下拉选择 GET /api/v1/system/dict/data/options/${param0} */
+export async function getDictDataOptionsApiV1SystemDictDataOptionsDictTypeGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getDictDataByTypeApiV1SystemDictDataTypeDictTypeGetParams,
+  params: API.getDictDataOptionsApiV1SystemDictDataOptionsDictTypeGetParams,
   options?: { [key: string]: any }
 ) {
   const { dict_type: param0, ...queryParams } = params
-  return request<API.ResponseModelListDictDataOut_>(`/api/v1/system/dict/data/type/${param0}`, {
+  return request<API.ResponseModel>(`/api/v1/system/dict/data/options/${param0}`, {
     method: 'GET',
     params: { ...queryParams },
     ...(options || {}),
   })
 }
 
-/** 创建字典类型 创建新字典类型 POST /api/v1/system/dict/type */
+/** Get Dict Data By Type 根据字典类型获取字典数据列表 GET /api/v1/system/dict/data/type/${param0} */
+export async function getDictDataByTypeApiV1SystemDictDataTypeDictTypeGet(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getDictDataByTypeApiV1SystemDictDataTypeDictTypeGetParams,
+  options?: { [key: string]: any }
+) {
+  const { dict_type: param0, ...queryParams } = params
+  return request<API.ResponseModel>(`/api/v1/system/dict/data/type/${param0}`, {
+    method: 'GET',
+    params: { ...queryParams },
+    ...(options || {}),
+  })
+}
+
+/** Create Dict Type 创建字典类型 POST /api/v1/system/dict/type */
 export async function createDictTypeApiV1SystemDictTypePost(
   body: API.DictTypeCreate,
   options?: { [key: string]: any }
 ) {
-  return request<API.ResponseModelDictTypeOut_>('/api/v1/system/dict/type', {
+  return request<API.ResponseModel>('/api/v1/system/dict/type', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -112,21 +127,21 @@ export async function createDictTypeApiV1SystemDictTypePost(
   })
 }
 
-/** 获取字典类型详情 根据字典类型ID获取详情 GET /api/v1/system/dict/type/${param0} */
+/** Get Dict Type 根据ID获取字典类型详情 GET /api/v1/system/dict/type/${param0} */
 export async function getDictTypeApiV1SystemDictTypeDictIdGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getDictTypeApiV1SystemDictTypeDictIdGetParams,
   options?: { [key: string]: any }
 ) {
   const { dict_id: param0, ...queryParams } = params
-  return request<API.ResponseModelDictTypeOut_>(`/api/v1/system/dict/type/${param0}`, {
+  return request<API.ResponseModel>(`/api/v1/system/dict/type/${param0}`, {
     method: 'GET',
     params: { ...queryParams },
     ...(options || {}),
   })
 }
 
-/** 更新字典类型 更新字典类型信息 PUT /api/v1/system/dict/type/${param0} */
+/** Update Dict Type 更新字典类型 PUT /api/v1/system/dict/type/${param0} */
 export async function updateDictTypeApiV1SystemDictTypeDictIdPut(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.updateDictTypeApiV1SystemDictTypeDictIdPutParams,
@@ -134,7 +149,7 @@ export async function updateDictTypeApiV1SystemDictTypeDictIdPut(
   options?: { [key: string]: any }
 ) {
   const { dict_id: param0, ...queryParams } = params
-  return request<API.ResponseModelDictTypeOut_>(`/api/v1/system/dict/type/${param0}`, {
+  return request<API.ResponseModel>(`/api/v1/system/dict/type/${param0}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
@@ -145,7 +160,7 @@ export async function updateDictTypeApiV1SystemDictTypeDictIdPut(
   })
 }
 
-/** 删除字典类型 删除指定字典类型 DELETE /api/v1/system/dict/type/${param0} */
+/** Delete Dict Type 删除字典类型 DELETE /api/v1/system/dict/type/${param0} */
 export async function deleteDictTypeApiV1SystemDictTypeDictIdDelete(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.deleteDictTypeApiV1SystemDictTypeDictIdDeleteParams,
@@ -159,31 +174,32 @@ export async function deleteDictTypeApiV1SystemDictTypeDictIdDelete(
   })
 }
 
-/** 获取字典类型列表 分页获取字典类型列表 GET /api/v1/system/dict/type/list */
+/** Get All Enabled Dict Types 获取所有启用状态的字典类型列表 GET /api/v1/system/dict/type/all */
+export async function getAllEnabledDictTypesApiV1SystemDictTypeAllGet(options?: {
+  [key: string]: any
+}) {
+  return request<API.ResponseModel>('/api/v1/system/dict/type/all', {
+    method: 'GET',
+    ...(options || {}),
+  })
+}
+
+/** List Dict Types 获取字典类型列表(带分页) GET /api/v1/system/dict/type/list */
 export async function listDictTypesApiV1SystemDictTypeListGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.listDictTypesApiV1SystemDictTypeListGetParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.PageResponseModelListDictTypeOut_>('/api/v1/system/dict/type/list', {
+  return request<API.PageResponseModel>('/api/v1/system/dict/type/list', {
     method: 'GET',
     params: {
       // page has a default value: 1
       page: '1',
       // page_size has a default value: 10
       page_size: '10',
+
       ...params,
     },
-    ...(options || {}),
-  })
-}
-
-/** 获取字典类型选项 获取字典类型选项列表 GET /api/v1/system/dict/type/options */
-export async function getDictTypeOptionsApiV1SystemDictTypeOptionsGet(options?: {
-  [key: string]: any
-}) {
-  return request<API.ResponseModelListDictTypeOut_>('/api/v1/system/dict/type/options', {
-    method: 'GET',
     ...(options || {}),
   })
 }

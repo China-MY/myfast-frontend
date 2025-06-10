@@ -70,7 +70,7 @@ export async function listPostsApiV1SystemPostListGet(
   params: API.listPostsApiV1SystemPostListGetParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.PageResponseModelListPostOut_>('/api/v1/system/post/list', {
+  return request<API.PageResponseModelPostOut_>('/api/v1/system/post/list', {
     method: 'GET',
     params: {
       // page has a default value: 1
