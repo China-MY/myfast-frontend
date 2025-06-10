@@ -1,37 +1,31 @@
 <template>
-  <div></div>
+  <div>重定向中...</div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from 'vue'
+import { onBeforeMount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 
-onMounted(() => {
+onBeforeMount(() => {
   const { params, query } = route
   const { path } = params
-  const { t } = query
   
-  let targetPath = '/'
-  if (Array.isArray(path)) {
-    targetPath = '/' + path.join('/')
-  } else {
-    targetPath = typeof path === 'string' ? ('/' + path) : '/'
-  }
-
-  if (query && query.path) {
-    targetPath = query.path.toString()
-  }
+  // 获取重定向路径
+  const redirectPath = Array.isArray(path) 
+    ? '/' + path.join('/') 
+    : typeof path === 'string' 
+      ? '/' + path 
+      : '/index'
+      
+  console.log('重定向到:', redirectPath, '查询参数:', query)
   
-  console.log(`重定向组件：重定向到 ${targetPath}（时间戳: ${t}）`)
-  
-  // 路径刷新完成后重定向到目标路径
-  router.replace({ path: targetPath }).catch(err => {
-    console.error('重定向失败:', err)
-    // 如果路由跳转失败，尝试使用location直接跳转
-    window.location.href = targetPath
+  // 执行重定向
+  router.replace({
+    path: redirectPath,
+    query
   })
 })
 </script> 

@@ -81,18 +81,18 @@ declare namespace API {
   }
 
   type CpuInfo = {
-    /** Cpu Num CPU核心数 */
-    cpu_num?: number
-    /** Used CPU使用率 */
-    used?: number
-    /** Sys 系统CPU使用率 */
-    sys?: number
-    /** User 用户CPU使用率 */
-    user?: number
-    /** Wait 等待IO的CPU时间占比 */
-    wait?: number
-    /** Free 空闲CPU占比 */
-    free?: number
+    /** Name CPU名称 */
+    name?: string
+    /** Model CPU型号 */
+    model?: string
+    /** Arch CPU架构 */
+    arch?: string
+    /** Cores CPU物理核心数 */
+    cores?: number
+    /** Logical Cores CPU逻辑核心数 */
+    logical_cores?: number
+    /** Usage CPU使用率 */
+    usage?: number
   }
 
   type deleteCacheApiV1MonitorCacheKeyKeyDeleteParams = {
@@ -350,6 +350,12 @@ declare namespace API {
   }
 
   type DiskInfo = {
+    /** Name 磁盘名称 */
+    name?: string
+    /** Mount Point 挂载点 */
+    mount_point?: string
+    /** Fs Type 文件系统类型 */
+    fs_type?: string
     /** Total 总容量 */
     total?: number
     /** Used 已用容量 */
@@ -751,14 +757,6 @@ declare namespace API {
   }
 
   type NetworkInfo = {
-    /** Name 网卡名称 */
-    name?: string
-    /** Address IP地址 */
-    address?: string
-    /** Netmask 子网掩码 */
-    netmask?: string
-    /** Broadcast 广播地址 */
-    broadcast?: string
     /** Sent Bytes 发送字节数 */
     sent_bytes?: number
     /** Recv Bytes 接收字节数 */
@@ -767,14 +765,6 @@ declare namespace API {
     sent_packets?: number
     /** Recv Packets 接收数据包数 */
     recv_packets?: number
-    /** Err In 接收错误数 */
-    err_in?: number
-    /** Err Out 发送错误数 */
-    err_out?: number
-    /** Drop In 接收丢包数 */
-    drop_in?: number
-    /** Drop Out 发送丢包数 */
-    drop_out?: number
   }
 
   type OnlineUserOut = {
@@ -1262,41 +1252,26 @@ declare namespace API {
     cpu?: CpuInfo
     mem?: MemInfo
     sys?: SysInfo
-    disk?: DiskInfo
-    /** Sys Files 系统文件信息 */
-    sys_files?: SysFileInfo[]
-    /** Networks 网络信息 */
-    networks?: NetworkInfo[]
-  }
-
-  type SysFileInfo = {
-    /** Dir Name 盘符路径 */
-    dir_name?: string
-    /** Sys Type Name 文件系统 */
-    sys_type_name?: string
-    /** Type Name 文件类型 */
-    type_name?: string
-    /** Total 总大小 */
-    total?: string
-    /** Free 剩余大小 */
-    free?: string
-    /** Used 已用大小 */
-    used?: string
-    /** Usage 使用率 */
-    usage?: string
+    /** Disk 磁盘信息 */
+    disk?: DiskInfo[]
+    network?: NetworkInfo
   }
 
   type SysInfo = {
-    /** Computer Name 服务器名称 */
-    computer_name?: string
-    /** Computer Ip 服务器IP */
-    computer_ip?: string
-    /** User Dir 项目路径 */
-    user_dir?: string
-    /** Os Name 操作系统 */
+    /** Os Name 操作系统名称 */
     os_name?: string
-    /** Os Arch 系统架构 */
-    os_arch?: string
+    /** Os Version 系统版本 */
+    os_version?: string
+    /** Hostname 主机名 */
+    hostname?: string
+    /** Ip IP地址 */
+    ip?: string
+    /** Python Version Python版本 */
+    python_version?: string
+    /** Boot Time 启动时间 */
+    boot_time?: string
+    /** Run Time 运行时间 */
+    run_time?: string
   }
 
   type Token = {

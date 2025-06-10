@@ -33,7 +33,7 @@
                       v-for="item in subMenu.children"
                       :key="getFullPath(menu.path, subMenu.path, item.path)"
                       :index="getFullPath(menu.path, subMenu.path, item.path)"
-                      @click="handleMenuClick(getFullPath(menu.path, subMenu.path, item.path))"
+                      @click="handleMenuClick(getFullPath(menu.path, subMenu.path, item.path), item)"
                     >
                       <el-icon><component :is="getIconComponent(item.icon || item.meta?.icon, item.path)" /></el-icon>
                       <span v-if="!collapsed">{{ item.meta?.title || item.menu_name || item.title }}</span>
@@ -44,7 +44,7 @@
                 <template v-else>
                   <el-menu-item
                     :index="getFullPath(menu.path, subMenu.path)"
-                    @click="handleMenuClick(getFullPath(menu.path, subMenu.path))"
+                    @click="handleMenuClick(getFullPath(menu.path, subMenu.path), subMenu)"
                   >
                     <el-icon><component :is="getIconComponent(subMenu.icon || subMenu.meta?.icon, subMenu.path)" /></el-icon>
                     <span v-if="!collapsed">{{ subMenu.meta?.title || subMenu.menu_name || subMenu.title }}</span>
@@ -55,7 +55,7 @@
           </template>
           <!-- 无子菜单 -->
           <template v-else>
-            <el-menu-item :index="menu.path" @click="handleMenuClick(menu.path)">
+            <el-menu-item :index="menu.path" @click="handleMenuClick(menu.path, menu)">
               <el-icon><component :is="getIconComponent(menu.icon || menu.meta?.icon, menu.path)" /></el-icon>
               <span v-if="!collapsed">{{ menu.meta?.title || menu.menu_name || menu.title }}</span>
             </el-menu-item>
@@ -278,6 +278,7 @@ watch(collapsed, (newVal) => {
 const menuList = ref<any[]>([]);
 // 使用路由模块中的全局菜单加载状态
 const menuLoaded = computed(() => menuState.menuLoaded);
+const routesAdded = computed(() => menuState.routesAdded);
 
 // 获取菜单数据
 const fetchMenuData = async () => {
@@ -296,10 +297,8 @@ const fetchMenuData = async () => {
     await menuState.loadingPromise;
     if (menuState.menuData) {
       menuList.value = menuState.menuData;
-      // 打印菜单结构，用于调试
-      console.log('菜单数据结构:', JSON.stringify(menuList.value.slice(0, 2), null, 2));
+      return;
     }
-    return;
   }
 
   try {
@@ -310,23 +309,46 @@ const fetchMenuData = async () => {
     
     console.log('SideMenu获取菜单响应:', res);
     
-    if (res?.data?.code === 200 && res.data.data && Array.isArray(res.data.data)) {
-      menuList.value = res.data.data;
-      menuState.menuData = res.data.data;
+    // 优化响应数据处理逻辑 - 支持多种格式
+    let menuData: any[] = [];
+    
+    if (res) {
+      // 使用安全的类型检查，避免类型错误
+      const resAny = res as any;
+      
+      if (resAny.data?.code === 200 && Array.isArray(resAny.data?.data)) {
+        // 标准响应格式: { data: { code: 200, msg: "操作成功", data: [...] } }
+        menuData = resAny.data.data;
+      } else if (resAny.code === 200 && Array.isArray(resAny.data)) {
+        // 直接响应格式: { code: 200, data: [...] }
+        menuData = resAny.data;
+      } else if (Array.isArray(resAny.data)) {
+        // 仅包含数组的响应: { data: [...] }
+        menuData = resAny.data;
+      } else if (Array.isArray(resAny)) {
+        // 响应直接是数组: [...]
+        menuData = resAny;
+      } else if (resAny.result && Array.isArray(resAny.result)) {
+        // 其它常见格式: { result: [...] }
+        menuData = resAny.result;
+      } else {
+        // 尝试查找响应中的数组
+        const possibleArrays = Object.values(resAny)
+          .filter(val => Array.isArray(val) && val.length > 0);
+        
+        if (possibleArrays.length > 0) {
+          menuData = possibleArrays[0] as any[];
+        }
+      }
+    }
+    
+    if (menuData && menuData.length > 0) {
+      menuList.value = menuData;
+      menuState.menuData = menuData;
       menuState.menuLoaded = true;
-      console.log('从后端获取的菜单数据:', res.data.data);
-      // 打印菜单结构，用于调试
-      console.log('菜单数据结构:', JSON.stringify(res.data.data.slice(0, 2), null, 2));
-    } else if (res?.data && Array.isArray(res.data)) {
-      // 兼容直接返回数组的情况
-      menuList.value = res.data;
-      menuState.menuData = res.data;
-      menuState.menuLoaded = true;
-      console.log('从后端获取的菜单数据(直接数组):', res.data);
-      // 打印菜单结构，用于调试
-      console.log('菜单数据结构:', JSON.stringify(res.data.slice(0, 2), null, 2));
+      console.log('从后端获取的菜单数据处理完成', menuData);
     } else {
-      console.error('获取菜单数据失败:', res);
+      console.error('获取菜单数据失败或数据为空:', res);
     }
   } catch (error) {
     console.error('获取菜单出错:', error);
@@ -336,8 +358,46 @@ const fetchMenuData = async () => {
 };
 
 // 菜单点击处理
-const handleMenuClick = (path: string) => {
-  console.log('菜单点击原始路径:', path);
+const handleMenuClick = (path: string, menuItem?: any) => {
+  console.log('菜单点击:', path, menuItem);
+  
+  // 如果传入了菜单项对象，优先使用其中的配置
+  if (menuItem) {
+    // 处理外部链接
+    if (menuItem.is_frame === '0' || (menuItem.meta && menuItem.meta.isExternal)) {
+      const url = menuItem.path || menuItem.url || path;
+      window.open(url, '_blank');
+      return;
+    }
+    
+    // 使用命名路由导航 - 优先使用name导航
+    if (menuItem.name) {
+      router.push({ name: menuItem.name });
+      return;
+    }
+    
+    // 如果菜单项有query参数
+    if (menuItem.query || (menuItem.meta && menuItem.meta.query)) {
+      const query = menuItem.query || menuItem.meta.query;
+      let queryObj = {};
+      
+      try {
+        if (typeof query === 'string') {
+          queryObj = JSON.parse(query);
+        } else if (typeof query === 'object') {
+          queryObj = query;
+        }
+        
+        router.push({
+          path: path,
+          query: queryObj
+        });
+        return;
+      } catch (error) {
+        console.error('解析query参数出错:', error);
+      }
+    }
+  }
   
   // 如果路径包含http或https，表示外链
   if (path.startsWith('http://') || path.startsWith('https://')) {
@@ -368,7 +428,7 @@ const handleMenuClick = (path: string) => {
     if (pathParts.length >= 2) {
       const lastPart = pathParts[pathParts.length - 1];
       console.log('监控菜单项:', lastPart);
-      if (['online', 'job', 'data', 'server', 'cache'].includes(lastPart)) {
+      if (['online', 'job', 'data', 'server', 'cache', 'druid'].includes(lastPart)) {
         normalizedPath = `/monitor/${lastPart}`;
       }
     }
@@ -388,18 +448,15 @@ const handleMenuClick = (path: string) => {
   
   console.log('菜单点击最终路径:', normalizedPath);
   
-  // 正常导航
-  if (normalizedPath) {
-    // 如果路径相同，使用redirect进行刷新
-    if (normalizedPath === route.path) {
-      router.replace({
-        path: `/redirect${normalizedPath}`,
-        query: { t: Date.now() }
-      });
-    } else {
-      // 否则正常导航
-      router.push(normalizedPath);
-    }
+  // 如果路径相同，使用redirect进行刷新
+  if (normalizedPath === route.path) {
+    router.replace({
+      path: `/redirect${normalizedPath}`,
+      query: { t: Date.now() }
+    });
+  } else {
+    // 否则正常导航
+    router.push(normalizedPath);
   }
 };
 
@@ -410,6 +467,14 @@ const initMenus = async () => {
   
   // 标记初始化完成
   initialized.value = true;
+  
+  // 如果menuState.routesAdded为false，表示需要重新加载路由
+  if (!menuState.routesAdded && menuState.menuData && menuState.menuData.length > 0) {
+    console.log('[SideMenu] 检测到路由未加载，触发路由刷新');
+    // 发出自定义事件通知路由组件重新加载
+    const event = new CustomEvent('reload-async-routes');
+    document.dispatchEvent(event);
+  }
 };
 
 // 使用ref标记初始化状态

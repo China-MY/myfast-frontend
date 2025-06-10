@@ -7,6 +7,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { setupPermissionDirective } from './utils/permission'
+import { initViews } from '@/utils/ensureViews'
 
 // 全局样式
 import './styles/index.scss'
@@ -25,5 +26,8 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 // 注册自定义指令
 setupPermissionDirective(app)
+
+// 检查视图组件
+initViews()
 
 app.mount('#app')

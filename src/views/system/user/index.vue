@@ -353,6 +353,10 @@ import {
 } from '@/api/yonghuguanli'
 import request from '@/request'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import {
+  listDeptsApiV1SystemDeptGet,
+  getDeptOptionsApiV1SystemDeptSelectOptionsGet
+} from '@/api/bumenguanli'
 
 // Element Plus 本地化配置
 const locale = zhCn
@@ -861,20 +865,38 @@ const submitResetPwd = async () => {
 // 获取部门列表
 const getDeptList = async () => {
   try {
-    // 静默加载部门数据，忽略API错误
-
-    // 如果部门列表为空，则使用默认数据
-    if (!deptList.value.length) {
-      deptList.value = [
-        { dept_id: 100, dept_name: '总公司' },
-        { dept_id: 1, dept_name: '研发部门' }
-      ];
+    console.log('正在获取部门列表...');
+    
+    // 使用部门管理API获取数据
+    const response = await listDeptsApiV1SystemDeptGet({});
+    console.log('部门列表响应数据:', response);
+    
+    // 处理API返回数据结构
+    const res = response.data || response;
+    
+    if (res.code === 200 && res.data) {
+      // 将API返回的部门列表转换为组件需要的格式
+      deptList.value = res.data.map(dept => ({
+        dept_id: dept.dept_id,
+        dept_name: dept.dept_name || ''
+      }));
+      console.log('成功获取部门列表:', deptList.value);
+    } else {
+      console.error('获取部门列表失败，使用默认数据');
+      // 使用默认部门数据
+      if (!deptList.value.length) {
+        deptList.value = [
+          { dept_id: 100, dept_name: '总公司' },
+          { dept_id: 101, dept_name: '研发部门' }
+        ];
+      }
     }
   } catch (error) {
+    console.error('获取部门列表出错:', error);
     // 使用默认部门数据，不显示错误
     deptList.value = [
       { dept_id: 100, dept_name: '总公司' },
-      { dept_id: 1, dept_name: '研发部门' }
+      { dept_id: 101, dept_name: '研发部门' }
     ];
   }
 }
@@ -921,17 +943,23 @@ const getRoleList = async () => {
 
 // 根据部门ID获取部门名称
 const getDeptName = (deptId: number | null) => {
-  if (!deptId) return '-'
-  const dept = deptList.value.find(d => d.dept_id === deptId)
-  return dept ? dept.dept_name : '-'
+  if (!deptId) return '-';
+  const dept = deptList.value.find(d => d.dept_id === deptId);
+  return dept ? dept.dept_name : '-';
 }
 
-// 根据部门ID获取部门名称
+// 用户列表显示中的部门名称获取函数
 const getDeptNameById = (deptId: number): string => {
-  if (!deptId) return '-'
+  if (!deptId) return '-';
 
-  const dept = deptList.value.find(d => d.dept_id === deptId)
-  return dept ? dept.dept_name : '-'
+  // 直接从部门列表中查找对应ID的部门名称
+  const dept = deptList.value.find(d => d.dept_id === deptId);
+  if (dept) {
+    return dept.dept_name;
+  }
+  
+  // 如果在当前部门列表中找不到，返回ID
+  return `部门(${deptId})`;
 }
 
 // 部门树数据
@@ -981,15 +1009,21 @@ const buildDeptTree = (depts: any[]): any[] => {
 const initDeptTree = () => {
   // 首先确保deptList中有数据
   if (!deptList.value || deptList.value.length === 0) {
-    deptList.value = [
-      { dept_id: 100, dept_name: '总公司' },
-      { dept_id: 1, dept_name: '研发部门' }
-    ];
+    console.log('未检测到部门数据，重新获取');
+    getDeptList().then(() => {
+      buildDeptTreeData();
+    });
+  } else {
+    buildDeptTreeData();
   }
+}
 
+// 构建部门树数据
+const buildDeptTreeData = () => {
   try {
     // 构建部门树结构
-    const treeData = buildDeptTree(deptList.value)
+    const treeData = buildDeptTree(deptList.value);
+    console.log('构建的部门树结构:', treeData);
 
     // 添加"所有部门"根节点
     deptTreeData.value = [
@@ -998,25 +1032,25 @@ const initDeptTree = () => {
         dept_name: '所有部门'
       },
       ...treeData
-    ]
+    ];
 
-    console.log('部门树初始化完成:', deptTreeData.value)
+    console.log('部门树初始化完成:', deptTreeData.value);
 
     // 默认选中"所有部门"
     setTimeout(() => {
       if (deptTreeRef.value) {
-        deptTreeRef.value.setCurrentKey(0)
+        deptTreeRef.value.setCurrentKey(0);
       }
-    }, 100)
+    }, 100);
   } catch (error) {
-    console.error('初始化部门树出错:', error)
+    console.error('初始化部门树出错:', error);
     // 出错时使用默认数据
     deptTreeData.value = [
       {
         dept_id: 0,
         dept_name: '所有部门'
       }
-    ]
+    ];
   }
 }
 
@@ -1188,10 +1222,12 @@ const handleRetry = () => {
 
 // 页面加载时获取用户列表、部门列表和角色列表
 onMounted(async () => {
-  // 静默加载所有数据
+  // 先获取部门列表，因为用户列表中可能需要部门信息
+  console.log('页面加载，开始获取数据');
   try {
     // 首先获取部门和角色列表
-    await Promise.all([getDeptList(), getRoleList()]);
+    await getDeptList();
+    await getRoleList();
 
     // 初始化部门树和角色树
     initDeptTree();
@@ -1200,10 +1236,15 @@ onMounted(async () => {
     // 然后获取用户列表
     await getUserList();
   } catch (error) {
-    // 只记录错误但不显示给用户，因为页面功能正常
-    console.log('初始化数据异常，但页面功能正常');
+    console.error('初始化数据出错:', error);
+    // 获取用户列表可能不依赖部门和角色数据，所以即使前面失败也尝试获取
+    try {
+      await getUserList();
+    } catch (userError) {
+      console.error('获取用户列表也失败:', userError);
+    }
   }
-})
+});
 </script>
 
 <style scoped>
