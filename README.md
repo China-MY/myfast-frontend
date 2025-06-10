@@ -1,15 +1,10 @@
-# MyFast-Admin
-
-<p align="center">
-  <img src="src/assets/logo.png" width="120" alt="MyFast-Admin Logo" />
-</p>
+# MyFast-Admin 前端
 
 <div align="center">
 
-MyFast-Admin 是一款基于 FastAPI 和 Vue3 的现代化企业级开发框架，提供完整的前后端解决方案。
+MyFast-Admin 是一款基于 FastAPI 和 Vue3 的现代化企业级开发框架，这是项目的前端部分。
 
 [![Vue](https://img.shields.io/badge/Vue-3.x-brightgreen.svg)](https://vuejs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100.0+-blue.svg)](https://fastapi.tiangolo.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-4.x-yellow.svg)](https://vitejs.dev/)
 [![Element Plus](https://img.shields.io/badge/Element_Plus-2.x-blue.svg)](https://element-plus.org/)
@@ -19,187 +14,179 @@ MyFast-Admin 是一款基于 FastAPI 和 Vue3 的现代化企业级开发框架�
 
 ## 🌟 项目简介
 
-MyFast-Admin 是一款开源的企业级应用开发框架，采用前后端分离架构，旨在提供高效、安全、可扩展的解决方案。框架集成了现代化的前端技术栈和强大的后端支持，帮助开发者快速构建企业级应用。
+MyFast-Admin 前端采用 Vue3 + TypeScript + Vite + Element Plus 技术栈开发，提供现代化、响应式的用户界面，支持各种企业管理功能。
 
 ## ✨ 核心特性
 
-- **现代化技术栈**：基于 Vue 3、TypeScript、Vite 和 FastAPI 等最新技术
-- **企业级解决方案**：内置权限管理、用户管理、菜单管理等核心功能
-- **组件化开发**：丰富的业务组件和自定义组件库
-- **响应式设计**：自适应多种屏幕尺寸，支持移动端和桌面端
-- **API 自动生成**：后端 API 自动生成文档和类型定义
-- **多语言支持**：内置国际化解决方案
-- **主题定制**：可自定义主题颜色和布局
-- **开发效率工具**：集成代码生成、热重载等开发工具
+- **现代化框架**：基于 Vue 3 Composition API 和 TypeScript
+- **响应式界面**：适配各种屏幕尺寸的设计
+- **主题定制**：可定制的主题和布局
+- **权限控制**：精细的按钮和页面级权限管理
+- **丰富组件**：内置大量业务组件
+- **国际化**：多语言支持
+- **API 集成**：与后端 API 的无缝集成
+- **状态管理**：基于 Pinia 的高效状态管理
 
-## 🔥 技术架构
+## 🔥 技术栈
 
-### 前端技术栈
-
-- 核心框架：Vue 3
-- 工程化：Vite 4
-- 语言：TypeScript 5
-- UI 库：Element Plus 2
-- 状态管理：Pinia
-- 路由管理：Vue Router 4
-- HTTP 客户端：Axios
-- CSS 预处理：Sass/SCSS
-
-### 后端技术栈
-
-- 核心框架：FastAPI
-- 语言：Python 3.9+
-- ORM：SQLAlchemy 2.0+
-- 数据库：PostgreSQL/MySQL/SQLite
-- 认证：OAuth2 + JWT
-- 任务队列：Celery（可选）
-- 缓存：Redis（可选）
-- 文档：Swagger/ReDoc
+- **核心框架**：Vue 3
+- **开发语言**：TypeScript
+- **构建工具**：Vite 4
+- **UI 框架**：Element Plus 2
+- **状态管理**：Pinia
+- **路由**：Vue Router 4
+- **HTTP 客户端**：Axios
+- **CSS 预处理器**：SCSS
 
 ## 📦 项目结构
+myfast-frontend/
+├── public/ # 静态资源
+├── src/ # 源码目录
+│ ├── api/ # API 接口
+│ │ ├── auth.ts # 认证相关接口
+│ │ ├── user.ts # 用户相关接口
+│ │ ├── role.ts # 角色相关接口
+│ │ ├── menu.ts # 菜单相关接口
+│ │ ├── zidianguanli.ts # 字典管理接口
+│ │ └── ... # 其他业务接口
+│ ├── assets/ # 资源文件
+│ ├── components/ # 公共组件
+│ │ ├── common/ # 通用组件
+│ │ └── business/ # 业务组件
+│ ├── config/ # 配置文件
+│ ├── hooks/ # 组合式函数
+│ ├── layouts/ # 布局组件
+│ ├── request.ts # 请求配置
+│ ├── router/ # 路由配置
+│ │ ├── index.ts # 路由入口
+│ │ ├── routes.ts # 路由定义
+│ │ └── guard.ts # 路由守卫
+│ ├── store/ # 状态管理
+│ │ ├── modules/ # 状态模块
+│ │ └── index.ts # 状态入口
+│ ├── styles/ # 全局样式
+│ ├── utils/ # 工具函数
+│ ├── views/ # 页面视图
+│ │ ├── login/ # 登录页面
+│ │ ├── dashboard/ # 仪表盘页面
+│ │ ├── system/ # 系统管理页面
+│ │ │ ├── user/ # 用户管理
+│ │ │ ├── role/ # 角色管理
+│ │ │ ├── menu/ # 菜单管理
+│ │ │ ├── dict/ # 字典管理
+│ │ │ └── ... # 其他系统页面
+│ │ └── ... # 其他业务页面
+│ ├── App.vue # 根组件
+│ └── main.ts # 入口文件
+├── .env.development # 开发环境变量
+├── .env.production # 生产环境变量
+├── index.html # HTML 模板
+├── tsconfig.json # TypeScript 配置
+├── vite.config.ts # Vite 配置
+└── package.json # 依赖配置
 
-```
-myfast-frontend/            # 前端项目目录
-├── public/                 # 静态资源
-├── src/                    # 源码目录
-│   ├── api/                # API 接口
-│   ├── assets/             # 资源文件
-│   ├── components/         # 公共组件
-│   ├── composables/        # 组合式函数
-│   ├── layouts/            # 布局组件
-│   ├── router/             # 路由配置
-│   ├── store/              # 状态管理
-│   ├── styles/             # 全局样式
-│   ├── utils/              # 工具函数
-│   └── views/              # 页面视图
-├── .env.development        # 开发环境变量
-├── .env.production         # 生产环境变量
-└── vite.config.ts          # Vite 配置
 
-myfast-backend/             # 后端项目目录
-├── app/                    # 应用代码
-│   ├── api/                # API 路由
-│   ├── core/               # 核心模块
-│   ├── crud/               # CRUD 操作
-│   ├── db/                 # 数据库模型和会话
-│   ├── models/             # 数据模型
-│   ├── schemas/            # Pydantic 模式
-│   └── services/           # 业务服务
-├── static/                 # 静态文件
-└── tests/                  # 测试代码
-```
 
 ## 🚀 快速开始
 
-### 前端开发
+### 环境要求
 
-1. 安装依赖
+- Node.js 16+
+- npm 或 pnpm
+
+### 安装步骤
+
+1. 克隆仓库
 
 ```bash
+git clone https://github.com/yourusername/myfast-admin.git
 cd myfast-frontend
-npm install
-```
-
-2. 启动开发服务器
-
-```bash
-npm run dev
-```
-
-3. 构建生产版本
-
-```bash
-npm run build
-```
-
-4. 代码检查
-
-```bash
-npm run lint
-```
-
-### 后端开发
-
-1. 创建虚拟环境
-
-```bash
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
 ```
 
 2. 安装依赖
 
 ```bash
-cd myfast-backend
-pip install -r requirements.txt
+npm install
+# 或
+pnpm install
 ```
 
-3. 设置环境变量
+3. 启动开发服务器
 
 ```bash
-# 创建 .env 文件并添加必要的环境变量
-touch .env
+npm run dev
+# 或
+pnpm dev
 ```
 
-4. 启动开发服务器
+4. 构建生产版本
 
 ```bash
-uvicorn app.main:app --reload
+npm run build
+# 或
+pnpm build
 ```
-
-## 💻 开发指南
-
-### IDE 推荐
-
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)（并禁用 Vetur）
-
-### Vue 类型支持
-
-TypeScript 默认无法处理 `.vue` 导入的类型信息，因此我们使用 `vue-tsc` 替代 `tsc` 进行类型检查。在编辑器中，需要 [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) 使 TypeScript 语言服务能够识别 `.vue` 类型。
-
-### 自定义配置
-
-查看 [Vite 配置参考](https://vitejs.dev/config/) 获取更多配置信息。
 
 ## 📃 功能列表
 
-- 用户认证
-  - 登录/注册
+- **登录/注册**
+  - 账号密码登录
+  - 用户注册
   - 第三方登录集成
-  - 多因素认证
+
+- **系统管理**
+  - 用户管理
+    - 用户列表
+    - 用户创建/编辑/删除
+    - 用户角色分配
   
-- 用户管理
-  - 用户列表
-  - 用户详情
-  - 用户角色分配
+  - 角色管理
+    - 角色列表
+    - 角色创建/编辑/删除
+    - 权限分配
   
-- 角色管理
-  - 角色列表
-  - 权限分配
+  - 菜单管理
+    - 菜单树结构
+    - 菜单创建/编辑/删除
   
-- 菜单管理
-  - 菜单树
-  - 动态路由
-  
-- 部门管理
-  - 部门树
-  - 人员分配
-  
-- 系统配置
-  - 参数设置
   - 字典管理
+    - 字典类型列表
+    - 字典类型创建/编辑/删除
+    - 字典数据管理
+    - 字典数据弹窗编辑
   
-- 操作日志
-  - 登录日志
-  - 操作审计
+  - 部门管理
+    - 部门树结构
+    - 部门创建/编辑/删除
+
+- **个人中心**
+  - 个人信息
+  - 修改密码
+  - 操作日志
+
+## 💻 开发指南
+
+### 新增页面
+
+1. 在 `src/views/` 下创建新的页面组件
+2. 在 `src/router/routes.ts` 中添加路由配置
+3. 如果需要，在 `src/api/` 下创建对应的 API 接口
+4. 添加页面的权限控制（如需）
+
+### 状态管理
+
+使用 Pinia 进行状态管理，在 `src/store/modules/` 下创建新的状态模块。
+
+### 权限控制
+
+按钮和页面级别的权限控制通过路由守卫和指令实现，详见 `src/router/guard.ts` 和权限指令。
 
 ## 🔐 安全建议
 
+- 所有敏感信息不要在前端存储
+- 实施合理的请求速率限制
+- 确保所有 API 请求都有适当的权限检查
 - 定期更新依赖包
-- 启用 HTTPS
-- 实施 CSRF 保护
-- 使用安全的认证方式
-- 进行输入验证和过滤
 
 ## 🤝 参与贡献
 
@@ -212,11 +199,6 @@ TypeScript 默认无法处理 `.vue` 导入的类型信息，因此我们使用 
 ## 📄 许可证
 
 [MIT License](LICENSE)
-
-## 📬 联系方式
-
-- 项目维护者：[维护者姓名]
-- 电子邮件：[邮箱地址]
 
 ---
 
