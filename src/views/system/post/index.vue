@@ -10,7 +10,7 @@
           <el-input v-model="queryParams.post_name" placeholder="请输入岗位名称" clearable @keyup.enter="handleQuery" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-select v-model="queryParams.status" placeholder="岗位状态" clearable style="width: 100%">
+          <el-select v-model="queryParams.status" placeholder="岗位状态" clearable style="width: 120px">
             <el-option label="正常" value="0" />
             <el-option label="停用" value="1" />
           </el-select>
@@ -56,25 +56,40 @@
         <el-table-column prop="create_time" label="创建时间" width="160" align="center" />
         <el-table-column label="操作" align="center" width="180" fixed="right">
           <template #default="scope">
-            <el-button link type="primary" icon="Edit" @click="handleEdit(scope.row)" v-hasPermi="['system:post:update']">编辑</el-button>
-            <el-button link type="danger" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:post:delete']">删除</el-button>
+            <div class="operation-buttons">
+              <el-button plain size="small" type="primary" @click="handleEdit(scope.row)" v-hasPermi="['system:post:update']">
+                <el-icon><Edit /></el-icon>
+                <span>编辑</span>
+              </el-button>
+              <el-button plain size="small" type="danger" @click="handleDelete(scope.row)" v-hasPermi="['system:post:delete']">
+                <el-icon><Delete /></el-icon>
+                <span>删除</span>
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
 
       <!-- 分页 -->
       <div class="pagination-container">
-        <el-pagination
-          v-if="total > 0"
-          :total="total"
-          v-model:current-page="queryParams.page"
-          v-model:page-size="queryParams.page_size"
-          background
-          :page-sizes="[10, 20, 30, 50]"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
+        <el-config-provider :locale="locale">
+          <div>
+            <!-- 添加自定义的总数显示 -->
+            <span class="total-text">共 {{ total }} 条记录</span>
+            <el-pagination
+              v-if="total > 0"
+              :total="total"
+              v-model:current-page="queryParams.page"
+              v-model:page-size="queryParams.page_size"
+              background
+              :page-sizes="[10, 20, 30, 50]"
+              :layout="paginationLayout"
+              :locale="paginationLocale"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+          </div>
+        </el-config-provider>
       </div>
       
       <!-- 显示无数据提示 -->
@@ -117,7 +132,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElConfigProvider } from 'element-plus'
+import { Edit, Delete } from '@element-plus/icons-vue'
 import {
   listPostsApiV1SystemPostListGet,
   getPostApiV1SystemPostPostIdGet,
@@ -125,6 +141,24 @@ import {
   updatePostApiV1SystemPostPostIdPut,
   deletePostApiV1SystemPostPostIdDelete
 } from '@/api/gangweiguanli'
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+
+// Element Plus 本地化配置
+const locale = zhCn
+
+// 自定义分页文本配置
+const paginationLocale = reactive({
+  ...zhCn.el.pagination,
+  goto: '前往',
+  pagesize: '条/页',
+  total: '共 {total} 条记录',
+  pageClassifier: '页',
+  prevText: '上一页',
+  nextText: '下一页'
+})
+
+// 可以显示中文的分页组件布局
+const paginationLayout = "sizes, prev, pager, next, jumper"
 
 // 定义岗位数据类型
 interface PostData {
@@ -500,42 +534,87 @@ const handleCurrentChange = (page: number) => {
 <style scoped>
 .app-container {
   padding: 20px;
+  background-color: #f5f7fa;
+  min-height: calc(100vh - 50px);
 }
 
 .search-box {
   margin-bottom: 20px;
-  border-radius: 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+}
+
+.search-box:hover {
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
 }
 
 .box-card {
   margin-bottom: 20px;
-  border-radius: 4px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+}
+
+.box-card:hover {
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px 0;
 }
 
 .header-title {
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+  position: relative;
+  padding-left: 12px;
+}
+
+.header-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  background-color: #409eff;
+  border-radius: 2px;
 }
 
 .pagination-container {
   margin-top: 20px;
   display: flex;
   justify-content: center;
+  padding: 10px 0;
+}
+
+.pagination-container > div > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.total-text {
+  margin-right: 15px;
+  font-size: 14px;
+  color: #606266;
 }
 
 .dialog-footer {
   text-align: right;
-  padding-top: 10px;
+  padding-top: 15px;
+  border-top: 1px solid #ebeef5;
+  margin-top: 15px;
 }
 
 .empty-block {
-  margin: 30px 0;
+  margin: 40px 0;
   text-align: center;
 }
 
@@ -543,10 +622,260 @@ const handleCurrentChange = (page: number) => {
   width: 100%;
 }
 
-/* 响应式布局 */
+/* 表格样式优化 */
+:deep(.el-table) {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.03);
+}
+
+:deep(.el-table th) {
+  background-color: #f5f7fa !important;
+  color: #606266;
+  font-weight: 600;
+  height: 50px;
+}
+
+:deep(.el-table td) {
+  padding: 12px 0;
+}
+
+:deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
+  background-color: #fafafa;
+}
+
+:deep(.el-table__body tr:hover > td) {
+  background-color: #f0f7ff !important;
+}
+
+/* 按钮样式优化 */
+:deep(.el-button) {
+  border-radius: 4px;
+  transition: all 0.3s;
+  font-weight: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:deep(.el-button.el-button--small) {
+  padding: 5px 10px;
+  height: 28px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+:deep(.el-button--primary) {
+  background-color: #409eff;
+  border-color: #409eff;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
+}
+
+:deep(.el-button--danger) {
+  background-color: #f56c6c;
+  border-color: #f56c6c;
+}
+
+:deep(.el-button--primary.is-plain) {
+  color: #409eff;
+  background-color: #ecf5ff;
+  border-color: #b3d8ff;
+}
+
+:deep(.el-button--primary.is-plain:hover) {
+  color: #fff;
+  background-color: #409eff;
+  border-color: #409eff;
+}
+
+:deep(.el-button--danger.is-plain) {
+  color: #f56c6c;
+  background-color: #fef0f0;
+  border-color: #fbc4c4;
+}
+
+:deep(.el-button--danger.is-plain:hover) {
+  color: #fff;
+  background-color: #f56c6c;
+  border-color: #f56c6c;
+}
+
+:deep(.el-button .el-icon) {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+:deep(.el-button span) {
+  font-size: 13px;
+}
+
+:deep(.el-button.is-link) {
+  padding: 3px 8px;
+  height: auto;
+}
+
+:deep(.el-button.is-link:hover) {
+  background-color: #ecf5ff;
+}
+
+:deep(.el-button.is-link[type="danger"]:hover) {
+  background-color: #fef0f0;
+}
+
+:deep(.el-button.is-text) {
+  padding: 3px 8px;
+}
+
+:deep(.el-button[link].el-button--primary) {
+  background-color: transparent;
+  border-color: transparent;
+  color: #409eff;
+}
+
+:deep(.el-button[link].el-button--danger) {
+  background-color: transparent;
+  border-color: transparent;
+  color: #f56c6c;
+}
+
+:deep(.el-button > span) {
+  display: inline-block;
+}
+
+/* 表单样式优化 */
+:deep(.el-form-item__label) {
+  font-weight: 500;
+}
+
+:deep(.el-input__inner) {
+  border-radius: 4px;
+}
+
+:deep(.el-input__inner:focus) {
+  border-color: #409eff;
+}
+
+:deep(.el-select .el-input__inner:focus) {
+  border-color: #409eff;
+}
+
+:deep(.el-tag) {
+  border-radius: 4px;
+  padding: 0 8px;
+  height: 24px;
+  line-height: 22px;
+}
+
+:deep(.el-tag--success) {
+  background-color: #f0f9eb;
+  color: #67c23a;
+  border-color: #e1f3d8;
+}
+
+:deep(.el-tag--info) {
+  background-color: #f4f4f5;
+  color: #909399;
+  border-color: #e9e9eb;
+}
+
+:deep(.el-dialog) {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:deep(.el-dialog__header) {
+  padding: 20px 20px 10px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+:deep(.el-dialog__title) {
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
+}
+
+/* 响应式布局优化 */
 @media screen and (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+  
   .el-form-item {
     margin-bottom: 15px;
   }
+  
+  .search-box, .box-card {
+    border-radius: 6px;
+  }
+  
+  .header-title {
+    font-size: 16px;
+  }
+  
+  :deep(.el-dialog) {
+    width: 95% !important;
+    margin: 10px auto !important;
+  }
+}
+
+/* 过渡动画 */
+.el-table-column, .el-form-item {
+  transition: all 0.3s ease;
+}
+
+:deep(.el-pagination) {
+  padding: 10px 5px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.03);
+}
+
+:deep(.el-select.el-select--small) {
+  min-width: 120px !important;
+}
+
+:deep(.el-pagination .el-select .el-input) {
+  width: 120px !important;
+}
+
+:deep(.el-pagination__sizes) {
+  margin-right: 15px;
+}
+
+:deep(.el-pagination .btn-prev .el-icon),
+:deep(.el-pagination .btn-next .el-icon) {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+:deep(.el-pagination button:disabled) {
+  background-color: #f4f4f5;
+}
+
+:deep(.el-pagination .el-select .el-input .el-select__caret) {
+  display: inline-block;
+}
+
+:deep(.el-pagination .el-input__inner) {
+  text-align: center;
+}
+
+:deep(.el-pagination .btn-prev) {
+  padding-right: 12px;
+}
+
+:deep(.el-pagination .btn-next) {
+  padding-left: 12px;
+}
+
+.operation-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 8px;
 }
 </style> 
