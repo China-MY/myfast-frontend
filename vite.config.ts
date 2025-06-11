@@ -17,6 +17,20 @@ export default defineConfig({
     },
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
   },
+  css: {
+    preprocessorOptions: {
+      sass: {
+        sassOptions: {
+          api: 'new'
+        }
+      },
+      scss: {
+        sassOptions: {
+          api: 'new'
+        }
+      }
+    }
+  },
   server: {
     port: 3000,
     open: true,
