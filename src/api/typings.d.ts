@@ -401,8 +401,6 @@ declare namespace API {
     status?: string | null
     /** Remark 备注信息 */
     remark?: string | null
-    /** Job Params 任务参数 */
-    job_params?: string | null
   }
 
   type JobLogOut = {
@@ -451,8 +449,6 @@ declare namespace API {
     remark?: string | null
     /** Job Id */
     job_id: number
-    /** Job Params */
-    job_params?: string | null
     /** Create By */
     create_by: string
     /** Create Time */
@@ -482,8 +478,6 @@ declare namespace API {
     remark?: string | null
     /** Job Id 任务ID */
     job_id: number
-    /** Job Params 任务参数 */
-    job_params?: string | null
   }
 
   type listConfigsApiV1SystemConfigListGetParams = {
