@@ -35,7 +35,13 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="会话编号" align="center" prop="sessionId" width="120" :show-overflow-tooltip="true" />
+      <el-table-column label="会话编号" align="center" width="120">
+        <template #default="scope">
+          <el-tooltip :content="scope.row.sessionId" placement="top">
+            <span>{{ formatSessionId(scope.row.sessionId) }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column label="用户名称" align="center" prop="user_name" />
       <el-table-column label="登录IP地址" align="center" prop="ipaddr" width="130" />
       <el-table-column label="登录地点" align="center" prop="login_location" :show-overflow-tooltip="true" />
@@ -48,7 +54,7 @@
             type="danger" 
             size="small" 
             @click="handleForceLogout(scope.row)"
-            :disabled="scope.row.user_name === 'admin'"
+            :disabled="isCurrentUser(scope.row)"
           >
             强退
           </el-button>
@@ -79,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, ElConfigProvider } from 'element-plus'
 import {
   listOnlineUsersApiV1MonitorOnlineListGet,
@@ -87,6 +93,13 @@ import {
   batchForceLogoutApiV1MonitorOnlineBatchLogoutPost
 } from '@/api/zaixianyonghu'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import { useUserStore } from '@/stores/modules/user'
+
+// 获取用户存储
+const userStore = useUserStore()
+
+// 当前用户信息
+const currentUser = computed(() => userStore.userInfo || {})
 
 // Element Plus 本地化配置
 const locale = zhCn
@@ -161,43 +174,27 @@ const getList = async () => {
     // 处理响应数据
     const response = res.data || {}
     if (response.code === 200) {
-      // 处理API返回的数据
-      let rows: any = response.rows || []
-      
-      // 确保rows是一个数组而不是嵌套数组
-      if (Array.isArray(rows) && rows.length > 0) {
-        if (Array.isArray(rows[0])) {
-          rows = rows.flat()
-        }
-        
-        // 手动转换为我们定义的OnlineUser类型
-        onlineList.value = rows.map((item: any) => ({
-          sessionId: item.sessionId || '',
-          user_id: item.user_id,
-          user_name: item.user_name,
-          ipaddr: item.ipaddr,
-          login_location: item.login_location,
-          browser: item.browser,
-          os: item.os,
-          status: item.status,
-          start_timestamp: item.start_timestamp,
-          last_access_time: item.last_access_time,
-          expire_time: item.expire_time
-        }))
-      } else {
-        onlineList.value = []
-      }
-      
-      console.log('在线用户列表数据加载成功:', onlineList.value)
-      
-      // 获取分页信息中的总数
+      // 处理API返回的数据，确保类型转换正确
+      onlineList.value = (response.rows || []).map((item: any) => ({
+        sessionId: item.sessionId || '',
+        user_id: item.user_id,
+        user_name: item.user_name || '',
+        ipaddr: item.ipaddr || '',
+        login_location: item.login_location || '',
+        browser: item.browser || '',
+        os: item.os || '',
+        status: item.status || '',
+        start_timestamp: item.start_timestamp || '',
+        last_access_time: item.last_access_time || '',
+        expire_time: item.expire_time || 0
+      }));
       total.value = response.pageInfo?.total || 0
     } else {
       ElMessage.error(response.msg || '获取在线用户列表失败')
     }
-  } catch (error) {
-    console.error('获取在线用户列表出错：', error)
-    ElMessage.error('获取在线用户列表出错')
+  } catch (error: any) {
+    console.error('获取在线用户列表出错:', error)
+    ElMessage.error('获取在线用户列表失败: ' + (error.message || String(error)))
   } finally {
     loading.value = false
   }
@@ -225,16 +222,20 @@ const handleSelectionChange = (selection: OnlineUser[]) => {
 
 // 强制单个用户退出
 const handleForceLogout = (row: OnlineUser) => {
-  if (row.user_name === 'admin') {
-    ElMessage.warning('管理员账号不允许强制退出')
+  if (isCurrentUser(row)) {
+    ElMessage.warning('不能强制退出自己的会话')
     return
   }
   
-  ElMessageBox.confirm(`确认强制退出用户 ${row.user_name} 吗？`, '警告', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(async () => {
+  ElMessageBox.confirm(
+    `确认强制退出用户 ${row.user_name || '未知用户'} 的会话？`,
+    '强制退出',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  ).then(async () => {
     try {
       loading.value = true
       console.log('开始强制退出用户，会话ID:', row.sessionId)
@@ -243,17 +244,19 @@ const handleForceLogout = (row: OnlineUser) => {
       const response = res.data || {}
       if (response.code === 200) {
         ElMessage.success('强制退出成功')
-        getList()
+        getList() // 刷新列表
       } else {
         ElMessage.error(response.msg || '强制退出失败')
       }
     } catch (error) {
       console.error('强制退出用户出错：', error)
-      ElMessage.error('强制退出用户出错')
+      ElMessage.error('强制退出用户失败，请稍后再试')
     } finally {
       loading.value = false
     }
-  }).catch(() => {})
+  }).catch(() => {
+    // 用户取消操作
+  })
 }
 
 // 批量强制退出
@@ -301,6 +304,25 @@ const handleSizeChange = (size: number) => {
 const handleCurrentChange = (page: number) => {
   queryParams.page = page
   getList()
+}
+
+// 格式化会话ID
+const formatSessionId = (sessionId: string) => {
+  if (!sessionId) return '';
+  if (sessionId.length <= 12) return sessionId;
+  return sessionId.substring(0, 6) + '...' + sessionId.substring(sessionId.length - 6);
+}
+
+// 判断是否为当前用户
+const isCurrentUser = (row: OnlineUser) => {
+  // 判断是否是当前登录用户
+  const isSameUser = row.user_id === currentUser.value?.user_id;
+  
+  // 管理员账号限制逻辑 - 如果需要可以启用
+  // const isAdmin = row.user_name === 'admin';
+  
+  // 返回是否为当前用户（如果是当前用户不允许强退）
+  return isSameUser;
 }
 </script>
 

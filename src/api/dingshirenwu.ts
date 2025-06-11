@@ -98,7 +98,7 @@ export async function listJobsApiV1MonitorJobListGet(
   params: API.listJobsApiV1MonitorJobListGetParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.PageResponseModelListJobOut_>('/api/v1/monitor/job/list', {
+  return request<any>('/api/v1/monitor/job/list', {
     method: 'GET',
     params: {
       // page has a default value: 1
@@ -125,7 +125,7 @@ export async function listJobLogsApiV1MonitorJobLogListGet(
   params: API.listJobLogsApiV1MonitorJobLogListGetParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.PageResponseModelListJobLogOut_>('/api/v1/monitor/job/log/list', {
+  return request<any>('/api/v1/monitor/job/log/list', {
     method: 'GET',
     params: {
       // page has a default value: 1

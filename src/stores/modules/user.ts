@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getUserInfoApiV1AuthInfoGet, logoutApiV1AuthLogoutPost } from '@/api/renzheng'
+import { getUserInfoApiV1AuthInfoGet, logoutApiV1AuthPost } from '@/api/renzheng'
 import { setToken, removeToken } from '@/utils/auth'
 import type { UserInfo } from '@/types/user'
 import { ElMessage } from 'element-plus'
@@ -147,7 +147,7 @@ export const useUserStore = defineStore({
       try {
         console.log('开始执行登出操作...')
         // 调用注销API
-        await logoutApiV1AuthLogoutPost()
+        await logoutApiV1AuthPost()
         ElMessage.success('已成功退出登录')
       } catch (error) {
         console.error('登出请求失败', error)

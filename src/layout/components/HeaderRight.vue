@@ -192,7 +192,7 @@ import {
   Search
 } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/modules/user';
-import { logoutApiV1AuthLogoutPost } from '@/api/renzheng';
+import { logoutApiV1AuthPost } from '@/api/renzheng';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -332,7 +332,7 @@ const handleLogout = () => {
   }).then(async () => {
     try {
       // 调用登出API
-      await logoutApiV1AuthLogoutPost();
+      await logoutApiV1AuthPost();
       // 重置用户状态
       await userStore.logout();
       // 跳转到登录页

@@ -278,7 +278,7 @@ import {
 import { ElMessage, ElNotification } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/modules/user';
-import { loginByAccountApiV1AuthLoginAccountPost } from '@/api/renzheng';
+import { loginAccountApiV1AuthAccountPost } from '@/api/renzheng';
 import { registerUserApiV1AuthRegisterPost } from '@/api/zhuce';
 import { setToken } from '@/utils/auth';
 
@@ -438,7 +438,7 @@ const handleLoginSubmit = async () => {
     };
 
     // 调用登录API
-    const response = await loginByAccountApiV1AuthLoginAccountPost(loginData) as any;
+    const response = await loginAccountApiV1AuthAccountPost(loginData) as any;
     console.log('登录响应:', response);
 
     if (response.data && response.data.code === 200) {

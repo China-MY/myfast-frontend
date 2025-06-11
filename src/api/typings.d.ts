@@ -403,33 +403,6 @@ declare namespace API {
     remark?: string | null
   }
 
-  type JobLogOut = {
-    /** Job Name 任务名称 */
-    job_name: string
-    /** Job Group 任务组名 */
-    job_group: string
-    /** Invoke Target 调用目标字符串 */
-    invoke_target: string
-    /** Job Message 日志信息 */
-    job_message?: string | null
-    /** Status 执行状态（0正常 1失败） */
-    status?: string
-    /** Exception Info 异常信息 */
-    exception_info?: string | null
-    /** Job Log Id */
-    job_log_id: number
-    /** Job Id */
-    job_id?: number | null
-    /** Start Time */
-    start_time?: string | null
-    /** End Time */
-    end_time?: string | null
-    /** Create Time */
-    create_time: string
-    /** Run Time */
-    run_time?: number | null
-  }
-
   type JobOut = {
     /** Job Name 任务名称 */
     job_name: string
@@ -764,26 +737,6 @@ declare namespace API {
     msg?: string
     /** Rows 数据列表 */
     rows?: ConfigOut[][]
-    pageInfo?: PageInfo
-  }
-
-  type PageResponseModelListJobLogOut_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Rows 数据列表 */
-    rows?: JobLogOut[][]
-    pageInfo?: PageInfo
-  }
-
-  type PageResponseModelListJobOut_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Rows 数据列表 */
-    rows?: JobOut[][]
     pageInfo?: PageInfo
   }
 
@@ -1186,8 +1139,10 @@ declare namespace API {
   type Token = {
     /** Access Token 访问令牌 */
     access_token: string
-    /** Token Type 令牌类型，通常是bearer */
+    /** Token Type 令牌类型 */
     token_type: string
+    /** Expires In 过期时间(秒) */
+    expires_in?: number
   }
 
   type updateConfigApiV1SystemConfigConfigIdPutParams = {
