@@ -16,6 +16,13 @@ MyFast-Admin 是一款基于 FastAPI 和 Vue3 的现代化企业级开发框架�
 
 MyFast-Admin 前端采用 Vue3 + TypeScript + Vite + Element Plus 技术栈开发，提供现代化、响应式的用户界面，支持各种企业管理功能。
 
+## 🔗 配套后端项目
+
+配套的后端项目采用FastAPI + SQLAlchemy + Pydantic开发，提供高性能API服务：
+
+- Gitee仓库：[https://gitee.com/myxzgzs/myfast-backend.git](https://gitee.com/myxzgzs/myfast-backend.git)
+- GitHub仓库：[https://github.com/China-MY/myfast-backend.git](https://github.com/China-MY/myfast-backend.git)
+
 ## ✨ 核心特性
 
 - **现代化框架**：基于 Vue 3 Composition API 和 TypeScript
@@ -121,6 +128,12 @@ pnpm dev
 npm run build
 # 或
 pnpm build
+```
+5. 系统默认账号
+
+```
+默认管理员账号：admin
+默认管理员密码：Qwe123123
 ```
 
 ## 📃 功能列表
