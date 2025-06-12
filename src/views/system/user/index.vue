@@ -498,7 +498,7 @@ const getUserList = async () => {
   errorMsg.value = ''
 
   try {
-    console.log('准备获取用户列表，原始参数:', queryParams)
+    ///console.log('准备获取用户列表，原始参数:', queryParams)
 
     // 准备API请求参数，处理兼容性问题
     const apiParams: any = {
@@ -522,7 +522,7 @@ const getUserList = async () => {
       apiParams.role_id = queryParams.role_id
     }
 
-    console.log('发送API请求参数:', apiParams)
+    ///console.log('发送API请求参数:', apiParams)
 
     // 直接使用request而不是封装的API函数，以便更好地控制参数
     const response = await request('/api/v1/system/user/', {
@@ -531,13 +531,13 @@ const getUserList = async () => {
     })
 
     // 打印完整响应，帮助调试
-    console.log('获取用户列表响应:', response)
+    ///console.log('获取用户列表响应:', response)
 
     // 获取response.data中的数据
     const res = response.data
 
     if (res && res.code === 200) {
-      console.log('获取用户列表成功，数据:', res.rows)
+      ///console.log('获取用户列表成功，数据:', res.rows)
 
       // 处理用户数据，确保部门信息的一致性
       const processedData = (res.rows || []).map((user: any) => {
@@ -565,12 +565,12 @@ const getUserList = async () => {
       // 从pageInfo中获取total
       total.value = res.pageInfo?.total || 0
     } else {
-      console.error('获取用户列表响应码错误:', res?.code, res?.msg)
+      ///console.error('获取用户列表响应码错误:', res?.code, res?.msg)
       errorMsg.value = res?.msg || '获取用户列表失败'
       ElMessage.error(errorMsg.value)
     }
   } catch (error: any) {
-    console.error('获取用户列表出错:', error)
+    ///console.error('获取用户列表出错:', error)
     errorMsg.value = `获取用户列表失败: ${error?.message || '未知错误'}`
     ElMessage.error(errorMsg.value)
   } finally {
@@ -582,13 +582,13 @@ const getUserList = async () => {
 const handleSearch = () => {
   queryParams.page = 1
   // 打印搜索参数，确保值正确传递
-  console.log('搜索参数:', {
-    username: queryParams.username,
-    nickname: queryParams.nickname,
-    phonenumber: queryParams.phonenumber,
-    status: queryParams.status,
-    sex: queryParams.sex,
-  })
+  ///console.log('搜索参数:', {
+  //   username: queryParams.username,
+  //   nickname: queryParams.nickname,
+  //   phonenumber: queryParams.phonenumber,
+  //   status: queryParams.status,
+  //   sex: queryParams.sex,
+  // })
   getUserList()
 }
 
@@ -702,7 +702,7 @@ const handleEdit = async (row: User) => {
 
     if (res && res.code === 200) {
       const userData = res.data as any || {}
-      console.log('获取到的用户详细数据:', userData)
+      ///console.log('获取到的用户详细数据:', userData)
 
       form.user_id = userData.user_id || 0
       form.username = userData.username || ''
@@ -723,34 +723,34 @@ const handleEdit = async (row: User) => {
         form.dept_id = null
       }
 
-      console.log('用户部门信息:', {
-        rawDept: userData.dept,
-        rawDeptId: userData.dept_id,
-        formDeptId: form.dept_id
-      })
+      //console.log('用户部门信息:', {
+      //   rawDept: userData.dept,
+      //   rawDeptId: userData.dept_id,
+      //   formDeptId: form.dept_id
+      // })
 
       // 设置用户角色
       if (userData.roles && Array.isArray(userData.roles)) {
         form.roleIds = userData.roles.map((role: any) => role.role_id)
-        console.log('设置的角色IDs:', form.roleIds)
+        ///console.log('设置的角色IDs:', form.roleIds)
       } else if (userData.role_ids && Array.isArray(userData.role_ids)) {
         form.roleIds = userData.role_ids
-        console.log('从role_ids设置的角色:', form.roleIds)
+        ///console.log('从role_ids设置的角色:', form.roleIds)
       } else {
         form.roleIds = []
-        console.log('未找到角色信息，设置空数组')
+        ///console.log('未找到角色信息，设置空数组')
       }
 
       // 设置用户岗位
       if (userData.posts && Array.isArray(userData.posts)) {
         form.postIds = userData.posts.map((post: any) => post.post_id)
-        console.log('设置的岗位IDs:', form.postIds)
+        ///console.log('设置的岗位IDs:', form.postIds)
       } else if (userData.post_ids && Array.isArray(userData.post_ids)) {
         form.postIds = userData.post_ids
-        console.log('从post_ids设置的岗位:', form.postIds)
+        ///console.log('从post_ids设置的岗位:', form.postIds)
       } else {
         form.postIds = []
-        console.log('未找到岗位信息，设置空数组')
+        ///console.log('未找到岗位信息，设置空数组')
       }
 
       dialogType.value = 'edit'
@@ -759,7 +759,7 @@ const handleEdit = async (row: User) => {
       ElMessage.error(res?.msg || '获取用户信息失败')
     }
   } catch (error: any) {
-    console.error('获取用户信息出错:', error)
+    ///console.error('获取用户信息出错:', error)
     ElMessage.error(`获取用户信息失败: ${error?.message || ''}`)
   }
 }
@@ -773,7 +773,7 @@ const submitForm = async () => {
 
     try {
       // 打印表单数据，用于调试
-      console.log('表单数据:', JSON.stringify(form))
+      ///console.log('表单数据:', JSON.stringify(form))
 
       // 准备提交的用户数据
       const userData = {
@@ -789,15 +789,15 @@ const submitForm = async () => {
         post_ids: Array.isArray(form.postIds) ? form.postIds : []
       } as any
 
-      console.log('提交的用户数据:', JSON.stringify(userData))
+      ///console.log('提交的用户数据:', JSON.stringify(userData))
 
       // 如果是新增用户，添加密码字段
       if (dialogType.value === 'add') {
         userData.password = form.password
 
         // 确保角色和岗位数据正确传递
-        console.log('新增用户的角色数据:', userData.role_ids)
-        console.log('新增用户的岗位数据:', userData.post_ids)
+        ///console.log('新增用户的角色数据:', userData.role_ids)
+        ///console.log('新增用户的岗位数据:', userData.post_ids)
 
         const response = await createUserApiV1SystemUserPost(userData)
         const res = response.data
@@ -826,8 +826,8 @@ const submitForm = async () => {
         }
       }
     } catch (error: any) {
-      console.error('提交表单出错:', error)
-      console.error('错误详情:', error.response?.data) // 添加详细错误信息输出
+      ///console.error('提交表单出错:', error)
+      ///console.error('错误详情:', error.response?.data) // 添加详细错误信息输出
       ElMessage.error(`操作失败: ${error?.message || ''}, 详情: ${error.response?.data?.msg || '未知错误'}`)
     }
   })
@@ -851,7 +851,7 @@ const handleDelete = (row: User) => {
         ElMessage.error(res?.msg || '删除用户失败')
       }
     } catch (error: any) {
-      console.error('删除用户出错:', error)
+      ///console.error('删除用户出错:', error)
       ElMessage.error(`删除用户失败: ${error?.message || ''}`)
     }
   }).catch(() => {
@@ -922,7 +922,7 @@ const submitResetPwd = async () => {
         ElMessage.error(res?.msg || '重置密码失败')
       }
     } catch (error: any) {
-      console.error('重置密码出错:', error)
+      ///console.error('重置密码出错:', error)
       ElMessage.error(`重置密码失败: ${error?.message || ''}`)
     }
   })
@@ -931,11 +931,11 @@ const submitResetPwd = async () => {
 // 获取部门列表
 const getDeptList = async () => {
   try {
-    console.log('正在获取部门列表...');
+    ///console.log('正在获取部门列表...');
     
     // 使用部门管理API获取数据
     const response = await listDeptsApiV1SystemDeptGet({});
-    console.log('部门列表响应数据:', response);
+    ///console.log('部门列表响应数据:', response);
     
     // 处理API返回数据结构
     const res = response.data || response;
@@ -946,9 +946,9 @@ const getDeptList = async () => {
         dept_id: dept.dept_id,
         dept_name: dept.dept_name || ''
       }));
-      console.log('成功获取部门列表:', deptList.value);
+      ///console.log('成功获取部门列表:', deptList.value);
     } else {
-      console.error('获取部门列表失败，使用默认数据');
+      ///console.error('获取部门列表失败，使用默认数据');
       // 使用默认部门数据
       if (!deptList.value.length) {
         deptList.value = [
@@ -958,7 +958,7 @@ const getDeptList = async () => {
       }
     }
   } catch (error) {
-    console.error('获取部门列表出错:', error);
+    ///console.error('获取部门列表出错:', error);
     // 使用默认部门数据，不显示错误
     deptList.value = [
       { dept_id: 100, dept_name: '总公司' },
@@ -1010,11 +1010,11 @@ const getRoleList = async () => {
 // 获取岗位列表
 const getPostList = async () => {
   try {
-    console.log('正在获取岗位列表...');
+    ///console.log('正在获取岗位列表...');
     
     // 使用岗位管理API获取数据
     const response = await listPostsApiV1SystemPostListGet({});
-    console.log('岗位列表响应数据:', response);
+    ///console.log('岗位列表响应数据:', response);
     
     // 处理API返回数据结构
     const res = response.data || response;
@@ -1026,9 +1026,9 @@ const getPostList = async () => {
         post_name: post.post_name || '',
         post_code: post.post_code || ''
       }));
-      console.log('成功获取岗位列表:', postList.value);
+      ///console.log('成功获取岗位列表:', postList.value);
     } else {
-      console.error('获取岗位列表失败，使用默认数据');
+      ///console.error('获取岗位列表失败，使用默认数据');
       // 使用默认岗位数据
       if (!postList.value.length) {
         postList.value = [
@@ -1040,7 +1040,7 @@ const getPostList = async () => {
       }
     }
   } catch (error) {
-    console.error('获取岗位列表出错:', error);
+    ///console.error('获取岗位列表出错:', error);
     // 使用默认岗位数据，不显示错误
     postList.value = [
       { post_id: 1, post_name: '董事长', post_code: 'ceo' },
@@ -1119,7 +1119,7 @@ const buildDeptTree = (depts: any[]): any[] => {
 const initDeptTree = () => {
   // 首先确保deptList中有数据
   if (!deptList.value || deptList.value.length === 0) {
-    console.log('未检测到部门数据，重新获取');
+    ///console.log('未检测到部门数据，重新获取');
     getDeptList().then(() => {
       buildDeptTreeData();
     });
@@ -1133,7 +1133,7 @@ const buildDeptTreeData = () => {
   try {
     // 构建部门树结构
     const treeData = buildDeptTree(deptList.value);
-    console.log('构建的部门树结构:', treeData);
+    ///console.log('构建的部门树结构:', treeData);
 
     // 添加"所有部门"根节点
     deptTreeData.value = [
@@ -1144,7 +1144,7 @@ const buildDeptTreeData = () => {
       ...treeData
     ];
 
-    console.log('部门树初始化完成:', deptTreeData.value);
+    ///console.log('部门树初始化完成:', deptTreeData.value);
 
     // 默认选中"所有部门"
     setTimeout(() => {
@@ -1153,7 +1153,7 @@ const buildDeptTreeData = () => {
       }
     }, 100);
   } catch (error) {
-    console.error('初始化部门树出错:', error);
+    ///console.error('初始化部门树出错:', error);
     // 出错时使用默认数据
     deptTreeData.value = [
       {
@@ -1180,7 +1180,7 @@ const initRoleTree = () => {
       }))
     ]
 
-    console.log('角色树初始化完成:', roleTreeData.value)
+    ///console.log('角色树初始化完成:', roleTreeData.value)
 
     // 默认选中"所有角色"
     setTimeout(() => {
@@ -1189,7 +1189,7 @@ const initRoleTree = () => {
       }
     }, 100)
   } catch (error) {
-    console.error('初始化角色树出错:', error)
+    ///console.error('初始化角色树出错:', error)
     // 出错时使用默认数据
     roleTreeData.value = [
       {
@@ -1203,7 +1203,7 @@ const initRoleTree = () => {
 
 // 点击部门节点
 const handleDeptNodeClick = (data: any) => {
-  console.log('点击部门节点:', data)
+  ///console.log('点击部门节点:', data)
 
   if (data.dept_id === 0) {
     // 点击"所有部门"，清除筛选
@@ -1219,10 +1219,10 @@ const handleDeptNodeClick = (data: any) => {
   queryParams.page = 1
 
   // 打印当前筛选状态
-  console.log('部门筛选状态更新:', {
-    selectedDeptId: selectedDeptId.value,
-    queryParams: { ...queryParams }
-  })
+  //console.log('部门筛选状态更新:', {
+  //   selectedDeptId: selectedDeptId.value,
+  //   queryParams: { ...queryParams }
+  // })
 
   // 重新获取用户列表
   getUserList()
@@ -1230,7 +1230,7 @@ const handleDeptNodeClick = (data: any) => {
 
 // 点击角色节点
 const handleRoleNodeClick = (data: any) => {
-  console.log('点击角色节点:', data)
+  ///console.log('点击角色节点:', data)
 
   if (data.role_id === 0) {
     // 点击"所有角色"，清除筛选
@@ -1246,10 +1246,10 @@ const handleRoleNodeClick = (data: any) => {
   queryParams.page = 1
 
   // 打印当前筛选状态
-  console.log('角色筛选状态更新:', {
-    selectedRoleId: selectedRoleId.value,
-    queryParams: { ...queryParams }
-  })
+  //console.log('角色筛选状态更新:', {
+  //   selectedRoleId: selectedRoleId.value,
+  //   queryParams: { ...queryParams }
+  // })
 
   // 重新获取用户列表
   getUserList()
@@ -1266,20 +1266,20 @@ const resetDeptFilter = () => {
     try {
       deptTreeRef.value.setCurrentKey(0)
     } catch (error) {
-      console.log('设置部门选中节点失败，稍后重试')
+      ///console.log('设置部门选中节点失败，稍后重试')
       // 延迟尝试
       setTimeout(() => {
         try {
           deptTreeRef.value?.setCurrentKey(0)
         } catch (e) {
-          console.log('再次设置部门选中节点失败')
+          ///console.log('再次设置部门选中节点失败')
         }
       }, 300)
     }
   }
 
   // 更新用户列表
-  console.log('重置部门筛选，当前筛选参数:', queryParams)
+  ///console.log('重置部门筛选，当前筛选参数:', queryParams)
   getUserList()
 }
 
@@ -1294,20 +1294,20 @@ const resetRoleFilter = () => {
     try {
       roleTreeRef.value.setCurrentKey(0)
     } catch (error) {
-      console.log('设置角色选中节点失败，稍后重试')
+      ///console.log('设置角色选中节点失败，稍后重试')
       // 延迟尝试
       setTimeout(() => {
         try {
           roleTreeRef.value?.setCurrentKey(0)
         } catch (e) {
-          console.log('再次设置角色选中节点失败')
+          ///console.log('再次设置角色选中节点失败')
         }
       }, 300)
     }
   }
 
   // 更新用户列表
-  console.log('重置角色筛选，当前筛选参数:', queryParams)
+  ///console.log('重置角色筛选，当前筛选参数:', queryParams)
   getUserList()
 }
 
@@ -1333,7 +1333,7 @@ const handleRetry = () => {
 // 页面加载时获取用户列表、部门列表、角色列表和岗位列表
 onMounted(async () => {
   // 先获取部门列表，因为用户列表中可能需要部门信息
-  console.log('页面加载，开始获取数据');
+  ///console.log('页面加载，开始获取数据');
   try {
     // 首先获取部门、角色和岗位列表
     await getDeptList();
@@ -1347,12 +1347,12 @@ onMounted(async () => {
     // 然后获取用户列表
     await getUserList();
   } catch (error) {
-    console.error('初始化数据出错:', error);
+    ///console.error('初始化数据出错:', error);
     // 获取用户列表可能不依赖部门和角色数据，所以即使前面失败也尝试获取
     try {
       await getUserList();
     } catch (userError) {
-      console.error('获取用户列表也失败:', userError);
+      ///console.error('获取用户列表也失败:', userError);
     }
   }
 });

@@ -154,7 +154,6 @@
               :key="item.title" 
               :type="item.type === 'primary' ? 'primary' : ''" 
               class="action-button" 
-              @click="item.action"
               icon-position="left"
             >
               <el-icon><component :is="getIcon(item.icon)"/></el-icon>
@@ -204,8 +203,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import { 
   User, 
   Message, 
@@ -226,20 +226,58 @@ import {
   Upload
 } from '@element-plus/icons-vue';
 import CountTo from '@/components/CountTo/index.vue';
+import { readUserMeApiV1SystemUserProfileGet } from '@/api/yonghuxinxi';
 
 const router = useRouter();
+const loading = ref(false);
 
 // 用户基本信息
 const userInfo = ref({
-  name: '张三',
+  name: '',
   avatar: '',
   bio: '资深前端开发工程师，热爱技术，专注于用户体验设计与前端架构',
-  role: '开发工程师',
-  department: '技术部',
-  email: 'zhangsan@example.com',
-  phone: '13800138000',
-  location: '北京市朝阳区',
+  role: '',
+  department: '',
+  email: '',
+  phone: '',
+  location: '',
   online: true
+});
+
+// 获取用户信息
+const fetchUserInfo = async () => {
+  loading.value = true;
+  try {
+    const response = await readUserMeApiV1SystemUserProfileGet();
+    const res = response.data;
+    if (res.code === 200 && res.data) {
+      const userData = res.data;
+      userInfo.value = {
+        name: userData.nickname || userData.username || '未设置昵称',
+        avatar: '',
+        bio: '这个人很懒，什么也没有留下。',
+        role: userData.roles?.[0]?.role_name || '普通用户',
+        department: userData.dept?.dept_name || '未分配部门',
+        email: userData.email || '未设置邮箱',
+        phone: userData.phonenumber || '未设置手机号',
+        location: '未设置地址',
+        online: true
+      };
+      ///console.log('获取用户信息成功:', userData);
+    } else {
+      ElMessage.error(res?.msg || '获取用户信息失败');
+    }
+  } catch (error) {
+    ///console.error('获取用户信息出错:', error);
+    ElMessage.error('获取用户信息失败，请重试');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 页面加载时获取用户信息
+onMounted(() => {
+  fetchUserInfo();
 });
 
 // 用户统计数据
@@ -306,25 +344,25 @@ const quickActions = ref([
     title: '创建任务',
     icon: 'Document',
     type: 'primary',
-    action: () => console.log('创建任务')
+    // action: () => console.log('创建任务')
   },
   {
     title: '发起项目',
     icon: 'Folder',
     type: 'default',
-    action: () => console.log('发起项目')
+    // action: () => console.log('发起项目')
   },
   {
     title: '编写周报',
     icon: 'Document',
     type: 'default',
-    action: () => console.log('编写周报')
+    // action: () => ///console.log('编写周报')
   },
   {
     title: '预约会议',
     icon: 'User',
     type: 'default',
-    action: () => console.log('预约会议')
+    // action: () => ///console.log('预约会议')
   }
 ]);
 

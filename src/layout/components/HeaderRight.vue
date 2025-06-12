@@ -236,7 +236,7 @@ const noticeTotal = computed(() => notices.value.length + messages.value.length)
 
 // 搜索
 const onSearch = () => {
-  console.log('搜索:', searchText.value);
+  ///console.log('搜索:', searchText.value);
   ElMessage.info(`搜索: ${searchText.value}`);
   searchText.value = '';
 };
@@ -258,7 +258,7 @@ const viewMoreMessages = () => {
 const toggleFullScreen = () => {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen().catch(err => {
-      console.error(`无法进入全屏模式: ${err.message}`);
+      ///console.error(`无法进入全屏模式: ${err.message}`);
     });
   } else {
     if (document.exitFullscreen) {
@@ -338,7 +338,7 @@ const handleLogout = () => {
       // 跳转到登录页
       router.push('/login');
     } catch (error) {
-      console.error('登出失败:', error);
+      ///console.error('登出失败:', error);
     }
   }).catch(() => {
     // 取消操作

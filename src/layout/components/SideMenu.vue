@@ -210,7 +210,7 @@ const handleResize = () => {
 
 // 监听路由变化更新菜单选中状态
 watch(() => route.path, (path) => {
-  console.log('路由变化:', path);
+  ///console.log('路由变化:', path);
   
   // 特殊处理仪表盘路径
   if (path === '/' || path === '/index') {
@@ -240,7 +240,7 @@ watch(() => route.path, (path) => {
     }
 
     openKeys.value = openKeyArray;
-    console.log('展开菜单:', openKeyArray);
+    ///console.log('展开菜单:', openKeyArray);
   }
 }, { immediate: true });
 
@@ -284,16 +284,16 @@ const routesAdded = computed(() => menuState.routesAdded);
 const fetchMenuData = async () => {
   // 如果菜单已经加载过，直接使用全局菜单数据
   if (menuState.menuLoaded && menuState.menuData) {
-    console.log('使用全局菜单数据');
+    ///console.log('使用全局菜单数据');
     menuList.value = menuState.menuData;
     // 打印菜单结构，用于调试
-    console.log('菜单数据结构:', JSON.stringify(menuList.value.slice(0, 2), null, 2));
+    ///console.log('菜单数据结构:', JSON.stringify(menuList.value.slice(0, 2), null, 2));
     return;
   }
 
   // 如果有正在进行的菜单加载请求，等待其完成
   if (menuState.loadingPromise) {
-    console.log('等待已有菜单加载请求完成');
+    ///console.log('等待已有菜单加载请求完成');
     await menuState.loadingPromise;
     if (menuState.menuData) {
       menuList.value = menuState.menuData;
@@ -307,7 +307,7 @@ const fetchMenuData = async () => {
     menuState.loadingPromise = requestPromise as unknown as Promise<any>;
     const res = await requestPromise;
     
-    console.log('SideMenu获取菜单响应:', res);
+    ///console.log('SideMenu获取菜单响应:', res);
     
     // 优化响应数据处理逻辑 - 支持多种格式
     let menuData: any[] = [];
@@ -346,12 +346,12 @@ const fetchMenuData = async () => {
       menuList.value = menuData;
       menuState.menuData = menuData;
       menuState.menuLoaded = true;
-      console.log('从后端获取的菜单数据处理完成', menuData);
+      ///console.log('从后端获取的菜单数据处理完成', menuData);
     } else {
-      console.error('获取菜单数据失败或数据为空:', res);
+      ///console.error('获取菜单数据失败或数据为空:', res);
     }
   } catch (error) {
-    console.error('获取菜单出错:', error);
+    ///console.error('获取菜单出错:', error);
   } finally {
     menuState.loadingPromise = null;
   }
@@ -359,7 +359,7 @@ const fetchMenuData = async () => {
 
 // 菜单点击处理
 const handleMenuClick = (path: string, menuItem?: any) => {
-  console.log('菜单点击:', path, menuItem);
+  ///console.log('菜单点击:', path, menuItem);
   
   // 如果传入了菜单项对象，优先使用其中的配置
   if (menuItem) {
@@ -394,7 +394,7 @@ const handleMenuClick = (path: string, menuItem?: any) => {
         });
         return;
       } catch (error) {
-        console.error('解析query参数出错:', error);
+        ///console.error('解析query参数出错:', error);
       }
     }
   }
@@ -414,7 +414,7 @@ const handleMenuClick = (path: string, menuItem?: any) => {
     // 提取最后一级路径，如user、role等
     if (pathParts.length >= 2) {
       const lastPart = pathParts[pathParts.length - 1];
-      console.log('系统管理菜单项:', lastPart);
+      ///console.log('系统管理菜单项:', lastPart);
       // 特殊处理常见菜单项
       if (['user', 'role', 'menu', 'dept', 'post', 'dict', 'config'].includes(lastPart)) {
         normalizedPath = `/system/${lastPart}`;
@@ -427,7 +427,7 @@ const handleMenuClick = (path: string, menuItem?: any) => {
     const pathParts = path.split('/').filter(Boolean);
     if (pathParts.length >= 2) {
       const lastPart = pathParts[pathParts.length - 1];
-      console.log('监控菜单项:', lastPart);
+      ///console.log('监控菜单项:', lastPart);
       if (['online', 'job', 'data', 'server', 'cache', 'druid'].includes(lastPart)) {
         normalizedPath = `/monitor/${lastPart}`;
       }
@@ -439,14 +439,14 @@ const handleMenuClick = (path: string, menuItem?: any) => {
     const pathParts = path.split('/').filter(Boolean);
     if (pathParts.length >= 2) {
       const lastPart = pathParts[pathParts.length - 1];
-      console.log('工具菜单项:', lastPart);
+      ///console.log('工具菜单项:', lastPart);
       if (['gen', 'swagger', 'build'].includes(lastPart)) {
         normalizedPath = `/tool/${lastPart}`;
       }
     }
   }
   
-  console.log('菜单点击最终路径:', normalizedPath);
+  ///console.log('菜单点击最终路径:', normalizedPath);
   
   // 如果路径相同，使用redirect进行刷新
   if (normalizedPath === route.path) {
@@ -470,7 +470,7 @@ const initMenus = async () => {
   
   // 如果menuState.routesAdded为false，表示需要重新加载路由
   if (!menuState.routesAdded && menuState.menuData && menuState.menuData.length > 0) {
-    console.log('[SideMenu] 检测到路由未加载，触发路由刷新');
+    ///console.log('[SideMenu] 检测到路由未加载，触发路由刷新');
     // 发出自定义事件通知路由组件重新加载
     const event = new CustomEvent('reload-async-routes');
     document.dispatchEvent(event);
@@ -512,7 +512,7 @@ onMounted(() => {
   
   // 注册自定义事件处理auth/info轮询控制
   const stopPolling = () => {
-    console.log('停止不必要的auth/info轮询');
+    ///console.log('停止不必要的auth/info轮询');
     // 创建自定义事件通知停止轮询
     const event = new CustomEvent('stop-auth-polling');
     document.dispatchEvent(event);
@@ -528,7 +528,7 @@ onBeforeUnmount(() => {
 
 // 处理路径拼接问题
 const getFullPath = (parentPath: string, childPath: string, grandchildPath?: string): string => {
-  console.log('拼接路径:', parentPath, childPath, grandchildPath || '');
+  ///console.log('拼接路径:', parentPath, childPath, grandchildPath || '');
   
   // 如果子路径本身就是完整路径，直接返回
   if (childPath.startsWith('/')) {
@@ -554,12 +554,12 @@ const getFullPath = (parentPath: string, childPath: string, grandchildPath?: str
   if (grandchildPath) {
     const normalizedGrandchild = grandchildPath.startsWith('/') ? grandchildPath.substring(1) : grandchildPath;
     const result = `${normalizedParent}${normalizedChild}/${normalizedGrandchild}`;
-    console.log('拼接完成路径:', result);
+    ///console.log('拼接完成路径:', result);
     return result;
   }
   
   const result = `${normalizedParent}${normalizedChild}`;
-  console.log('拼接完成路径:', result);
+  ///console.log('拼接完成路径:', result);
   return result;
 };
 </script>

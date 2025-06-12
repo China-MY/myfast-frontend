@@ -23,11 +23,11 @@ export function routeLog(type: 'info' | 'success' | 'warning' | 'error' | 'impor
     return;
   }
   
-  console.log(
-    `%c[路由] ${message}`,
-    `color: ${LOG_COLORS[type]}; font-weight: bold;`,
-    ...args
-  );
+  // console.log(
+  //   `%c[路由] ${message}`,
+  //   `color: ${LOG_COLORS[type]}; font-weight: bold;`,
+  //   ...args
+  // );
 }
 
 /**

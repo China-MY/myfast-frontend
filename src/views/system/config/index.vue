@@ -231,7 +231,7 @@ onMounted(() => {
 const getList = async () => {
   loading.value = true
   try {
-    console.log('获取参数列表，参数:', queryParams)
+    ///console.log('获取参数列表，参数:', queryParams)
     const res = await listConfigsApiV1SystemConfigListGet({
       page: queryParams.page,
       page_size: queryParams.page_size,
@@ -239,7 +239,7 @@ const getList = async () => {
       config_name: queryParams.config_name || undefined
     })
     
-    console.log('参数列表响应:', res)
+    ///console.log('参数列表响应:', res)
     // 处理响应数据
     const response = res.data || {}
     if (response.code === 200) {
@@ -253,7 +253,7 @@ const getList = async () => {
         system_builtin: item.config_type === 'Y'
       }))
       
-      console.log('参数列表数据加载成功:', configList.value)
+      ///console.log('参数列表数据加载成功:', configList.value)
       
       // 获取分页信息中的总数
       total.value = response.pageInfo?.total || 0
@@ -261,7 +261,7 @@ const getList = async () => {
       ElMessage.error(response.msg || '获取参数列表失败')
     }
   } catch (error) {
-    console.error('获取参数列表出错：', error)
+    ///console.error('获取参数列表出错：', error)
     ElMessage.error('获取参数列表出错')
   } finally {
     loading.value = false
@@ -298,14 +298,14 @@ const handleUpdate = async (row: ConfigItem) => {
   
   try {
     loading.value = true
-    console.log('获取参数详情，ID:', row.config_id)
+    ///console.log('获取参数详情，ID:', row.config_id)
     const res = await getConfigApiV1SystemConfigConfigIdGet({ config_id: row.config_id })
     
-    console.log('获取参数详情响应:', res)
+    ///console.log('获取参数详情响应:', res)
     // 处理响应数据
     const response = res.data || {}
     if (response.code === 200 && response.data) {
-      console.log('获取到的参数数据:', response.data)
+      ///console.log('获取到的参数数据:', response.data)
       Object.assign(formData, response.data, {
         system_builtin: response.data.config_type === 'Y'
       })
@@ -314,7 +314,7 @@ const handleUpdate = async (row: ConfigItem) => {
       ElMessage.error(response.msg || '获取参数详情失败')
     }
   } catch (error) {
-    console.error('获取参数详情出错：', error)
+    ///console.error('获取参数详情出错：', error)
     ElMessage.error('获取参数详情出错')
   } finally {
     loading.value = false
@@ -336,7 +336,7 @@ const submitForm = async () => {
       
       if (isEdit.value && formData.config_id) {
         // 修改
-        console.log('开始更新参数，ID:', formData.config_id)
+        ///console.log('开始更新参数，ID:', formData.config_id)
         const res = await updateConfigApiV1SystemConfigConfigIdPut(
           { config_id: formData.config_id },
           {
@@ -358,7 +358,7 @@ const submitForm = async () => {
         }
       } else {
         // 新增
-        console.log('开始创建新参数')
+        ///console.log('开始创建新参数')
         const res = await createConfigApiV1SystemConfigPost({
           config_name: formData.config_name,
           config_key: formData.config_key,
@@ -377,7 +377,7 @@ const submitForm = async () => {
         }
       }
     } catch (error) {
-      console.error('提交表单出错：', error)
+      ///console.error('提交表单出错：', error)
       ElMessage.error('提交表单出错')
     } finally {
       loading.value = false
@@ -394,7 +394,7 @@ const handleDelete = (row: ConfigItem) => {
   }).then(async () => {
     try {
       loading.value = true
-      console.log('开始删除参数，ID:', row.config_id)
+      ///console.log('开始删除参数，ID:', row.config_id)
       const res = await deleteConfigApiV1SystemConfigConfigIdDelete({ config_id: row.config_id })
       
       const response = res.data || {}
@@ -405,7 +405,7 @@ const handleDelete = (row: ConfigItem) => {
         ElMessage.error(response.msg || '删除失败')
       }
     } catch (error) {
-      console.error('删除出错：', error)
+      ///console.error('删除出错：', error)
       ElMessage.error('删除出错')
     } finally {
       loading.value = false

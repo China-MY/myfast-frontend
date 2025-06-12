@@ -21,32 +21,20 @@ const fixRoutes: RouteRecordRaw[] = [
       {
         path: 'server',
         name: 'Server',
-        component: () => import('@/views/monitor/server/index.vue'),
+        component: () => import('@/views/monitor/server/index.vue').catch(() => import('../views/error/404.vue')),
         meta: { title: '服务器监控', icon: 'server' }
       },
       {
         path: 'online',
         name: 'Online',
-        component: () => import('@/views/monitor/online/index.vue'),
+        component: () => import('@/views/monitor/online/index.vue').catch(() => import('../views/error/404.vue')),
         meta: { title: '在线用户', icon: 'online' }
       },
       {
         path: 'job',
         name: 'Job',
-        component: () => import('@/views/monitor/job/index.vue'),
+        component: () => import('@/views/monitor/job/index.vue').catch(() => import('../views/error/404.vue')),
         meta: { title: '定时任务', icon: 'job' }
-      },
-      {
-        path: 'data',
-        name: 'Data',
-        component: () => import('@/views/monitor/data/index.vue'),
-        meta: { title: '数据监控', icon: 'data' }
-      },
-      {
-        path: 'cache',
-        name: 'Cache',
-        component: () => import('@/views/monitor/cache/index.vue'),
-        meta: { title: '缓存监控', icon: 'cache' }
       }
     ]
   }
@@ -57,7 +45,7 @@ const fixRoutes: RouteRecordRaw[] = [
  * @param router Vue Router实例
  */
 export function applyRouteFixes(router: Router) {
-  console.log('[路由] 开始应用路由修复...');
+  ///console.log('[路由] 开始应用路由修复...');
   
   // 1. 修复监控路由
   fixMonitorRoutes(router);
@@ -68,7 +56,7 @@ export function applyRouteFixes(router: Router) {
   // 3. 添加通用错误处理
   addErrorHandlers(router);
 
-  console.log('[路由] 路由修复完成');
+  ///console.log('[路由] 路由修复完成');
 }
 
 /**
@@ -80,7 +68,7 @@ function fixMonitorRoutes(router: Router) {
 
   // 检查是否需要添加监控路由
   if (!routes.some(route => route.path === '/monitor')) {
-    console.log('[路由] 添加修复路由: /monitor');
+    ///console.log('[路由] 添加修复路由: /monitor');
     
     // 添加监控路由
     router.addRoute({
@@ -92,7 +80,7 @@ function fixMonitorRoutes(router: Router) {
         {
           path: 'server',
           name: 'Server',
-          component: loadComponent('monitor/server/index'),
+          component: () => import('@/views/monitor/server/index.vue').catch(() => import('../views/error/404.vue')),
           meta: { title: '服务监控', icon: 'server' }
         }
       ]
@@ -104,17 +92,13 @@ function fixMonitorRoutes(router: Router) {
  * 检查组件路径
  */
 function checkComponentPaths(router: Router) {
-  console.log('[路由] 开始检查组件路径...');
+  ///console.log('[路由] 开始检查组件路径...');
   
   // 需要检查的组件路径
   const componentsToCheck = [
     '@/views/monitor/server/index.vue',
-    '@/views/monitor/server/index/index.vue',
     '@/views/monitor/online/index.vue',
     '@/views/monitor/job/index.vue',
-    '@/views/monitor/data/index.vue',
-    '@/views/monitor/cache/index.vue',
-    '@/views/monitor/druid/index.vue',
     '@/views/system/user/index.vue',
     '@/views/system/role/index.vue',
     '@/views/system/menu/index.vue',
@@ -122,26 +106,25 @@ function checkComponentPaths(router: Router) {
     '@/views/system/config/index.vue',
     '@/views/tool/gen/index.vue',
     '@/views/tool/swagger/index.vue',
-    '@/views/tool/build/index.vue'
   ];
   
   // 尝试导入每个组件，检查是否能正确解析
   componentsToCheck.forEach(path => {
-    console.log('[路由] 检查组件:', path);
+    ///console.log('[路由] 检查组件:', path);
     try {
       import(/* @vite-ignore */ path)
         .then(() => {
-          console.log('[路由] 组件存在:', path);
+          ///console.log('[路由] 组件存在:', path);
         })
         .catch(err => {
-          console.log('[路由] 组件', path, '导入失败:', err.message);
+          ///console.log('[路由] 组件', path, '导入失败:', err.message);
         });
     } catch (error) {
-      console.log('[路由] 组件', path, '导入失败:', (error as Error).message);
+      ///console.log('[路由] 组件', path, '导入失败:', (error as Error).message);
     }
   });
   
-  console.log('[路由] 组件路径检查完成');
+  ///console.log('[路由] 组件路径检查完成');
 }
 
 /**
@@ -150,7 +133,7 @@ function checkComponentPaths(router: Router) {
 function addErrorHandlers(router: Router) {
   // 全局路由错误处理
   router.onError((error) => {
-    console.error('[路由] 路由错误:', error);
+    ///console.error('[路由] 路由错误:', error);
     
     // 如果是组件加载失败，尝试导航到404页面
     if (error.message.includes('Failed to fetch dynamically imported module') ||

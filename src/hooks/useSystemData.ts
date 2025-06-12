@@ -21,15 +21,15 @@ export function useSystemData() {
     try {
       loading.value = true;
       const res = await getDeptOptionsApiV1SystemDeptSelectOptionsGet();
-      if (res.code === 200 && res.data) {
+      if (res.data && res.data.code === 200 && res.data.data) {
         // 将后端返回的树形结构转换为TreeSelect组件需要的格式
-        deptOptions.value = formatDeptTreeData(res.data);
+        deptOptions.value = formatDeptTreeData(res.data.data);
       } else {
-        message.error(res.msg || '获取部门数据失败');
+        ElMessage.error(res.data?.msg || '获取部门数据失败');
       }
     } catch (error) {
-      console.error('获取部门数据出错', error);
-      message.error('获取部门数据失败');
+      // console.error('获取部门数据出错', error);
+      ElMessage.error('获取部门数据失败');
     } finally {
       loading.value = false;
     }
@@ -42,14 +42,14 @@ export function useSystemData() {
     try {
       loading.value = true;
       const res = await getRoleOptionsApiV1SystemRoleSelectOptionsGet();
-      if (res.code === 200 && res.data) {
-        roleOptions.value = res.data;
+      if (res.data && res.data.code === 200 && res.data.data) {
+        roleOptions.value = res.data.data;
       } else {
-        message.error(res.msg || '获取角色数据失败');
+        ElMessage.error(res.data?.msg || '获取角色数据失败');
       }
     } catch (error) {
-      console.error('获取角色数据出错', error);
-      message.error('获取角色数据失败');
+      // console.error('获取角色数据出错', error);
+      ElMessage.error('获取角色数据失败');
     } finally {
       loading.value = false;
     }
@@ -62,7 +62,15 @@ export function useSystemData() {
    */
   const formatDeptTreeData = (data: any[]): any[] => {
     return data.map(item => {
-      const node = {
+      const node: {
+        id: any;
+        pId: any;
+        value: any;
+        title: any;
+        isLeaf: boolean;
+        selectable: boolean;
+        children?: any[];
+      } = {
         id: item.dept_id,
         pId: item.parent_id || 0,
         value: item.dept_id,

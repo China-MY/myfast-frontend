@@ -80,7 +80,7 @@ const isMobile = computed(() => {
 const getBreadcrumb = () => {
   // 首先过滤出具有meta.title的路由
   let matched = route.matched.filter(item => item.meta && item.meta.title);
-  console.log('当前匹配的路由:', matched);
+  ///console.log('当前匹配的路由:', matched);
 
   // 如果没有匹配到面包屑项，添加首页
   if (!matched.length) {
@@ -116,7 +116,7 @@ const getBreadcrumb = () => {
     breadcrumbList.value = matched;
   }
 
-  console.log('生成的面包屑列表:', breadcrumbList.value);
+  ///console.log('生成的面包屑列表:', breadcrumbList.value);
 };
 
 // 监听路由变化，更新面包屑

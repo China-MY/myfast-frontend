@@ -400,7 +400,7 @@ const getDictTypeList = async () => {
     })
     
     const { data } = response
-    console.log('字典类型API响应:', data)
+    ///console.log('字典类型API响应:', data)
     
     if (data && data.code === 200) {
       // @ts-ignore
@@ -410,13 +410,13 @@ const getDictTypeList = async () => {
       
       // 如果列表为空且是第一页，可能是刚创建的数据还未加载，尝试延迟刷新
       if (Array.isArray(data.rows) && data.rows.length === 0 && typeQueryParams.page === 1) {
-        console.log('列表为空，可能是新创建的数据，尝试刷新...')
+        ///console.log('列表为空，可能是新创建的数据，尝试刷新...')
       }
     } else {
       ElMessage.error(data?.msg || '获取字典类型列表失败')
     }
   } catch (error) {
-    console.error('获取字典类型列表出错:', error)
+    ///console.error('获取字典类型列表出错:', error)
     ElMessage.error('获取字典类型列表失败')
   } finally {
     dictTypeLoading.value = false
@@ -472,7 +472,7 @@ const handleEditDictType = async (row: any) => {
       ElMessage.error(data?.msg || '获取字典类型详情失败')
     }
   } catch (error) {
-    console.error('获取字典类型详情出错:', error)
+    ///console.error('获取字典类型详情出错:', error)
     ElMessage.error('获取字典类型详情失败')
   }
 }
@@ -523,7 +523,7 @@ const handleDeleteDictType = async (row: any) => {
             ElMessage.error(data?.msg || '删除失败')
           }
         } catch (error: any) {
-          console.error('删除字典类型出错:', error)
+          ///console.error('删除字典类型出错:', error)
           // 直接提取后端返回的详细错误信息
           let errorMsg = '删除失败'
           
@@ -550,7 +550,7 @@ const handleDeleteDictType = async (row: any) => {
       })
       .catch(() => {})
   } catch (error) {
-    console.error('检查字典数据出错:', error)
+    ///console.error('检查字典数据出错:', error)
     ElMessage.error('检查字典数据失败')
   }
 }
@@ -612,7 +612,7 @@ const submitDictType = async () => {
       }
     }
   } catch (error) {
-    console.error('提交字典类型表单出错:', error)
+    ///console.error('提交字典类型表单出错:', error)
     ElMessage.error('提交失败，请检查表单内容')
   }
 }
@@ -631,7 +631,7 @@ const getDictDataList = async () => {
     })
     
     const { data } = response
-    console.log('字典数据API响应:', data)
+    ///console.log('字典数据API响应:', data)
     
     if (data && data.code === 200) {
       // @ts-ignore
@@ -642,7 +642,7 @@ const getDictDataList = async () => {
       ElMessage.error(data?.msg || '获取字典数据列表失败')
     }
   } catch (error) {
-    console.error('获取字典数据列表出错:', error)
+    ///console.error('获取字典数据列表出错:', error)
     ElMessage.error('获取字典数据列表失败')
   } finally {
     dictDataLoading.value = false
@@ -726,7 +726,7 @@ const handleDeleteDictData = (row: any) => {
           ElMessage.error(data?.msg || '删除失败')
         }
       } catch (error) {
-        console.error('删除字典数据出错:', error)
+        ///console.error('删除字典数据出错:', error)
         ElMessage.error('删除失败')
       }
     })
@@ -800,7 +800,7 @@ const submitDictData = async () => {
       }
     }
   } catch (error) {
-    console.error('提交字典数据表单出错:', error)
+    ///console.error('提交字典数据表单出错:', error)
     ElMessage.error('提交失败，请检查表单内容')
   }
 }

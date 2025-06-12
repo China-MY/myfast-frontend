@@ -129,13 +129,13 @@ export const constantRoutes: RouteItem[] = [
     children: [
       {
         path: 'profile',
-        component: () => import('@/views/user/profile/index.vue'),
+        component: () => import('@/views/user/profile.vue'),
         name: 'Profile',
         meta: { title: '个人中心', icon: 'user' }
       },
       {
         path: 'settings',
-        component: () => import('@/views/user/settings/index.vue'),
+        component: () => import('@/views/user/settings.vue'),
         name: 'settings',
         meta: { title: '个人设置', icon: 'setting' }
       }
@@ -236,8 +236,8 @@ const staticComponents = {
   'redirect/index': () => import('@/views/redirect/index.vue').catch(() => import('@/views/error/404.vue')),
 
   // 用户中心页面
-  'user/profile/index': () => import('@/views/user/profile/index.vue').catch(() => import('@/views/error/404.vue')),
-  'user/settings/index': () => import('@/views/user/settings/index.vue').catch(() => import('@/views/error/404.vue')),
+  'user/profile': () => import('@/views/user/profile.vue').catch(() => import('@/views/error/404.vue')),
+  'user/settings': () => import('@/views/user/settings.vue').catch(() => import('@/views/error/404.vue')),
 
   // 常用系统管理页面
   'system/user/index': () => import('@/views/system/user/index.vue').catch(() => import('@/views/error/404.vue')),
@@ -256,10 +256,7 @@ const staticComponents = {
   // 工具页面
   'tool/gen/index': () => import('@/views/tool/gen/index.vue').catch(() => import('@/views/error/404.vue')),
   'tool/swagger/index': () => import('@/views/tool/swagger/index.vue').catch(() => import('@/views/error/404.vue')),
-  'tool/build/index': () => import('@/views/tool/build/index.vue').catch(() => import('@/views/error/404.vue')),
 
-  // 测试页面
-  'test/index': () => import('@/views/test/index.vue').catch(() => import('@/views/error/404.vue')),
 }
 
 /**
@@ -270,13 +267,13 @@ const staticComponents = {
 function importComponent(component: string) {
   // 首先检查是否有静态定义的组件
   if (staticComponents[component]) {
-    console.log(`从静态映射加载组件: ${component}`)
+    ///console.log(`从静态映射加载组件: ${component}`)
     return staticComponents[component]
   }
 
   // 返回一个导入函数，确保即使组件不存在也不会报错
   return () => {
-    console.log(`尝试动态导入组件: ${component}`)
+    ///console.log(`尝试动态导入组件: ${component}`)
 
     try {
       // 规范化路径，确保格式一致
@@ -290,7 +287,7 @@ function importComponent(component: string) {
         // 单文件组件
         return import(`../views/${pathParts[0]}.vue`)
           .catch(() => {
-            console.warn(`单文件组件导入失败: ${component}`)
+            ///console.warn(`单文件组件导入失败: ${component}`)
             return import('@/views/error/404.vue')
           })
       }
@@ -301,7 +298,7 @@ function importComponent(component: string) {
             // 尝试使用index.vue
             return import(`../views/${pathParts[0]}/${pathParts[1]}/index.vue`)
               .catch(() => {
-                console.warn(`两级目录组件导入失败: ${component}`)
+                ///console.warn(`两级目录组件导入失败: ${component}`)
                 return import('@/views/error/404.vue')
               })
           })
@@ -316,18 +313,18 @@ function importComponent(component: string) {
             // 尝试作为目录处理
             return import(`../views/${modulePath}/${fileName}/index.vue`)
               .catch(() => {
-                console.warn(`多级目录组件导入失败: ${component}`)
+                ///console.warn(`多级目录组件导入失败: ${component}`)
                 return import('@/views/error/404.vue')
               })
           })
       }
 
       // 默认返回404
-      console.warn(`未能识别的组件路径: ${component}`)
+      ///console.warn(`未能识别的组件路径: ${component}`)
       return import('@/views/error/404.vue')
     }
     catch (error) {
-      console.error(`导入组件 ${component} 时发生异常:`, error)
+      ///console.error(`导入组件 ${component} 时发生异常:`, error)
       return import('@/views/error/404.vue')
     }
   }
@@ -351,11 +348,11 @@ const moduleGroups = {
   ],
   // 监控管理模块
   monitor: [
-    'online', 'job', 'server', 'cache', 'druid'
+    'online', 'job', 'server'
   ],
   // 工具管理模块
   tool: [
-    'gen', 'swagger', 'build'
+    'gen', 'swagger'
   ]
 }
 
@@ -384,7 +381,7 @@ componentMap['test/index'] = importComponent('test/index')
  * @returns 组件
  */
 export function loadComponent(component: string) {
-  console.log('尝试加载组件:', component)
+  ///console.log('尝试加载组件:', component)
 
   // 基础情况处理
   if (!component) return Layout
@@ -396,17 +393,17 @@ export function loadComponent(component: string) {
     .replace(/^@\/views\//, '') // 去掉@/views/前缀
     .replace(/\.vue$/, '')      // 去掉.vue后缀
 
-  console.log('规范化后的组件路径:', normalizedComponent)
+  ///console.log('规范化后的组件路径:', normalizedComponent)
 
   // 尝试从静态组件映射中获取
   if (staticComponents[normalizedComponent]) {
-    console.log('从静态组件映射加载:', normalizedComponent)
+    ///console.log('从静态组件映射加载:', normalizedComponent)
     return staticComponents[normalizedComponent]
   }
 
   // 尝试从组件映射表中获取
   if (componentMap[normalizedComponent]) {
-    console.log('从组件映射表加载:', normalizedComponent)
+    ///console.log('从组件映射表加载:', normalizedComponent)
     return componentMap[normalizedComponent]
   }
 
@@ -416,7 +413,7 @@ export function loadComponent(component: string) {
     : `${normalizedComponent}/index`
 
   if (componentMap[withIndex]) {
-    console.log('从组件映射表加载(添加/index):', withIndex)
+    ///console.log('从组件映射表加载(添加/index):', withIndex)
     return componentMap[withIndex]
   }
 
@@ -424,14 +421,14 @@ export function loadComponent(component: string) {
   if (normalizedComponent.endsWith('/index')) {
     const withoutIndex = normalizedComponent.replace(/\/index$/, '')
     if (componentMap[withoutIndex]) {
-      console.log('从组件映射表加载(去掉/index):', withoutIndex)
+      ///console.log('从组件映射表加载(去掉/index):', withoutIndex)
       return componentMap[withoutIndex]
     }
   }
 
   // 如果路径已经正确格式化，但不在映射表中，先添加到映射表
   if (!componentMap[normalizedComponent]) {
-    console.log('为新路径创建组件映射:', normalizedComponent)
+    ///console.log('为新路径创建组件映射:', normalizedComponent)
     componentMap[normalizedComponent] = importComponent(normalizedComponent)
 
     // 同时创建带/index的版本
@@ -449,17 +446,17 @@ export function loadComponent(component: string) {
  */
 function formatMenuToRoutes(menus: any[]): RouteRecordRaw[] {
   if (!Array.isArray(menus)) {
-    console.error('菜单数据不是数组')
+    ///console.error('菜单数据不是数组')
     return []
   }
 
-  console.log('正在处理的原始菜单数据:', menus)
+  ///console.log('正在处理的原始菜单数据:', menus)
   const routes: RouteRecordRaw[] = []
 
   menus.forEach(menu => {
     // 检查菜单是否隐藏
     if (menu.visible === '1' || menu.hidden) {
-      console.log(`跳过隐藏菜单: ${menu.menu_name || menu.name}`)
+      ///console.log(`跳过隐藏菜单: ${menu.menu_name || menu.name}`)
       return
     }
 
@@ -505,18 +502,18 @@ function formatMenuToRoutes(menus: any[]): RouteRecordRaw[] {
       }
     } else if (menu.menu_type === 'C' || menu.type === 'C' || menu.component) {
       // 具体的菜单页面
-      console.log('处理菜单页面组件:', menu.component)
+      ///console.log('处理菜单页面组件:', menu.component)
       route.component = loadComponent(menu.component)
     } else {
       // 默认处理
-      console.log('默认处理组件:', menu.component || 'error/404')
+      ///console.log('默认处理组件:', menu.component || 'error/404')
       route.component = loadComponent(menu.component || 'error/404')
     }
 
     routes.push(route)
   })
 
-  console.log('转换后的路由数据:', routes)
+  ///console.log('转换后的路由数据:', routes)
   return routes
 }
 
@@ -580,7 +577,7 @@ function formatChildRoutes(children: any[], parentPath: string): RouteRecordRaw[
       }
     } else {
       // 加载具体的组件
-      console.log('加载子路由组件:', child.component)
+      ///console.log('加载子路由组件:', child.component)
       route.component = loadComponent(child.component)
     }
 
@@ -599,14 +596,14 @@ export async function getAsyncRoutes() {
     const now = Date.now()
     if (menuState.menuLoaded && menuState.menuData &&
         (now - menuState.lastLoadTime) < menuState.loadingTimeout) {
-      console.log('使用缓存的菜单数据')
+      ///console.log('使用缓存的菜单数据')
       const routes = formatMenuToRoutes(menuState.menuData)
       return routes
     }
 
     // 检查是否已有请求在进行中
     if (menuState.loadingPromise) {
-      console.log('检测到进行中的菜单请求，等待完成')
+      ///console.log('检测到进行中的菜单请求，等待完成')
       return await menuState.loadingPromise
     }
 
@@ -615,11 +612,11 @@ export async function getAsyncRoutes() {
       try {
         // 记录请求时间
         menuState.lastLoadTime = now
-        console.log('开始获取菜单数据...')
+        ///console.log('开始获取菜单数据...')
 
         // 从后端获取菜单数据
         const response = await getUserMenusApiV1SystemMenuUserGet() as any
-        console.log('API原始菜单数据:', response)
+        ///console.log('API原始菜单数据:', response)
 
         // 提取菜单数据
         let menuData: any[] = []
@@ -650,15 +647,15 @@ export async function getAsyncRoutes() {
               if (possibleArrays.length > 0) {
                 // 使用第一个找到的数组
                 menuData = possibleArrays[0] as any[]
-                console.log('从其他属性找到菜单数据:', menuData)
+                ///console.log('从其他属性找到菜单数据:', menuData)
               }
             }
           } catch (error) {
-            console.error('解析菜单数据出错:', error)
+            ///console.error('解析菜单数据出错:', error)
           }
         }
 
-        console.log('解析后的菜单数据:', menuData)
+        ///console.log('解析后的菜单数据:', menuData)
 
         if (menuData && menuData.length > 0) {
           // 保存菜单数据到全局状态
@@ -667,7 +664,7 @@ export async function getAsyncRoutes() {
 
           // 将菜单数据转换为路由
           const routes = formatMenuToRoutes(menuData)
-          console.log('生成的路由:', routes)
+          ///console.log('生成的路由:', routes)
 
           // 合并动态路由和基础权限路由
           const finalRoutes = [...routes, ...dynamicRoutes]
@@ -678,12 +675,12 @@ export async function getAsyncRoutes() {
           resolve(finalRoutes)
         } else {
           // 菜单数据为空，使用默认路由
-          console.warn('菜单数据为空，使用默认动态路由')
+          ///console.warn('菜单数据为空，使用默认动态路由')
           resolve(dynamicRoutes)
         }
       } catch (error) {
         // 发生错误，使用默认路由
-        console.error('获取菜单数据出错:', error)
+        ///console.error('获取菜单数据出错:', error)
         resolve(dynamicRoutes)
       } finally {
         // 请求完成，清除Promise引用
@@ -693,7 +690,7 @@ export async function getAsyncRoutes() {
 
     return await menuState.loadingPromise
   } catch (error) {
-    console.error('处理路由出错:', error)
+    ///console.error('处理路由出错:', error)
     return dynamicRoutes
   }
 }
@@ -716,11 +713,11 @@ applyRouteFixes(router)
 
 // 监听自定义事件，处理路由重新加载
 document.addEventListener('reload-async-routes', async () => {
-  console.log('[Router] 接收到路由重新加载请求');
+  ///console.log('[Router] 接收到路由重新加载请求');
 
   // 如果已经标记为已加载，则不再重新加载
   if (menuState.routesAdded) {
-    console.log('[Router] 路由已加载，无需重新加载');
+    ///console.log('[Router] 路由已加载，无需重新加载');
     return;
   }
 
@@ -740,9 +737,9 @@ document.addEventListener('reload-async-routes', async () => {
       meta: { hidden: true }
     });
 
-    console.log('[Router] 通过事件重新加载路由完成');
+    ///console.log('[Router] 通过事件重新加载路由完成');
   } catch (error) {
-    console.error('[Router] 重新加载路由时出错:', error);
+    ///console.error('[Router] 重新加载路由时出错:', error);
   }
 });
 
@@ -751,7 +748,8 @@ router.beforeEach(async (to, from, next) => {
   // 开始进度条
   NProgress.start()
 
-  console.log(`[路由] 导航开始: ${from.path} => ${to.path}`)
+  ///console.log(`[路由] 导航开始: ${from.path} => ${to.path}`)
+
 
   // 设置页面标题
   document.title = `${to.meta.title || ''} - MyFast-Admin`
@@ -784,7 +782,7 @@ router.beforeEach(async (to, from, next) => {
 
       // 检查路由是否已添加 - 从全局menuState获取状态
       if (!menuState.routesAdded) {
-        console.log('[路由] 开始添加动态路由')
+        ///console.log('[路由] 开始添加动态路由')
 
         try {
           // 添加动态路由
@@ -806,7 +804,7 @@ router.beforeEach(async (to, from, next) => {
           next({ ...to, replace: true })
           return
         } catch (error) {
-          console.error('[路由] 添加动态路由出错:', error)
+          ///console.error('[路由] 添加动态路由出错:', error)
           next(`/500?message=${encodeURIComponent('加载路由失败')}`)
           NProgress.done()
           return
@@ -821,7 +819,7 @@ router.beforeEach(async (to, from, next) => {
 
       next()
     } catch (error) {
-      console.error('[路由] 认证出错:', error)
+      ///console.error('[路由] 认证出错:', error)
       // 获取用户信息失败，清除token并重定向到登录页
       const userStore = useUserStore()
       userStore.resetUserState()
@@ -840,7 +838,7 @@ router.beforeEach(async (to, from, next) => {
 // 后置守卫
 router.afterEach((to, from) => {
   NProgress.done()
-  console.log(`[路由] 导航完成: ${from.path} => ${to.path}`)
+  ///console.log(`[路由] 导航完成: ${from.path} => ${to.path}`)
 })
 
 export default router

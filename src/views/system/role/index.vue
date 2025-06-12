@@ -220,18 +220,18 @@ onMounted(() => {
 const getMenuTree = async () => {
   menuLoading.value = true
   try {
-    console.log('开始获取菜单树数据')
+    ///console.log('开始获取菜单树数据')
     const response = await getMenuTreeApiV1SystemMenuTreeGet()
-    console.log('菜单树响应:', response)
+    ///console.log('菜单树响应:', response)
     
     if (response.data && response.data.code === 200) {
       menuOptions.value = response.data.data || []
-      console.log('菜单树数据加载成功:', menuOptions.value)
+      ///console.log('菜单树数据加载成功:', menuOptions.value)
     } else {
       ElMessage.error('获取菜单数据失败')
     }
   } catch (error) {
-    console.error('获取菜单树失败:', error)
+    ///console.error('获取菜单树失败:', error)
     ElMessage.error('获取菜单数据失败')
   } finally {
     menuLoading.value = false
@@ -242,9 +242,9 @@ const getMenuTree = async () => {
 const getList = async () => {
   loading.value = true
   try {
-    console.log('获取角色列表，参数:', queryParams)
+    ///console.log('获取角色列表，参数:', queryParams)
     const response = await listRolesApiV1SystemRoleListGet(queryParams)
-    console.log('角色列表响应:', response)
+    ///console.log('角色列表响应:', response)
     
     if (response.data) {
       // 正确处理API返回的数据结构
@@ -256,13 +256,13 @@ const getList = async () => {
         roleList.value = res.rows || []
         total.value = res.total || 0
         
-        console.log('角色列表数据加载成功:', roleList.value)
+        ///console.log('角色列表数据加载成功:', roleList.value)
       } else {
         ElMessage.error(res.msg || '获取角色列表失败')
       }
     }
   } catch (error) {
-    console.error('获取角色列表失败:', error)
+    ///console.error('获取角色列表失败:', error)
     ElMessage.error('获取角色列表失败')
   } finally {
     loading.value = false
@@ -308,9 +308,9 @@ const handleEdit = async (row: any) => {
   isEdit.value = true
   dialogTitle.value = '编辑角色'
   try {
-    console.log('获取角色详情，ID:', row.role_id)
+    ///console.log('获取角色详情，ID:', row.role_id)
     const response = await getRoleApiV1SystemRoleRoleIdGet({ role_id: row.role_id })
-    console.log('获取角色详情响应:', response)
+    ///console.log('获取角色详情响应:', response)
     
     const data = response.data
     
@@ -319,7 +319,7 @@ const handleEdit = async (row: any) => {
       const roleData = data.data
       
       if (roleData) {
-        console.log('获取到的角色数据:', roleData)
+        ///console.log('获取到的角色数据:', roleData)
         
         // 设置表单数据
         roleForm.role_id = roleData.role_id
@@ -331,7 +331,7 @@ const handleEdit = async (row: any) => {
         
         // 设置菜单权限IDs
         roleForm.menu_ids = roleData.menu_ids || []
-        console.log('角色关联菜单IDs:', roleForm.menu_ids)
+        ///console.log('角色关联菜单IDs:', roleForm.menu_ids)
         
         // 设置选中的菜单节点
         if (menuTreeRef.value) {
@@ -343,7 +343,7 @@ const handleEdit = async (row: any) => {
       }
     } else if (data) {
       // 直接返回角色数据
-      console.log('直接获取到的角色数据:', data)
+      ///console.log('直接获取到的角色数据:', data)
       
       roleForm.role_id = row.role_id
       roleForm.role_name = row.role_name
@@ -355,7 +355,7 @@ const handleEdit = async (row: any) => {
     
     dialogVisible.value = true
   } catch (error) {
-    console.error('获取角色详情失败:', error)
+    ///console.error('获取角色详情失败:', error)
     ElMessage.error('获取角色详情失败')
   }
 }
@@ -375,7 +375,7 @@ const submitForm = async () => {
       
       // 合并所有选中的菜单ID
       const allMenuIds = [...menuIds, ...halfMenuIds]
-      console.log('提交的菜单IDs:', allMenuIds)
+      ///console.log('提交的菜单IDs:', allMenuIds)
       
       if (isEdit.value && roleForm.role_id) {
         // 更新角色
@@ -386,7 +386,6 @@ const submitForm = async () => {
             role_key: roleForm.role_key,
             role_sort: roleForm.role_sort,
             status: roleForm.status,
-            remark: roleForm.remark,
             menu_ids: allMenuIds // 提交菜单权限
           }
         )
@@ -398,7 +397,6 @@ const submitForm = async () => {
           role_key: roleForm.role_key,
           role_sort: roleForm.role_sort,
           status: roleForm.status,
-          remark: roleForm.remark,
           menu_ids: allMenuIds // 提交菜单权限
         })
         ElMessage.success('新增成功')
@@ -406,7 +404,7 @@ const submitForm = async () => {
       dialogVisible.value = false
       getList()
     } catch (error) {
-      console.error('保存角色失败:', error)
+      ///console.error('保存角色失败:', error)
       ElMessage.error('保存失败')
     }
   })
@@ -420,7 +418,7 @@ const handleDelete = (row: any) => {
     type: 'warning'
   }).then(async () => {
     try {
-      console.log('开始删除角色，ID:', row.role_id)
+      ///console.log('开始删除角色，ID:', row.role_id)
       const response = await deleteRoleApiV1SystemRoleRoleIdDelete({ role_id: row.role_id }, { 
         headers: {
           'Content-Type': 'application/json'
@@ -434,7 +432,7 @@ const handleDelete = (row: any) => {
         ElMessage.error(response.data?.msg || '删除失败')
       }
     } catch (error) {
-      console.error('删除角色失败:', error)
+      ///console.error('删除角色失败:', error)
       ElMessage.error('删除失败')
     }
   }).catch(() => {})

@@ -439,7 +439,7 @@ const handleLoginSubmit = async () => {
 
     // 调用登录API
     const response = await loginAccountApiV1AuthAccountPost(loginData) as any;
-    console.log('登录响应:', response);
+    ///console.log('登录响应:', response);
 
     if (response.data && response.data.code === 200) {
       // 保存token到cookies
@@ -458,7 +458,7 @@ const handleLoginSubmit = async () => {
 
       // 从查询参数中获取重定向地址，如果没有则跳转到仪表盘
       const redirect = router.currentRoute.value.query.redirect as string;
-      console.log('重定向地址:', redirect);
+      ///console.log('重定向地址:', redirect);
 
       // 跳转
       if (redirect) {
@@ -471,7 +471,7 @@ const handleLoginSubmit = async () => {
       noticeType.value = 'error';
     }
   } catch (error: any) {
-    console.error('登录失败:', error);
+    ///console.error('登录失败:', error);
     noticeMessage.value = error.message || '登录失败，请稍后再试';
     noticeType.value = 'error';
   } finally {
@@ -485,7 +485,7 @@ const handleRegisterSubmit = async () => {
     await registerFormRef.value.validate();
     registerLoading.value = true;
     
-    console.log('开始处理注册请求');
+    ///console.log('开始处理注册请求');
 
     // 准备注册数据
     const registerData = {
@@ -500,12 +500,12 @@ const handleRegisterSubmit = async () => {
       role_ids: [2] // 默认普通用户角色
     };
     
-    console.log('注册数据:', JSON.stringify(registerData));
+    ///console.log('注册数据:', JSON.stringify(registerData));
 
     // 调用注册API
     try {
       const response = await registerUserApiV1AuthRegisterPost(registerData);
-      console.log('注册API响应:', response);
+      ///console.log('注册API响应:', response);
       
       if (response.data && response.data.code === 200) {
         ElNotification({
@@ -525,16 +525,16 @@ const handleRegisterSubmit = async () => {
       } else {
         noticeMessage.value = response.data?.msg || '注册失败，请稍后再试';
         noticeType.value = 'error';
-        console.error('注册失败，服务器响应:', response);
+        ///console.error('注册失败，服务器响应:', response);
       }
     } catch (apiError: any) {
-      console.error('注册API调用失败:', apiError);
-      console.error('错误详情:', apiError.response?.data || apiError.message);
+      ///console.error('注册API调用失败:', apiError);
+      ///console.error('错误详情:', apiError.response?.data || apiError.message);
       noticeMessage.value = apiError.response?.data?.msg || apiError.message || '注册失败，请稍后再试';
       noticeType.value = 'error';
     }
   } catch (error: any) {
-    console.error('表单验证失败:', error);
+    ///console.error('表单验证失败:', error);
     noticeMessage.value = error.message || '表单验证失败，请检查输入';
     noticeType.value = 'error';
   } finally {
@@ -576,9 +576,9 @@ watch(() => activeTabKey.value, () => {
 
 // onMounted钩子中添加调试日志
 onMounted(() => {
-  console.log('登录页面已挂载');
-  console.log('当前路由路径:', router.currentRoute.value.path);
-  console.log('当前路由参数:', router.currentRoute.value.query);
+  ///console.log('登录页面已挂载');
+  ///console.log('当前路由路径:', router.currentRoute.value.path);
+  ///console.log('当前路由参数:', router.currentRoute.value.query);
 
   // 自动设置焦点到用户名输入框
   setTimeout(() => {

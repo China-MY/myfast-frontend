@@ -162,7 +162,7 @@ onMounted(() => {
 const getList = async () => {
   loading.value = true
   try {
-    console.log('获取在线用户列表，参数:', queryParams)
+    ///console.log('获取在线用户列表，参数:', queryParams)
     const res = await listOnlineUsersApiV1MonitorOnlineListGet({
       page: queryParams.page,
       page_size: queryParams.page_size,
@@ -170,7 +170,7 @@ const getList = async () => {
       username: queryParams.user_name || undefined  // 使用API需要的参数名 username
     })
     
-    console.log('在线用户列表响应:', res)
+    ///console.log('在线用户列表响应:', res)
     // 处理响应数据
     const response = res.data || {}
     if (response.code === 200) {
@@ -193,7 +193,7 @@ const getList = async () => {
       ElMessage.error(response.msg || '获取在线用户列表失败')
     }
   } catch (error: any) {
-    console.error('获取在线用户列表出错:', error)
+    ///console.error('获取在线用户列表出错:', error)
     ElMessage.error('获取在线用户列表失败: ' + (error.message || String(error)))
   } finally {
     loading.value = false
@@ -217,7 +217,7 @@ const handleReset = () => {
 // 多选框选中数据
 const handleSelectionChange = (selection: OnlineUser[]) => {
   selectedTokens.value = selection.map(item => item.sessionId)
-  console.log('选中的会话:', selectedTokens.value)
+  ///console.log('选中的会话:', selectedTokens.value)
 }
 
 // 强制单个用户退出
@@ -238,7 +238,7 @@ const handleForceLogout = (row: OnlineUser) => {
   ).then(async () => {
     try {
       loading.value = true
-      console.log('开始强制退出用户，会话ID:', row.sessionId)
+      ///console.log('开始强制退出用户，会话ID:', row.sessionId)
       const res = await forceLogoutApiV1MonitorOnlineTokenDelete({ token: row.sessionId })
       
       const response = res.data || {}
@@ -249,7 +249,7 @@ const handleForceLogout = (row: OnlineUser) => {
         ElMessage.error(response.msg || '强制退出失败')
       }
     } catch (error) {
-      console.error('强制退出用户出错：', error)
+      ///console.error('强制退出用户出错：', error)
       ElMessage.error('强制退出用户失败，请稍后再试')
     } finally {
       loading.value = false
@@ -273,7 +273,7 @@ const handleBatchForceLogout = () => {
   }).then(async () => {
     try {
       loading.value = true
-      console.log('开始批量强制退出用户，会话IDs:', selectedTokens.value)
+      ///console.log('开始批量强制退出用户，会话IDs:', selectedTokens.value)
       const res = await batchForceLogoutApiV1MonitorOnlineBatchLogoutPost({
         session_ids: selectedTokens.value  // 使用API需要的参数名 session_ids
       })
@@ -286,7 +286,7 @@ const handleBatchForceLogout = () => {
         ElMessage.error(response.msg || '批量强制退出失败')
       }
     } catch (error) {
-      console.error('批量强制退出用户出错：', error)
+      ///console.error('批量强制退出用户出错：', error)
       ElMessage.error('批量强制退出用户出错')
     } finally {
       loading.value = false

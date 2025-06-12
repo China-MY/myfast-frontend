@@ -19,7 +19,7 @@ let pollingEnabled = true; // 控制轮询状态
 
 // 添加轮询控制事件监听
 document.addEventListener('stop-auth-polling', () => {
-  console.log('接收到停止auth轮询的信号');
+  ///console.log('接收到停止auth轮询的信号');
   pollingEnabled = false;
 });
 
@@ -65,7 +65,7 @@ export const useUserStore = defineStore({
         // 如果已禁用轮询且缓存存在，直接返回缓存
         const now = Date.now();
         if (!pollingEnabled && userInfoCache && (now - lastFetchTime < CACHE_DURATION)) {
-          console.log('使用缓存的用户信息，避免频繁请求');
+          ///console.log('使用缓存的用户信息，避免频繁请求');
           // 保持状态一致性
           this.userInfo = userInfoCache.user || {};
           this.permissions = userInfoCache.permissions || [];
@@ -74,7 +74,7 @@ export const useUserStore = defineStore({
           return userInfoCache;
         }
 
-        console.log('获取用户信息...')
+        ///console.log('获取用户信息...')
         // 调用获取用户信息API
         const response = await getUserInfoApiV1AuthInfoGet() as any
 
@@ -93,11 +93,11 @@ export const useUserStore = defineStore({
 
           return { user, roles, permissions }
         } else {
-          console.warn('获取用户信息响应异常:', response)
+          ///console.warn('获取用户信息响应异常:', response)
 
           // 开发环境使用默认权限（生产环境应该移除）
           if (import.meta.env.DEV) {
-            console.warn('开发环境：使用默认admin权限继续')
+            ///console.warn('开发环境：使用默认admin权限继续')
             const defaultInfo = {
               user: { username: 'admin', nickname: '管理员' },
               roles: ['admin'],
@@ -117,11 +117,11 @@ export const useUserStore = defineStore({
           throw new Error(response?.msg || '获取用户信息失败')
         }
       } catch (error) {
-        console.error('获取用户信息出错:', error)
+        ///console.error('获取用户信息出错:', error)
 
         // 开发环境使用默认权限（生产环境应该移除）
         if (import.meta.env.DEV) {
-          console.warn('开发环境：使用默认admin权限继续')
+          ///console.warn('开发环境：使用默认admin权限继续')
           const defaultInfo = {
             user: { username: 'admin', nickname: '管理员' },
             roles: ['admin'],
@@ -145,12 +145,12 @@ export const useUserStore = defineStore({
     // 登出
     async logout() {
       try {
-        console.log('开始执行登出操作...')
+        ///console.log('开始执行登出操作...')
         // 调用注销API
         await logoutApiV1AuthPost()
         ElMessage.success('已成功退出登录')
       } catch (error) {
-        console.error('登出请求失败', error)
+        ///console.error('登出请求失败', error)
         ElMessage.error('注销失败，但已清除本地登录状态')
       } finally {
         this.resetUserState()
@@ -159,7 +159,7 @@ export const useUserStore = defineStore({
 
     // 重置用户状态
     resetUserState() {
-      console.log('重置用户状态...')
+      ///console.log('重置用户状态...')
       this.userInfo = {}
       this.permissions = []
       this.roles = []

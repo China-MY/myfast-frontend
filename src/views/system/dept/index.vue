@@ -100,8 +100,8 @@
         </el-form-item>
         <el-form-item label="部门状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio label="0">正常</el-radio>
-            <el-radio label="1">停用</el-radio>
+            <el-radio value="0">正常</el-radio>
+            <el-radio value="1">停用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -217,10 +217,10 @@ const getDeptList = async () => {
       params.status = queryParams.status;
     }
     
-    console.log('查询参数:', params);
+    ///console.log('查询参数:', params);
     
     const response = await listDeptsApiV1SystemDeptGet(params)
-    console.log('部门列表响应数据:', response)
+    ///console.log('部门列表响应数据:', response)
     
     // 正确处理API返回数据
     const res = response.data || response
@@ -233,12 +233,12 @@ const getDeptList = async () => {
         initTableExpand();
       }
     } else {
-      console.error('获取部门列表失败，返回码:', res.code)
+      ///console.error('获取部门列表失败，返回码:', res.code)
       ElMessage.error(res.msg || '获取部门列表失败')
       deptList.value = [];
     }
   } catch (error) {
-    console.error('获取部门列表失败', error)
+    ///console.error('获取部门列表失败', error)
     ElMessage.error('获取部门列表失败，请检查网络连接')
     deptList.value = [];
   } finally {
@@ -275,7 +275,7 @@ const initTableExpand = () => {
 const getDeptTreeSelect = async () => {
   try {
     const response = await getDeptOptionsApiV1SystemDeptSelectOptionsGet()
-    console.log('部门选项响应数据:', response)
+    ///console.log('部门选项响应数据:', response)
     
     const res = response.data || response
     
@@ -284,14 +284,14 @@ const getDeptTreeSelect = async () => {
       deptOptions.value = res.data as unknown as DeptData[]
       
       // 打印出返回的部门选项数据，用于调试
-      console.log('处理后的部门选项数据:', deptOptions.value)
+      ///console.log('处理后的部门选项数据:', deptOptions.value)
     } else {
-      console.error('获取部门选项失败，返回码:', res.code)
+      ///console.error('获取部门选项失败，返回码:', res.code)
       ElMessage.error(res.msg || '获取部门选项失败')
       deptOptions.value = [];
     }
   } catch (error) {
-    console.error('获取部门选项失败', error)
+    ///console.error('获取部门选项失败', error)
     ElMessage.error('获取部门选项失败，请检查网络连接')
     deptOptions.value = [];
   }
@@ -456,7 +456,7 @@ const cancel = () => {
 const submitForm = async () => {
   try {
     if (!deptForm.value) {
-      console.error('表单引用不存在');
+      ///console.error('表单引用不存在');
       ElMessage.error('表单引用不存在');
       return;
     }
@@ -482,7 +482,7 @@ const submitForm = async () => {
           ElMessage.error(res.msg || '修改部门失败')
         }
       } catch (error: any) {
-        console.error('修改部门失败:', error)
+        ///console.error('修改部门失败:', error)
         let errorMsg = '修改部门失败'
         
         // 检查是否有详细的错误信息
@@ -515,7 +515,7 @@ const submitForm = async () => {
           ElMessage.error(res.msg || '新增部门失败')
         }
       } catch (error: any) {
-        console.error('新增部门失败:', error)
+        ///console.error('新增部门失败:', error)
         let errorMsg = '新增部门失败'
         
         // 检查是否有详细的错误信息
@@ -540,7 +540,7 @@ const submitForm = async () => {
       }
     }
   } catch (error) {
-    console.error('表单验证失败:', error)
+    ///console.error('表单验证失败:', error)
     ElMessage.error('表单数据有误，请检查必填项')
   }
 }
@@ -570,7 +570,7 @@ const handleDelete = (row: DeptData) => {
         throw new Error('部门ID无效');
       }
       
-      console.log(`删除部门，ID: ${deptId}, 名称: ${row.dept_name}`);
+      ///console.log(`删除部门，ID: ${deptId}, 名称: ${row.dept_name}`);
       
       // 直接构建请求参数对象，确保类型正确
       const params = { 
@@ -590,11 +590,11 @@ const handleDelete = (row: DeptData) => {
           getDeptTreeSelect(); // 更新部门选择器
         } else {
           // 显示后端返回的错误消息
-          console.error('删除部门失败，API返回错误:', res);
+          ///console.error('删除部门失败，API返回错误:', res);
           ElMessage.error(res.msg || '删除失败');
         }
       } catch (apiError: any) {
-        console.error('删除部门API调用失败:', apiError);
+        ///console.error('删除部门API调用失败:', apiError);
         
         // 处理后端错误响应
         if (apiError.response) {
@@ -634,7 +634,7 @@ const handleDelete = (row: DeptData) => {
       }
     } catch (error: any) {
       // 处理参数验证等错误
-      console.error('删除部门操作失败:', error);
+      ///console.error('删除部门操作失败:', error);
       ElMessage.error(error.message || '操作失败');
     } finally {
       loading.value = false;

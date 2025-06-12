@@ -61,9 +61,9 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="200">
         <template #default="scope">
-          <el-button type="text" @click="handleAdd(scope.row)" v-if="scope.row.menu_type !== 'F'">新增</el-button>
-          <el-button type="text" @click="handleEdit(scope.row)">修改</el-button>
-          <el-button type="text" style="color: #f56c6c;" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button type="primary" text @click="handleAdd(scope.row)" v-if="scope.row.menu_type !== 'F'">新增</el-button>
+          <el-button type="primary" text @click="handleEdit(scope.row)">修改</el-button>
+          <el-button type="danger" text @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -257,7 +257,7 @@ const getList = async () => {
       ElMessage.error(response.data?.msg || '获取菜单列表失败')
     }
   } catch (error) {
-    console.error('获取菜单列表失败:', error)
+    ///console.error('获取菜单列表失败:', error)
     ElMessage.error('获取菜单列表失败')
   } finally {
     loading.value = false
@@ -347,10 +347,10 @@ const handleEdit = async (row: any) => {
   dialogTitle.value = '修改菜单'
   
   try {
-    console.log('获取菜单详情，传递的ID:', row.menu_id)
+    ///console.log('获取菜单详情，传递的ID:', row.menu_id)
     // 直接使用行数据，避免额外的请求
     if (row) {
-      console.log('使用行数据填充表单:', row)
+      ///console.log('使用行数据填充表单:', row)
       
       // 设置表单数据
       menuForm.menu_id = row.menu_id
@@ -372,7 +372,7 @@ const handleEdit = async (row: any) => {
       dialogVisible.value = true
     }
   } catch (error) {
-    console.error('获取菜单详情失败:', error)
+    ///console.error('获取菜单详情失败:', error)
     ElMessage.error('获取菜单详情失败')
   }
 }
@@ -417,8 +417,8 @@ const submitForm = async () => {
           remark: menuForm.remark
         }
         
-        console.log('更新菜单，ID:', menuForm.menu_id)
-        console.log('更新菜单数据:', updateData)
+        ///console.log('更新菜单，ID:', menuForm.menu_id)
+        ///console.log('更新菜单数据:', updateData)
         
         try {
           // 使用项目自带的API函数，避免CORS问题
@@ -427,7 +427,7 @@ const submitForm = async () => {
             updateData
           )
           
-          console.log('更新菜单响应:', response)
+          ///console.log('更新菜单响应:', response)
           
           if (response.data && response.data.code === 200) {
             ElMessage.success('修改成功')
@@ -437,8 +437,8 @@ const submitForm = async () => {
             ElMessage.error(response.data?.msg || '修改失败')
           }
         } catch (error: any) {
-          console.error('更新菜单请求失败:', error)
-          console.error('错误详情:', error.message, error.stack)
+          ///console.error('更新菜单请求失败:', error)
+          ///console.error('错误详情:', error.message, error.stack)
           ElMessage.error(`更新失败: ${error.message || '未知错误'}`)
         }
       } else {
@@ -460,13 +460,13 @@ const submitForm = async () => {
           remark: menuForm.remark
         }
         
-        console.log('创建菜单数据:', createData)
+        ///console.log('创建菜单数据:', createData)
         
         try {
           // 使用项目自带的API函数，避免CORS问题
           const response = await createMenuApiV1SystemMenuPost(createData)
           
-          console.log('创建菜单响应:', response)
+          ///console.log('创建菜单响应:', response)
           
           if (response.data && response.data.code === 200) {
             ElMessage.success('新增成功')
@@ -476,15 +476,15 @@ const submitForm = async () => {
             ElMessage.error(response.data?.msg || '新增失败')
           }
         } catch (error: any) {
-          console.error('创建菜单请求失败:', error)
-          console.error('错误详情:', error.message, error.stack)
+          ///console.error('创建菜单请求失败:', error)
+          ///console.error('错误详情:', error.message, error.stack)
           ElMessage.error(`新增失败: ${error.message || '未知错误'}`)
         }
       }
     } catch (error: any) {
-      console.error('保存菜单失败:', error)
-      console.error('错误类型:', typeof error)
-      console.error('错误消息:', error.message)
+      ///console.error('保存菜单失败:', error)
+      ///console.error('错误类型:', typeof error)
+      ///console.error('错误消息:', error.message)
       ElMessage.error(`保存菜单失败: ${error.message || '未知错误'}`)
     }
   })
@@ -504,12 +504,12 @@ const handleDelete = (row: any) => {
     type: 'warning'
   }).then(async () => {
     try {
-      console.log('删除菜单，ID:', row.menu_id)
+      ///console.log('删除菜单，ID:', row.menu_id)
       
       // 使用项目自带的API函数，避免CORS问题
       const response = await deleteMenuApiV1SystemMenuMenuIdDelete({ menu_id: row.menu_id })
       
-      console.log('删除菜单响应:', response)
+      ///console.log('删除菜单响应:', response)
       
       if (response.data && response.data.code === 200) {
         ElMessage.success('删除成功')
@@ -518,8 +518,8 @@ const handleDelete = (row: any) => {
         ElMessage.error(response.data?.msg || '删除失败')
       }
     } catch (error: any) {
-      console.error('删除菜单失败:', error)
-      console.error('错误详情:', error.message)
+      ///console.error('删除菜单失败:', error)
+      ///console.error('错误详情:', error.message)
       ElMessage.error(`删除失败: ${error.message || '未知错误'}`)
     }
   }).catch(() => {})

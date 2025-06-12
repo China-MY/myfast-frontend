@@ -48,7 +48,7 @@ export const useTagsViewStore = defineStore('tagsView', () => {
         cachedViews.value.push(nameStr)
       }
     } catch (error) {
-      console.error('添加标签失败:', error)
+      ///console.error('添加标签失败:', error)
     }
   }
 

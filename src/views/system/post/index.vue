@@ -113,8 +113,8 @@
         </el-form-item>
         <el-form-item label="岗位状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio label="0">正常</el-radio>
-            <el-radio label="1">停用</el-radio>
+            <el-radio value="0">正常</el-radio>
+            <el-radio value="1">停用</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -247,10 +247,10 @@ const getPostList = async () => {
       params.status = queryParams.status;
     }
     
-    console.log('查询参数:', params);
+    ///console.log('查询参数:', params);
     
     const response = await listPostsApiV1SystemPostListGet(params)
-    console.log('岗位列表响应数据:', response)
+    ///console.log('岗位列表响应数据:', response)
     
     // 正确处理API返回数据结构
     const res = response.data || response
@@ -259,7 +259,7 @@ const getPostList = async () => {
       // 处理返回的数据结构
       if (res.rows && Array.isArray(res.rows)) {
         postList.value = res.rows as unknown as PostData[];
-        console.log('设置的列表数据:', postList.value);
+        ///console.log('设置的列表数据:', postList.value);
       } else {
         postList.value = [];
       }
@@ -267,18 +267,18 @@ const getPostList = async () => {
       // 设置总数
       if (res.pageInfo && typeof res.pageInfo.total === 'number') {
         total.value = res.pageInfo.total;
-        console.log('设置的总数:', total.value);
+        ///console.log('设置的总数:', total.value);
       } else {
         total.value = 0;
       }
     } else {
-      console.error('获取岗位列表失败，返回码:', res.code)
+      ///console.error('获取岗位列表失败，返回码:', res.code)
       ElMessage.error(res.msg || '获取岗位列表失败')
       postList.value = [];
       total.value = 0;
     }
   } catch (error: any) {
-    console.error('获取岗位列表失败', error)
+    ///console.error('获取岗位列表失败', error)
     
     let errorMsg = '获取岗位列表失败，请检查网络连接'
     if (error.response) {
@@ -365,7 +365,7 @@ const handleEdit = async (row: PostData) => {
       ElMessage.error(res.msg || '获取岗位详情失败')
     }
   } catch (error) {
-    console.error('获取岗位详情失败', error)
+    ///console.error('获取岗位详情失败', error)
     ElMessage.error('获取岗位详情失败，请检查网络连接')
   }
 }
@@ -390,7 +390,7 @@ const cancel = () => {
 const submitForm = async () => {
   try {
     if (!postForm.value) {
-      console.error('表单引用不存在');
+      ///console.error('表单引用不存在');
       ElMessage.error('表单引用不存在');
       return;
     }
@@ -415,7 +415,7 @@ const submitForm = async () => {
           ElMessage.error(res.msg || '修改岗位失败')
         }
       } catch (error: any) {
-        console.error('修改岗位失败:', error)
+        ///console.error('修改岗位失败:', error)
         let errorMsg = '修改岗位失败'
         
         // 检查是否有详细的错误信息
@@ -447,7 +447,7 @@ const submitForm = async () => {
           ElMessage.error(res.msg || '新增岗位失败')
         }
       } catch (error: any) {
-        console.error('新增岗位失败:', error)
+        ///console.error('新增岗位失败:', error)
         let errorMsg = '新增岗位失败'
         
         // 检查是否有详细的错误信息
@@ -467,7 +467,7 @@ const submitForm = async () => {
       }
     }
   } catch (error) {
-    console.error('表单验证失败:', error)
+    ///console.error('表单验证失败:', error)
     ElMessage.error('表单数据有误，请检查必填项')
   }
 }
@@ -490,7 +490,7 @@ const handleDelete = (row: PostData) => {
     }
   ).then(async () => {
     try {
-      const response = await deletePostApiV1SystemPostPostIdDelete({ post_id: row.post_id })
+      const response = await deletePostApiV1SystemPostPostIdDelete({ post_id: row.post_id as number })
       const res = response.data || response
       
       if (res.code === 200) {
@@ -500,7 +500,7 @@ const handleDelete = (row: PostData) => {
         ElMessage.error(res.msg || '删除失败')
       }
     } catch (error: any) {
-      console.error('删除岗位失败:', error)
+      ///console.error('删除岗位失败:', error)
       
       let errorMsg = '删除失败'
       if (error.response) {

@@ -25,7 +25,7 @@ const myAxios = axios.create({
 // 全局请求拦截器
 myAxios.interceptors.request.use(
   function (config) {
-    console.log('发送请求:', config.url)
+    ///console.log('发送请求:', config.url)
     
     // 获取请求唯一标识
     const requestKey = getRequestKey(config);
@@ -37,7 +37,7 @@ myAxios.interceptors.request.use(
     // 但注册和登录API不应该被防抖处理
     const existingTimestamp = pendingRequests.get(requestKey);
     if (!isAuthPath && existingTimestamp && Date.now() - existingTimestamp < REQUEST_TIMEOUT) {
-      console.log('相同请求已存在，取消当前请求:', config.url);
+      ///console.log('相同请求已存在，取消当前请求:', config.url);
       return Promise.reject(new Error('重复请求已取消'));
     }
     
@@ -62,39 +62,39 @@ myAxios.interceptors.request.use(
     return config
   },
   function (error) {
-    console.error('请求拦截器错误:', error)
+    ///console.error('请求拦截器错误:', error)
     // 直接返回错误，交给响应拦截器统一处理
     return Promise.reject(error)
   },
 )
 
-// 全局响应拦截器
+///// 全局响应拦截器
 myAxios.interceptors.response.use(
   function (response: AxiosResponse) {
     try {
       const { data, status } = response
-      console.log('收到响应状态码:', status)
-      console.log('收到响应数据结构:', JSON.stringify(data))
+      ///console.log('收到响应状态码:', status)
+      ///console.log('收到响应数据结构:', JSON.stringify(data))
 
       // 角色列表接口详细记录
       if (response.config.url?.includes('/api/v1/system/role/list')) {
-        console.log('角色列表API返回:', {
-          url: response.config.url,
-          hasData: !!data,
-          hasRows: data && !!data.rows,
-          rowsType: data && data.rows ? typeof data.rows : 'undefined',
-          isRowsArray: data && data.rows && Array.isArray(data.rows),
-          rowsLength: data && data.rows && Array.isArray(data.rows) ? data.rows.length : 'N/A',
-          hasCode: data && 'code' in data,
-          code: data && 'code' in data ? data.code : 'N/A',
-          structure: Object.keys(data || {}).join(', '),
-        })
+        // console.log('角色列表API返回:', {
+        //   url: response.config.url,
+        //   hasData: !!data,
+        //   hasRows: data && !!data.rows,
+        //   rowsType: data && data.rows ? typeof data.rows : 'undefined',
+        //   isRowsArray: data && data.rows && Array.isArray(data.rows),
+        //   rowsLength: data && data.rows && Array.isArray(data.rows) ? data.rows.length : 'N/A',
+        //   hasCode: data && 'code' in data,
+        //   code: data && 'code' in data ? data.code : 'N/A',
+        //   structure: Object.keys(data || {}).join(', '),
+        // })
       }
 
       // 处理401未授权响应
       if (status === 401) {
         if (!window.location.pathname.includes('/login')) {
-          console.log('响应401未授权, 当前路径:', window.location.pathname)
+          ///console.log('响应401未授权, 当前路径:', window.location.pathname)
           // 清除token，放在错误处理中完成
           removeToken()
           // 重定向到登录页
@@ -119,7 +119,7 @@ myAxios.interceptors.response.use(
 
       // 未登录
       if (data && data.code === 40100) {
-        console.log('未登录状态, 当前路径:', window.location.pathname)
+        ///console.log('未登录状态, 当前路径:', window.location.pathname)
         // 不是获取用户信息的请求，并且用户目前不是已经在用户登录页面，则跳转到登录页面
         if (!window.location.pathname.includes('/login')) {
           ElMessage.warning('请先登录')
@@ -140,8 +140,8 @@ myAxios.interceptors.response.use(
       // 直接返回原始响应，保留axios的response结构，而不是只返回data
       return response
     } catch (err) {
-      console.error('响应处理错误:', err)
-      console.log('原始响应:', response)
+      ///console.error('响应处理错误:', err)
+      ///console.log('原始响应:', response)
       // 修改为返回修改后的响应对象，而不是直接返回一个新对象
       response.data = {
         code: 500,
@@ -154,7 +154,7 @@ myAxios.interceptors.response.use(
   function (error) {
     // 处理重复请求错误
     if (error.message === '重复请求已取消') {
-      console.log('重复请求被拦截');
+      ///console.log('重复请求被拦截');
       // 返回一个空响应，不向用户显示错误信息
       return Promise.resolve({
         data: {
@@ -166,11 +166,11 @@ myAxios.interceptors.response.use(
     }
 
     // 响应错误处理
-    console.log('API请求失败:', error.message || '未知错误');
+    ///console.log('API请求失败:', error.message || '未知错误');
     // 详细记录错误对象结构，帮助调试
     if (error.response) {
-      console.log('错误响应状态码:', error.response.status);
-      console.log('错误响应数据:', error.response.data);
+      ///console.log('错误响应状态码:', error.response.status);
+      ///console.log('错误响应数据:', error.response.data);
     }
 
     let errorMessage = '未知错误'

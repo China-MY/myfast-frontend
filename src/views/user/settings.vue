@@ -409,8 +409,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElLoading } from 'element-plus';
 import {
   User,
   Lock,
@@ -430,9 +430,11 @@ import {
   ChatDotRound,
   Money
 } from '@element-plus/icons-vue';
+import { readUserMeApiV1SystemUserProfileGet, updateUserMeApiV1SystemUserProfilePut, updatePasswordApiV1SystemUserProfileUpdatePasswordPut } from '@/api/yonghuxinxi';
 
 // 当前选中的菜单
 const activeMenu = ref('basic');
+const loading = ref(false);
 
 // 处理菜单选择
 const handleMenuSelect = (index: string) => {
@@ -442,13 +444,56 @@ const handleMenuSelect = (index: string) => {
 // 基本信息表单数据
 const basicInfo = ref({
   avatar: '',
-  username: 'zhangsan',
-  nickname: '张三',
-  bio: '资深前端开发工程师，热爱技术，专注于用户体验设计与前端架构',
-  email: 'zhangsan@example.com',
-  phone: '13800138000',
-  location: ['110000', '110100', '110101'] // 北京市-北京市-东城区
+  username: '',
+  nickname: '',
+  bio: '这个人很懒，什么也没有留下。',
+  email: '',
+  phone: '',
+  location: [] as string[]
 });
+
+// 获取用户信息
+const fetchUserInfo = async () => {
+  loading.value = true;
+  const loadingInstance = ElLoading.service({
+    target: '.settings-container',
+    text: '加载中...'
+  });
+  
+  try {
+    const response = await readUserMeApiV1SystemUserProfileGet();
+    const res = response.data;
+    if (res.code === 200 && res.data) {
+      const userData = res.data;
+      basicInfo.value = {
+        avatar: '',
+        username: userData.username || '',
+        nickname: userData.nickname || '',
+        bio: '这个人很懒，什么也没有留下。',
+        email: userData.email || '',
+        phone: userData.phonenumber || '',
+        location: []
+      };
+      
+      // 设置安全信息
+      securityInfo.value = {
+        phone: userData.phonenumber ? userData.phonenumber.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '',
+        email: userData.email ? userData.email.replace(/(.{2}).+(@.+)/, '$1****$2') : '',
+        mfaEnabled: false
+      };
+      
+      ///console.log('获取用户信息成功:', userData);
+    } else {
+      ElMessage.error(res?.msg || '获取用户信息失败');
+    }
+  } catch (error) {
+    ///console.error('获取用户信息出错:', error);
+    ElMessage.error('获取用户信息失败，请重试');
+  } finally {
+    loading.value = false;
+    loadingInstance.close();
+  }
+};
 
 // 地区级联选择器数据
 const locationOptions = [
@@ -491,8 +536,33 @@ const locationOptions = [
 ];
 
 // 保存基本信息
-const saveBasicInfo = () => {
-  ElMessage.success('基本信息保存成功');
+const saveBasicInfo = async () => {
+  loading.value = true;
+  try {
+    // 准备更新的用户信息
+    const updateData = {
+      username: basicInfo.value.username,
+      nickname: basicInfo.value.nickname,
+      email: basicInfo.value.email,
+      phonenumber: basicInfo.value.phone,
+      // 其他字段根据后端API需要添加
+    };
+
+    const response = await updateUserMeApiV1SystemUserProfilePut(updateData);
+    const res = response.data;
+    if (res.code === 200) {
+      ElMessage.success('基本信息保存成功');
+      // 重新获取最新的用户信息
+      await fetchUserInfo();
+    } else {
+      ElMessage.error(res?.msg || '保存失败，请重试');
+    }
+  } catch (error) {
+    ///console.error('保存用户信息出错:', error);
+    ElMessage.error('保存失败，请重试');
+  } finally {
+    loading.value = false;
+  }
 };
 
 // 头像上传前检查
@@ -564,19 +634,42 @@ const showPasswordModal = () => {
 const handlePasswordChange = () => {
   passwordFormRef.value
     .validate()
-    .then(() => {
-      // 调用密码修改API
-      ElMessage.success('密码修改成功');
-      passwordModalVisible.value = false;
-      // 重置表单
-      passwordForm.oldPassword = '';
-      passwordForm.newPassword = '';
-      passwordForm.confirmPassword = '';
+    .then(async () => {
+      try {
+        loading.value = true;
+        // 调用密码修改API
+        const response = await updatePasswordApiV1SystemUserProfileUpdatePasswordPut({
+          current_password: passwordForm.oldPassword,
+          new_password: passwordForm.newPassword
+        });
+        
+        const res = response.data;
+        if (res.code === 200) {
+          ElMessage.success('密码修改成功');
+          passwordModalVisible.value = false;
+          // 重置表单
+          passwordForm.oldPassword = '';
+          passwordForm.newPassword = '';
+          passwordForm.confirmPassword = '';
+        } else {
+          ElMessage.error(res?.msg || '密码修改失败');
+        }
+      } catch (error) {
+        ///console.error('密码修改出错:', error);
+        ElMessage.error('密码修改失败，请重试');
+      } finally {
+        loading.value = false;
+      }
     })
     .catch(() => {
       // 表单验证失败
     });
 };
+
+// 页面加载时获取用户信息
+onMounted(() => {
+  fetchUserInfo();
+});
 
 // 显示手机绑定弹窗
 const showPhoneModal = () => {

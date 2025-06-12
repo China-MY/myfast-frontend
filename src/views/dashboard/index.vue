@@ -38,9 +38,9 @@
             <div class="chart-header">
               <span>用户增长趋势</span>
               <el-radio-group v-model="userGrowthTimeRange" size="small">
-                <el-radio-button label="week">本周</el-radio-button>
-                <el-radio-button label="month">本月</el-radio-button>
-                <el-radio-button label="year">全年</el-radio-button>
+                <el-radio-button value="week">本周</el-radio-button>
+                <el-radio-button value="month">本月</el-radio-button>
+                <el-radio-button value="year">全年</el-radio-button>
               </el-radio-group>
             </div>
           </template>
@@ -194,7 +194,7 @@ const recentActivities = ref([
     type: 'primary',
     color: '#409EFF',
     tag: '用户管理',
-    tagType: ''
+    tagType: 'info'
   },
   {
     user: '系统',
@@ -298,17 +298,17 @@ const fetchServerInfoWithCache = async () => {
   
   // 如果有正在进行的请求，直接返回该Promise
   if (serverMonitorCache.isLoading && serverMonitorCache.loadingPromise) {
-    console.log('正在获取服务器信息，等待完成...');
+    ///console.log('正在获取服务器信息，等待完成...');
     return await serverMonitorCache.loadingPromise;
   }
   
   // 检查缓存是否有效
   if (serverMonitorCache.data && now - serverMonitorCache.timestamp < serverMonitorCache.expirationTime) {
-    console.log('使用缓存的服务器监控数据');
+    ///console.log('使用缓存的服务器监控数据');
     return serverMonitorCache.data;
   }
   
-  console.log('开始获取服务器监控数据');
+  ///console.log('开始获取服务器监控数据');
   serverMonitorCache.isLoading = true;
   
   try {
@@ -316,21 +316,21 @@ const fetchServerInfoWithCache = async () => {
     serverMonitorCache.loadingPromise = getServerInfoApiV1MonitorServerGet();
     const res = await serverMonitorCache.loadingPromise;
     
-    console.log('服务器监控API响应:', res);
+    ///console.log('服务器监控API响应:', res);
     
     // 适配不同的响应结构
     if (res?.data?.code === 200 && res.data.data) {
       // 标准响应结构 { code, msg, data: {...} }
       serverMonitorCache.data = res.data.data;
       serverMonitorCache.timestamp = now;
-      console.log('服务器监控数据已更新 (标准结构)');
+      ///console.log('服务器监控数据已更新 (标准结构)');
     } else if (res?.data && typeof res.data === 'object' && !res.data.code) {
       // 直接数据结构 { cpu: {...}, mem: {...}, ... }
       serverMonitorCache.data = res.data;
       serverMonitorCache.timestamp = now;
-      console.log('服务器监控数据已更新 (直接数据)');
+      ///console.log('服务器监控数据已更新 (直接数据)');
     } else {
-      console.error('获取服务器信息失败，响应格式错误:', res);
+      ///console.error('获取服务器信息失败，响应格式错误:', res);
       // 返回空数据或模拟数据
       serverMonitorCache.data = {
         cpu: { usage: 30 },
@@ -342,7 +342,7 @@ const fetchServerInfoWithCache = async () => {
     
     return serverMonitorCache.data;
   } catch (error) {
-    console.error('获取服务器监控数据错误:', error);
+    ///console.error('获取服务器监控数据错误:', error);
     // 返回模拟数据以防止UI错误
     return {
       cpu: { usage: 25 },
@@ -446,7 +446,7 @@ const initResourceChart = async () => {
   try {
     serverInfo = await fetchServerInfoWithCache();
   } catch (error) {
-    console.error('获取服务器监控数据失败:', error);
+    ///console.error('获取服务器监控数据失败:', error);
   }
   
   resourceChartInstance = echarts.init(resourceChart.value)
@@ -634,7 +634,7 @@ watch(realTimeMonitor, (newVal) => {
           })
         }
       } catch (error) {
-        console.error('更新监控数据失败:', error);
+        ///console.error('更新监控数据失败:', error);
       }
     }, 3000)
     

@@ -27,4 +27,25 @@ export function setupPermissionDirective(app: App) {
       }
     }
   })
+
+  // 添加hasPermi指令，与permission指令功能相同
+  app.directive('hasPermi', {
+    mounted(el, binding) {
+      const userStore = useUserStore()
+      const { value } = binding
+      
+      // 如果未传递值，不做处理
+      if (!value) {
+        return
+      }
+      
+      // 检查是否有权限
+      const hasPermission = userStore.hasPermission(value)
+      
+      if (!hasPermission) {
+        // 如果没有权限，则移除元素
+        el.parentNode && el.parentNode.removeChild(el)
+      }
+    }
+  })
 } 

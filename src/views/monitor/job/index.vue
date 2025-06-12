@@ -287,7 +287,7 @@ onMounted(() => {
   queryParams.status = ''
   queryParams.page = 1
   setTimeout(() => {
-    console.log('初始化加载定时任务列表...')
+    ///console.log('初始化加载定时任务列表...')
     getList()
   }, 100)
 })
@@ -307,43 +307,43 @@ const getList = async () => {
     if (queryParams.job_group) params.job_group = queryParams.job_group
     if (queryParams.status) params.status = queryParams.status
     
-    console.log('获取定时任务列表，处理后参数:', params)
-    console.log('开始请求定时任务列表API...')
+    ///console.log('获取定时任务列表，处理后参数:', params)
+    ///console.log('开始请求定时任务列表API...')
     const response = await listJobsApiV1MonitorJobListGet(params)
-    console.log('定时任务列表完整响应:', response)
-    console.log('响应类型:', typeof response)
-    console.log('响应结构:', Object.keys(response).join(','))
+    ///console.log('定时任务列表完整响应:', response)
+    ///console.log('响应类型:', typeof response)
+    ///console.log('响应结构:', Object.keys(response).join(','))
     
     if (response.data) {
       const res = response.data as any
-      console.log('API响应数据结构:', JSON.stringify(res))
+      ///console.log('API响应数据结构:', JSON.stringify(res))
       
       if (res.code === 200) {
         // 检查API返回的所有可能位置，优先尝试通过数据库表名直接访问数据
         if (res.sys_job && Array.isArray(res.sys_job)) {
           jobList.value = res.sys_job
-          console.log('使用sys_job表数据:', res.sys_job)
+          ///console.log('使用sys_job表数据:', res.sys_job)
         } else if (Array.isArray(res.rows)) {
           jobList.value = res.rows
-          console.log('使用rows数据:', res.rows)
+          ///console.log('使用rows数据:', res.rows)
         } else if (res.data && Array.isArray(res.data)) {
           jobList.value = res.data
-          console.log('使用data数据:', res.data)
+          ///console.log('使用data数据:', res.data)
         } else if (res.items && Array.isArray(res.items)) {
           jobList.value = res.items
-          console.log('使用items数据:', res.items)
+          ///console.log('使用items数据:', res.items)
         } else if (res.list && Array.isArray(res.list)) {
           jobList.value = res.list
-          console.log('使用list数据:', res.list)
+          ///console.log('使用list数据:', res.list)
         } else {
           // 尝试直接查找第一个数组类型的属性
           const arrayProp = Object.keys(res).find(key => Array.isArray(res[key]))
           if (arrayProp) {
             jobList.value = res[arrayProp]
-            console.log(`使用找到的数组属性 ${arrayProp}:`, res[arrayProp])
+            ///console.log(`使用找到的数组属性 ${arrayProp}:`, res[arrayProp])
           } else {
             jobList.value = []
-            console.warn('未找到有效的列表数据，响应结构:', res)
+            ///console.warn('未找到有效的列表数据，响应结构:', res)
           }
         }
         
@@ -360,13 +360,13 @@ const getList = async () => {
           total.value = jobList.value.length || 0
         }
         
-        console.log('定时任务列表数据加载成功:', jobList.value, '总数:', total.value)
+        ///console.log('定时任务列表数据加载成功:', jobList.value, '总数:', total.value)
       } else {
         ElMessage.error(res.msg || '获取定时任务列表失败')
       }
     }
   } catch (error) {
-    console.error('获取定时任务列表失败:', error)
+    ///console.error('获取定时任务列表失败:', error)
     ElMessage.error('获取定时任务列表失败')
   } finally {
     loading.value = false
@@ -387,40 +387,40 @@ const getJobLogs = async () => {
     if (logQueryParams.job_name) params.job_name = logQueryParams.job_name
     if (logQueryParams.status) params.status = logQueryParams.status
     
-    console.log('获取任务日志列表，参数:', params)
+    ///console.log('获取任务日志列表，参数:', params)
     const response = await listJobLogsApiV1MonitorJobLogListGet(params)
-    console.log('任务日志列表完整响应:', response)
+    ///console.log('任务日志列表完整响应:', response)
     
     if (response.data) {
       const res = response.data as any
-      console.log('日志API响应数据结构:', JSON.stringify(res))
+      ///console.log('日志API响应数据结构:', JSON.stringify(res))
       
       if (res.code === 200) {
         // 检查API返回的所有可能位置，优先尝试通过数据库表名直接访问数据
         if (res.sys_job_log && Array.isArray(res.sys_job_log)) {
           jobLogList.value = res.sys_job_log
-          console.log('使用sys_job_log表数据:', res.sys_job_log)
+          ///console.log('使用sys_job_log表数据:', res.sys_job_log)
         } else if (Array.isArray(res.rows)) {
           jobLogList.value = res.rows
-          console.log('使用rows数据:', res.rows)
+          ///console.log('使用rows数据:', res.rows)
         } else if (res.data && Array.isArray(res.data)) {
           jobLogList.value = res.data
-          console.log('使用data数据:', res.data)
+          ///console.log('使用data数据:', res.data)
         } else if (res.items && Array.isArray(res.items)) {
           jobLogList.value = res.items
-          console.log('使用items数据:', res.items)
+          ///console.log('使用items数据:', res.items)
         } else if (res.list && Array.isArray(res.list)) {
           jobLogList.value = res.list
-          console.log('使用list数据:', res.list)
+          ///console.log('使用list数据:', res.list)
         } else {
           // 尝试直接查找第一个数组类型的属性
           const arrayProp = Object.keys(res).find(key => Array.isArray(res[key]))
           if (arrayProp) {
             jobLogList.value = res[arrayProp]
-            console.log(`使用找到的数组属性 ${arrayProp}:`, res[arrayProp])
+            ///console.log(`使用找到的数组属性 ${arrayProp}:`, res[arrayProp])
           } else {
             jobLogList.value = []
-            console.warn('未找到有效的日志列表数据，响应结构:', res)
+            ///console.warn('未找到有效的日志列表数据，响应结构:', res)
           }
         }
         
@@ -437,13 +437,13 @@ const getJobLogs = async () => {
           logTotal.value = jobLogList.value.length || 0
         }
         
-        console.log('任务日志列表数据加载成功:', jobLogList.value, '总数:', logTotal.value)
+        ///console.log('任务日志列表数据加载成功:', jobLogList.value, '总数:', logTotal.value)
       } else {
         ElMessage.error(res.msg || '获取任务日志列表失败')
       }
     }
   } catch (error) {
-    console.error('获取任务日志列表失败:', error)
+    ///console.error('获取任务日志列表失败:', error)
     ElMessage.error('获取任务日志列表失败')
   } finally {
     logLoading.value = false
@@ -484,9 +484,9 @@ const handleEdit = async (row: any) => {
   isEdit.value = true
   dialogTitle.value = '编辑任务'
   try {
-    console.log('获取任务详情，ID:', row.job_id)
+    ///console.log('获取任务详情，ID:', row.job_id)
     const response = await getJobApiV1MonitorJobJobIdGet({ job_id: row.job_id })
-    console.log('获取任务详情响应:', response)
+    ///console.log('获取任务详情响应:', response)
     
     // 使用any类型临时绕过类型检查问题
     const data = response.data as any
@@ -495,7 +495,7 @@ const handleEdit = async (row: any) => {
       const jobData = data.data as any
       
       if (jobData) {
-        console.log('获取到的任务数据:', jobData)
+        ///console.log('获取到的任务数据:', jobData)
         
         // 设置表单数据
         jobForm.job_id = jobData.job_id
@@ -514,7 +514,7 @@ const handleEdit = async (row: any) => {
     
     dialogVisible.value = true
   } catch (error) {
-    console.error('获取任务详情失败:', error)
+    ///console.error('获取任务详情失败:', error)
     ElMessage.error('获取任务详情失败')
   }
 }
@@ -557,7 +557,7 @@ const submitForm = async () => {
       dialogVisible.value = false
       getList()
     } catch (error) {
-      console.error('保存任务失败:', error)
+      ///console.error('保存任务失败:', error)
       ElMessage.error('保存失败')
     }
   })
@@ -571,7 +571,7 @@ const handleDelete = (row: any) => {
     type: 'warning'
   }).then(async () => {
     try {
-      console.log('开始删除任务，ID:', row.job_id)
+      ///console.log('开始删除任务，ID:', row.job_id)
       const response = await deleteJobApiV1MonitorJobJobIdDelete({ job_id: row.job_id })
       
       if (response.data && response.data.code === 200) {
@@ -581,7 +581,7 @@ const handleDelete = (row: any) => {
         ElMessage.error(response.data?.msg || '删除失败')
       }
     } catch (error) {
-      console.error('删除任务失败:', error)
+      ///console.error('删除任务失败:', error)
       ElMessage.error('删除失败')
     }
   }).catch(() => {})
@@ -595,7 +595,7 @@ const handleRun = (row: any) => {
     type: 'warning'
   }).then(async () => {
     try {
-      console.log('开始执行任务，ID:', row.job_id)
+      ///console.log('开始执行任务，ID:', row.job_id)
       const response = await runJobApiV1MonitorJobJobIdRunPost({ job_id: row.job_id })
       
       if (response.data && response.data.code === 200) {
@@ -604,7 +604,7 @@ const handleRun = (row: any) => {
         ElMessage.error(response.data?.msg || '执行失败')
       }
     } catch (error) {
-      console.error('执行任务失败:', error)
+      ///console.error('执行任务失败:', error)
       ElMessage.error('执行失败')
     }
   }).catch(() => {})
@@ -621,7 +621,7 @@ const handleChangeStatus = (row: any) => {
     type: 'warning'
   }).then(async () => {
     try {
-      console.log(`开始${statusText}任务，ID:${row.job_id}, 新状态:${newStatus}`)
+      ///console.log(`开始${statusText}任务，ID:${row.job_id}, 新状态:${newStatus}`)
       const response = await changeJobStatusApiV1MonitorJobJobIdStatusStatusPut({ 
         job_id: row.job_id, 
         status: newStatus 
@@ -634,7 +634,7 @@ const handleChangeStatus = (row: any) => {
         ElMessage.error(response.data?.msg || `${statusText}失败`)
       }
     } catch (error) {
-      console.error(`${statusText}任务失败:`, error)
+      ///console.error(`${statusText}任务失败:`, error)
       ElMessage.error(`${statusText}失败`)
     }
   }).catch(() => {})
@@ -648,7 +648,7 @@ const handleCleanLogs = () => {
     type: 'warning'
   }).then(async () => {
     try {
-      console.log('开始清空任务日志')
+      ///console.log('开始清空任务日志')
       const response = await cleanJobLogsApiV1MonitorJobLogCleanDelete()
       
       if (response.data && response.data.code === 200) {
@@ -660,7 +660,7 @@ const handleCleanLogs = () => {
         ElMessage.error(response.data?.msg || '清空失败')
       }
     } catch (error) {
-      console.error('清空任务日志失败:', error)
+      ///console.error('清空任务日志失败:', error)
       ElMessage.error('清空失败')
     }
   }).catch(() => {})

@@ -20,7 +20,7 @@ onBeforeMount(() => {
       ? '/' + path 
       : '/index'
       
-  console.log('重定向到:', redirectPath, '查询参数:', query)
+  ///console.log('重定向到:', redirectPath, '查询参数:', query)
   
   // 执行重定向
   router.replace({
