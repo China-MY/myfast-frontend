@@ -140,6 +140,27 @@ export const constantRoutes: RouteItem[] = [
         meta: { title: '个人设置', icon: 'setting' }
       }
     ]
+  },
+  {
+    path: '/tool',
+    component: Layout,
+    name: 'Tool',
+    meta: { title: '系统工具', icon: 'tool' },
+    children: [
+      {
+        path: 'gen',
+        name: 'Gen',
+        component: () => import('@/views/tool/gen/index.vue'),
+        meta: { title: '代码生成', icon: 'code' }
+      },
+      {
+        path: 'gen/editTable/:tableId',
+        name: 'GenEdit',
+        component: () => import('@/views/tool/gen/editTable.vue'),
+        meta: { title: '编辑表', icon: 'edit', activeMenu: '/tool/gen' },
+        hidden: true
+      }
+    ]
   }
 ]
 
@@ -210,7 +231,7 @@ export const dynamicRoutes: RouteItem[] = [
       {
         path: 'index/:tableId(\\d+)',
         component: () => import('@/views/tool/gen/editTable.vue'),
-        name: 'GenEdit',
+        name: 'GenEditDynamic',
         meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
       }
     ]

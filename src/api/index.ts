@@ -14,9 +14,8 @@ import * as zidianguanli from './zidianguanli'
 import * as canshushezhi from './canshushezhi'
 import * as zaixianyonghu from './zaixianyonghu'
 import * as fuwuqijiankong from './fuwuqijiankong'
-import * as huancunjiankong from './huancunjiankong'
 import * as dingshirenwu from './dingshirenwu'
-import * as shujujiankong from './shujujiankong'
+import * as daimashengcheng from './daimashengcheng'
 import * as shouye from './shouye'
 import * as xitong from './xitong'
 export default {
@@ -32,9 +31,8 @@ export default {
   canshushezhi,
   zaixianyonghu,
   fuwuqijiankong,
-  huancunjiankong,
   dingshirenwu,
-  shujujiankong,
+  daimashengcheng,
   shouye,
   xitong,
 }

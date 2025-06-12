@@ -37,7 +37,7 @@ export async function listOnlineUsersApiV1MonitorOnlineListGet(
   params: API.listOnlineUsersApiV1MonitorOnlineListGetParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.PageResponseModelListOnlineUserOut_>('/api/v1/monitor/online/list', {
+  return request<any>('/api/v1/monitor/online/list', {
     method: 'GET',
     params: {
       // page has a default value: 1

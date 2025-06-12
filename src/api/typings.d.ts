@@ -1,4 +1,9 @@
 declare namespace API {
+  type BodyBatchDeleteTablesApiV1ToolGenBatchDelete = {
+    /** Ids */
+    ids: number[]
+  }
+
   type BodyLoginAccessTokenApiV1AuthLoginPost = {
     /** Grant Type */
     grant_type?: string | null
@@ -95,10 +100,6 @@ declare namespace API {
     usage?: number
   }
 
-  type deleteCacheApiV1MonitorCacheKeyKeyDeleteParams = {
-    key: string
-  }
-
   type deleteConfigApiV1SystemConfigConfigIdDeleteParams = {
     config_id: number
   }
@@ -129,6 +130,10 @@ declare namespace API {
 
   type deleteRoleApiV1SystemRoleRoleIdDeleteParams = {
     role_id: number
+  }
+
+  type deleteTableApiV1ToolGenIdDeleteParams = {
+    id: number
   }
 
   type deleteUserApiV1SystemUserUserIdDeleteParams = {
@@ -323,8 +328,180 @@ declare namespace API {
     session_ids: string[]
   }
 
-  type getCacheValueApiV1MonitorCacheValueKeyGetParams = {
-    key: string
+  type GenCodeRequest = {
+    /** Table Ids 表ID列表 */
+    table_ids: number[]
+  }
+
+  type generateCodeApiV1ToolGenIdGenerateGetParams = {
+    id: number
+  }
+
+  type GenTableColumnInDB = {
+    /** Column Name 列名称 */
+    column_name: string
+    /** Column Comment 列描述 */
+    column_comment?: string | null
+    /** Column Type 列类型 */
+    column_type?: string | null
+    /** Python Type Python类型 */
+    python_type?: string | null
+    /** Field Name 字段名 */
+    field_name?: string | null
+    /** Is Pk 是否主键（1是） */
+    is_pk?: string | null
+    /** Is Increment 是否自增（1是） */
+    is_increment?: string | null
+    /** Is Required 是否必填（1是） */
+    is_required?: string | null
+    /** Is Insert 是否为插入字段（1是） */
+    is_insert?: string | null
+    /** Is Edit 是否编辑字段（1是） */
+    is_edit?: string | null
+    /** Is List 是否列表字段（1是） */
+    is_list?: string | null
+    /** Is Query 是否查询字段（1是） */
+    is_query?: string | null
+    /** Query Type 查询方式（等于、不等于、大于、小于、范围） */
+    query_type?: string | null
+    /** Html Type 显示类型（文本框、文本域、下拉框、复选框、单选框、日期控件） */
+    html_type?: string | null
+    /** Dict Type 字典类型 */
+    dict_type?: string | null
+    /** Sort 排序 */
+    sort?: number | null
+    /** Id */
+    id: number
+    /** Table Id */
+    table_id: number
+    /** Create Time */
+    create_time?: string | null
+    /** Update Time */
+    update_time?: string | null
+  }
+
+  type GenTableColumnUpdate = {
+    /** Column Name 列名称 */
+    column_name: string
+    /** Column Comment 列描述 */
+    column_comment?: string | null
+    /** Column Type 列类型 */
+    column_type?: string | null
+    /** Python Type Python类型 */
+    python_type?: string | null
+    /** Field Name 字段名 */
+    field_name?: string | null
+    /** Is Pk 是否主键（1是） */
+    is_pk?: string | null
+    /** Is Increment 是否自增（1是） */
+    is_increment?: string | null
+    /** Is Required 是否必填（1是） */
+    is_required?: string | null
+    /** Is Insert 是否为插入字段（1是） */
+    is_insert?: string | null
+    /** Is Edit 是否编辑字段（1是） */
+    is_edit?: string | null
+    /** Is List 是否列表字段（1是） */
+    is_list?: string | null
+    /** Is Query 是否查询字段（1是） */
+    is_query?: string | null
+    /** Query Type 查询方式（等于、不等于、大于、小于、范围） */
+    query_type?: string | null
+    /** Html Type 显示类型（文本框、文本域、下拉框、复选框、单选框、日期控件） */
+    html_type?: string | null
+    /** Dict Type 字典类型 */
+    dict_type?: string | null
+    /** Sort 排序 */
+    sort?: number | null
+  }
+
+  type GenTableDetail = {
+    /** Table Name 表名称 */
+    table_name: string
+    /** Table Comment 表描述 */
+    table_comment?: string | null
+    /** Class Name 类名称 */
+    class_name?: string | null
+    /** Package Name 生成包路径 */
+    package_name?: string | null
+    /** Module Name 生成模块名 */
+    module_name?: string | null
+    /** Business Name 生成业务名 */
+    business_name?: string | null
+    /** Function Name 生成功能名 */
+    function_name?: string | null
+    /** Function Author 生成功能作者 */
+    function_author?: string | null
+    /** Tpl Category 使用的模板（crud单表操作 tree树表操作） */
+    tpl_category?: string | null
+    /** Options 其它生成选项 */
+    options?: string | null
+    /** Remark 备注 */
+    remark?: string | null
+    /** Id */
+    id: number
+    /** Create Time */
+    create_time?: string | null
+    /** Update Time */
+    update_time?: string | null
+    /** Columns */
+    columns?: GenTableColumnInDB[]
+  }
+
+  type GenTableInDB = {
+    /** Table Name 表名称 */
+    table_name: string
+    /** Table Comment 表描述 */
+    table_comment?: string | null
+    /** Class Name 类名称 */
+    class_name?: string | null
+    /** Package Name 生成包路径 */
+    package_name?: string | null
+    /** Module Name 生成模块名 */
+    module_name?: string | null
+    /** Business Name 生成业务名 */
+    business_name?: string | null
+    /** Function Name 生成功能名 */
+    function_name?: string | null
+    /** Function Author 生成功能作者 */
+    function_author?: string | null
+    /** Tpl Category 使用的模板（crud单表操作 tree树表操作） */
+    tpl_category?: string | null
+    /** Options 其它生成选项 */
+    options?: string | null
+    /** Remark 备注 */
+    remark?: string | null
+    /** Id */
+    id: number
+    /** Create Time */
+    create_time?: string | null
+    /** Update Time */
+    update_time?: string | null
+  }
+
+  type GenTableUpdate = {
+    /** Table Name 表名称 */
+    table_name: string
+    /** Table Comment 表描述 */
+    table_comment?: string | null
+    /** Class Name 类名称 */
+    class_name?: string | null
+    /** Package Name 生成包路径 */
+    package_name?: string | null
+    /** Module Name 生成模块名 */
+    module_name?: string | null
+    /** Business Name 生成业务名 */
+    business_name?: string | null
+    /** Function Name 生成功能名 */
+    function_name?: string | null
+    /** Function Author 生成功能作者 */
+    function_author?: string | null
+    /** Tpl Category 使用的模板（crud单表操作 tree树表操作） */
+    tpl_category?: string | null
+    /** Options 其它生成选项 */
+    options?: string | null
+    /** Remark 备注 */
+    remark?: string | null
   }
 
   type getConfigApiV1SystemConfigConfigIdGetParams = {
@@ -375,13 +552,36 @@ declare namespace API {
     role_id: number
   }
 
-  type getTableDetailApiV1MonitorDataTableTableNameGetParams = {
-    table_name: string
+  type getTableDetailApiV1ToolGenIdGetParams = {
+    id: number
+  }
+
+  type getTableListApiV1ToolGenListGetParams = {
+    table_name?: string | null
+    table_comment?: string | null
+    begin_time?: string | null
+    end_time?: string | null
+    page_num?: number
+    page_size?: number
+  }
+
+  type getTableTotalApiV1ToolGenTotalGetParams = {
+    table_name?: string | null
+    table_comment?: string | null
+    begin_time?: string | null
+    end_time?: string | null
   }
 
   type HTTPValidationError = {
     /** Detail */
     detail?: ValidationError[]
+  }
+
+  type ImportTableRequest = {
+    /** Tables 要导入的表名列表 */
+    tables: string[]
+    /** Data Source Id 数据源ID */
+    data_source_id?: string | null
   }
 
   type JobCreate = {
@@ -686,31 +886,6 @@ declare namespace API {
     recv_packets?: number
   }
 
-  type OnlineUserOut = {
-    /** Sessionid 用户会话id */
-    sessionId: string
-    /** User Id 用户ID */
-    user_id?: number | null
-    /** User Name 用户账号 */
-    user_name?: string
-    /** Ipaddr 登录IP地址 */
-    ipaddr?: string
-    /** Login Location 登录地点 */
-    login_location?: string
-    /** Browser 浏览器类型 */
-    browser?: string
-    /** Os 操作系统 */
-    os?: string
-    /** Status 在线状态on_line在线off_line离线 */
-    status?: string
-    /** Start Timestamp session创建时间 */
-    start_timestamp?: string | null
-    /** Last Access Time session最后访问时间 */
-    last_access_time?: string | null
-    /** Expire Time 超时时间，单位为分钟 */
-    expire_time?: number
-  }
-
   type PageInfo = {
     /** Page 当前页码 */
     page?: number
@@ -737,16 +912,6 @@ declare namespace API {
     msg?: string
     /** Rows 数据列表 */
     rows?: ConfigOut[][]
-    pageInfo?: PageInfo
-  }
-
-  type PageResponseModelListOnlineUserOut_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Rows 数据列表 */
-    rows?: OnlineUserOut[][]
     pageInfo?: PageInfo
   }
 
@@ -828,6 +993,17 @@ declare namespace API {
     remark?: string | null
   }
 
+  type previewCodeApiV1ToolGenIdPreviewGetParams = {
+    id: number
+  }
+
+  type PreviewCodeItem = {
+    /** File Path 文件路径 */
+    file_path: string
+    /** File Content 文件内容 */
+    file_content: string
+  }
+
   type readUserApiV1SystemUserUserIdGetParams = {
     /** 用户ID */
     user_id: number
@@ -880,15 +1056,6 @@ declare namespace API {
     data?: DeptOut | null
   }
 
-  type ResponseModelDict_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Data 响应数据 */
-    data?: Record<string, any> | null
-  }
-
   type ResponseModelJobOut_ = {
     /** Code 响应状态码：200成功，其他为失败 */
     code?: number
@@ -914,15 +1081,6 @@ declare namespace API {
     msg?: string
     /** Data 响应数据 */
     data?: DeptTree[] | null
-  }
-
-  type ResponseModelListDict_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Data 响应数据 */
-    data?: Record<string, any>[] | null
   }
 
   type ResponseModelListMenuOut_ = {
@@ -959,15 +1117,6 @@ declare namespace API {
     msg?: string
     /** Data 响应数据 */
     data?: RoleOut[] | null
-  }
-
-  type ResponseModelListStr_ = {
-    /** Code 响应状态码：200成功，其他为失败 */
-    code?: number
-    /** Msg 响应消息 */
-    msg?: string
-    /** Data 响应数据 */
-    data?: string[] | null
   }
 
   type ResponseModelMenuOut_ = {
@@ -1117,6 +1266,40 @@ declare namespace API {
     /** Disk 磁盘信息 */
     disk?: DiskInfo[]
     network?: NetworkInfo
+    /** Os 操作系统 */
+    os?: string | null
+    /** Arch 系统架构 */
+    arch?: string | null
+    /** Processor 处理器 */
+    processor?: string | null
+    /** Hostname 主机名 */
+    hostname?: string | null
+    /** Ip IP地址 */
+    ip?: string | null
+    /** Boot Time 启动时间戳 */
+    boot_time?: number | null
+    /** Cpu Percent CPU使用率 */
+    cpu_percent?: number | null
+    /** Cpu Count CPU核心数 */
+    cpu_count?: number | null
+    /** Load Avg 系统负载 */
+    load_avg?: number[] | null
+    /** Total Memory 总内存 */
+    total_memory?: number | null
+    /** Used Memory 已用内存 */
+    used_memory?: number | null
+    /** Free Memory 空闲内存 */
+    free_memory?: number | null
+    /** Memory Percent 内存使用率 */
+    memory_percent?: number | null
+    /** Disk Total 磁盘总空间 */
+    disk_total?: number | null
+    /** Disk Used 磁盘已用空间 */
+    disk_used?: number | null
+    /** Disk Free 磁盘剩余空间 */
+    disk_free?: number | null
+    /** Disk Percent 磁盘使用率 */
+    disk_percent?: number | null
   }
 
   type SysInfo = {
@@ -1134,6 +1317,13 @@ declare namespace API {
     boot_time?: string
     /** Run Time 运行时间 */
     run_time?: string
+  }
+
+  type TableListItem = {
+    /** Table Name 表名 */
+    table_name: string
+    /** Table Comment 表注释 */
+    table_comment?: string | null
   }
 
   type Token = {
@@ -1175,6 +1365,14 @@ declare namespace API {
 
   type updateRoleApiV1SystemRoleRoleIdPutParams = {
     role_id: number
+  }
+
+  type updateTableApiV1ToolGenIdPutParams = {
+    id: number
+  }
+
+  type updateTableColumnsApiV1ToolGenIdColumnsPutParams = {
+    id: number
   }
 
   type updateUserApiV1SystemUserUserIdPutParams = {
