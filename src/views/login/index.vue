@@ -467,8 +467,8 @@ const handleLoginSubmit = async () => {
         router.push({ path: '/index' });
       }
     } else {
-      noticeMessage.value = response.data?.msg || '登录失败：用户名或密码错误';
-      noticeType.value = 'error';
+      // 处理API返回的错误信息
+      handleApiError(response.data);
     }
   } catch (error: any) {
     ///console.error('登录失败:', error);
@@ -477,6 +477,31 @@ const handleLoginSubmit = async () => {
   } finally {
     loginLoading.value = false;
   }
+};
+
+// 处理API错误响应
+const handleApiError = (data: any) => {
+  // 默认错误信息
+  let errorMsg = data?.msg || '登录失败：用户名或密码错误';
+  noticeType.value = 'error';
+  
+  // 处理特定类型的验证错误
+  if (data?.detail) {
+    const errors = data.detail;
+    // 检查是否有邮箱验证错误，这通常是误报
+    if (errors.email && Array.isArray(errors.email) && errors.email.length > 0) {
+      // 忽略邮箱验证错误，显示通用错误信息
+      errorMsg = '登录失败：用户名或密码错误';
+    } else {
+      // 其他验证错误
+      const firstErrorField = Object.keys(errors)[0];
+      if (firstErrorField && Array.isArray(errors[firstErrorField]) && errors[firstErrorField].length > 0) {
+        errorMsg = errors[firstErrorField][0].message || errorMsg;
+      }
+    }
+  }
+  
+  noticeMessage.value = errorMsg;
 };
 
 // 注册提交

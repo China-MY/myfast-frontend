@@ -91,10 +91,10 @@
         <el-table-column label="更新时间" prop="update_time" width="160" />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-button type="text" @click="handlePreview(scope.row)">预览</el-button>
-            <el-button type="text" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button type="text" @click="handleDelete(scope.row)">删除</el-button>
-            <el-button type="text" @click="handleGenerate(scope.row)">生成代码</el-button>
+            <el-button type="primary" link @click="handlePreview(scope.row)">预览</el-button>
+            <el-button type="primary" link @click="handleEdit(scope.row)">编辑</el-button>
+            <el-button type="primary" link @click="handleDelete(scope.row)">删除</el-button>
+            <el-button type="primary" link @click="handleGenerate(scope.row)">生成代码</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -401,7 +401,7 @@ const getList = () => {
         tableList.value = response.data as TableInfo[]
       } else {
         tableList.value = []
-        console.warn('API返回的数据格式不正确:', response)
+        // console.warn('API返回的数据格式不正确:', response)
       }
       
       // 获取总数
@@ -415,17 +415,17 @@ const getList = () => {
           if (count && typeof count.data === 'number') {
             total.value = count.data
           } else {
-            console.warn('获取表总数返回格式不正确:', count)
+            // console.warn('获取表总数返回格式不正确:', count)
             total.value = 0
           }
         })
         .catch(error => {
-          console.error('获取表总数失败：', error)
+          // console.error('获取表总数失败：', error)
           total.value = 0
         })
     })
     .catch(error => {
-      console.error('获取表格数据失败：', error)
+      // console.error('获取表格数据失败：', error)
       ElMessage.error({
         message: '获取表格数据失败，请检查网络连接和服务器状态',
         duration: 5000
@@ -481,7 +481,7 @@ const handleImport = () => {
         // 确保response.data是数组类型
         if (response.data && Array.isArray(response.data)) {
           dbTableList.value = response.data as DbTable[]
-          console.log('获取数据库表成功：', dbTableList.value)
+          // console.log('获取数据库表成功：', dbTableList.value)
         } else {
           dbTableList.value = []
           ElMessage.warning('接收到的数据库表信息格式不正确')
@@ -492,7 +492,7 @@ const handleImport = () => {
       }
     })
     .catch(error => {
-      console.error('获取数据库表失败：', error)
+      // console.error('获取数据库表失败：', error)
       ElMessage.error({
         message: '获取数据库表失败，请检查网络连接和服务器状态',
         duration: 5000
@@ -521,7 +521,7 @@ const handleImportTable = () => {
   })
     .then((response) => {
       if (response) {
-        console.log('导入表结构成功：', response)
+        // console.log('导入表结构成功：', response)
         ElMessage.success({
           message: '导入成功',
           duration: 3000
@@ -533,7 +533,7 @@ const handleImportTable = () => {
       }
     })
     .catch(error => {
-      console.error('导入表结构失败：', error)
+      // console.error('导入表结构失败：', error)
       ElMessage.error({
         message: '导入表结构失败，请检查网络连接和服务器状态',
         duration: 5000
@@ -625,7 +625,7 @@ const handleGenerate = (row: TableInfo | undefined) => {
           })
         })
         .catch(error => {
-          console.error('生成代码失败：', error)
+          // console.error('生成代码失败：', error)
           ElMessage.error({
             message: `生成代码失败: ${error.message || '请检查网络连接和服务器状态'}`,
             duration: 5000
@@ -635,7 +635,7 @@ const handleGenerate = (row: TableInfo | undefined) => {
           loading.value = false
         })
       } catch (error: any) {
-        console.error('生成代码失败：', error)
+        // console.error('生成代码失败：', error)
         ElMessage.error({
           message: `生成代码失败: ${error.message || '请检查网络连接和服务器状态'}`,
           duration: 5000
@@ -698,7 +698,7 @@ const handleGenerate = (row: TableInfo | undefined) => {
         // 提交表单开始下载
         form.submit()
       } catch (error: any) {
-        console.error('批量生成代码失败：', error)
+        // console.error('批量生成代码失败：', error)
         ElMessage.error({
           message: `批量生成代码失败: ${error.message || '请检查网络连接和服务器状态'}`,
           duration: 5000
@@ -724,7 +724,7 @@ const handlePreview = (row: TableInfo | undefined) => {
         // 调用API获取预览代码
   previewCodeApiV1ToolGenIdPreviewGet({ id: tableId })
     .then(response => {
-      console.log('预览代码API返回数据:', response)
+      // console.log('预览代码API返回数据:', response)
       
       // 从响应中提取数据，处理不同的响应结构
       let previewData: any[] = []
@@ -742,7 +742,7 @@ const handlePreview = (row: TableInfo | undefined) => {
             previewData = responseData.data;
           } else if (typeof responseData === 'object') {
             // 其他可能的响应格式
-            console.warn('预览代码API返回了非标准格式:', responseData);
+            // console.warn('预览代码API返回了非标准格式:', responseData);
             // 尝试提取对象中的数组属性
             for (const key in responseData) {
               if (Array.isArray(responseData[key])) {
@@ -753,7 +753,7 @@ const handlePreview = (row: TableInfo | undefined) => {
           }
         }
       } catch (error) {
-        console.error('解析预览代码数据时出错:', error);
+        // console.error('解析预览代码数据时出错:', error);
       }
       
       // 检查预览数据是否为空
@@ -790,7 +790,7 @@ const handlePreview = (row: TableInfo | undefined) => {
             item.file_path.endsWith('vue_api.js')
           );
           
-          console.log('是否包含vue_api.js:', hasVueApi, '文件总数:', previewList.value.length);
+          // console.log('是否包含vue_api.js:', hasVueApi, '文件总数:', previewList.value.length);
           
           if (!hasVueApi && previewList.value.length === 5) {
             // 前端重新请求生成代码，以便后端能创建完整模板
@@ -806,16 +806,16 @@ const handlePreview = (row: TableInfo | undefined) => {
             ElMessage.warning('无可预览代码');
           }
         } catch (error) {
-          console.error('处理预览数据时出错:', error);
+          // console.error('处理预览数据时出错:', error);
           ElMessage.error('处理预览数据失败');
         }
       } else {
         ElMessage.warning('无法从API响应中提取预览代码');
-        console.warn('预览代码API返回格式不正确或为空:', response);
+        // console.warn('预览代码API返回格式不正确或为空:', response);
       }
     })
     .catch(error => {
-      console.error('预览代码失败：', error);
+      // console.error('预览代码失败：', error);
       ElMessage.error({
         message: '预览代码失败，请检查网络连接和服务器状态',
         duration: 5000
@@ -841,7 +841,7 @@ const createDefaultTemplates = (tableId: number) => {
       }, 1000);
     })
     .catch(error => {
-      console.error('创建模板文件失败：', error);
+      // console.error('创建模板文件失败：', error);
       ElMessage.error('创建模板文件失败，请联系管理员手动创建模板');
     })
     .finally(() => {
@@ -858,11 +858,11 @@ const handleEdit = (row: TableInfo | undefined) => {
   }
   
   // 打印调试信息
-  console.log('编辑表ID:', tableId)
+  // console.log('编辑表ID:', tableId)
   
   // 使用路由配置中的路径
   const routePath = `/tool/gen/editTable/${tableId}`
-  console.log('导航到:', routePath)
+  // console.log('导航到:', routePath)
   
   // 直接导航到编辑页面
   router.push(routePath)
@@ -915,7 +915,7 @@ const handleDelete = (row: TableInfo | undefined) => {
           }
         })
         .catch(error => {
-          console.error('批量删除失败：', error)
+          // console.error('批量删除失败：', error)
           ElMessage.error({
             message: '批量删除失败，请检查网络连接和服务器状态',
             duration: 5000

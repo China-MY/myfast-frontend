@@ -90,17 +90,17 @@
             </el-table-column>
             <el-table-column label="必填" align="center" width="80">
               <template #default="scope">
-                <el-checkbox v-model="scope.row.is_required" true-label="1" false-label="0" />
+                <el-checkbox v-model="scope.row.is_required" true-value="1" false-value="0" />
               </template>
             </el-table-column>
             <el-table-column label="列表" align="center" width="80">
               <template #default="scope">
-                <el-checkbox v-model="scope.row.is_list" true-label="1" false-label="0" />
+                <el-checkbox v-model="scope.row.is_list" true-value="1" false-value="0" />
               </template>
             </el-table-column>
             <el-table-column label="查询" align="center" width="80">
               <template #default="scope">
-                <el-checkbox v-model="scope.row.is_query" true-label="1" false-label="0" />
+                <el-checkbox v-model="scope.row.is_query" true-value="1" false-value="0" />
               </template>
             </el-table-column>
           </el-table>
@@ -237,23 +237,23 @@ const rules = {
 // 获取表和字段信息
 const getTableAndColumnDetails = async (tableId: string | string[]) => {
   try {
-    console.log('正在获取表详情，ID:', tableId)
+    // console.log('正在获取表详情，ID:', tableId)
     const numId = Number(tableId)
     if (isNaN(numId)) {
-      console.error('表ID不是有效数字:', tableId)
+      // console.error('表ID不是有效数字:', tableId)
       ElMessage.error('表ID格式不正确')
       return
     }
     
     const response = await getGenTable({ id: numId })
     if (!response || !response.data) {
-      console.error('API返回数据为空')
+      // console.error('API返回数据为空')
       ElMessage.error('获取表详情失败: API返回数据为空')
       return
     }
     
     // 检查响应数据格式
-    console.log('API响应数据:', response)
+    // console.log('API响应数据:', response)
     
     // 获取数据主体 - 处理API响应结构
     let data: any
@@ -265,10 +265,10 @@ const getTableAndColumnDetails = async (tableId: string | string[]) => {
       data = response.data
     }
     
-    console.log('处理后的表详情数据:', data)
+    // console.log('处理后的表详情数据:', data)
     
     if (!data) {
-      console.error('无法提取有效数据')
+      // console.error('无法提取有效数据')
       ElMessage.error('获取表详情失败: 无效数据结构')
       return
     }
@@ -289,7 +289,7 @@ const getTableAndColumnDetails = async (tableId: string | string[]) => {
     info.functionName = data.function_name || ''
 
     // 设置字段信息
-    console.log('字段数据:', data.columns)
+    // console.log('字段数据:', data.columns)
     if (data.columns && Array.isArray(data.columns)) {
       columns.value = data.columns.map((column: any) => {
         // 将API返回的字段属性映射到TableColumn接口
@@ -313,12 +313,12 @@ const getTableAndColumnDetails = async (tableId: string | string[]) => {
         } as TableColumn
       })
     } else {
-      console.error('字段数据不是数组或为空:', data.columns)
+      // console.error('字段数据不是数组或为空:', data.columns)
       columns.value = []
       ElMessage.warning('未获取到字段信息')
     }
   } catch (error) {
-    console.error('获取表详情失败:', error)
+    // console.error('获取表详情失败:', error)
     ElMessage.error('获取表详情失败，请检查网络连接')
   }
 }
@@ -374,7 +374,7 @@ const submitForm = async () => {
     ElMessage.success('保存成功')
     cancel()
   } catch (error) {
-    console.error('保存失败', error)
+    // console.error('保存失败', error)
     ElMessage.error('保存失败')
   }
 }
@@ -386,13 +386,13 @@ const cancel = () => {
 
 // 初始化
 onMounted(() => {
-  console.log('编辑页面已挂载，路由参数:', route.params)
+  // console.log('编辑页面已挂载，路由参数:', route.params)
   const tableId = route.params.tableId
   if (tableId) {
-    console.log('获取到表ID:', tableId)
+    // console.log('获取到表ID:', tableId)
     getTableAndColumnDetails(tableId)
   } else {
-    console.error('未能获取表ID，route.params:', route.params)
+    // console.error('未能获取表ID，route.params:', route.params)
     ElMessage.error('未能获取表ID，请返回列表重试')
   }
 })
