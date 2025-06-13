@@ -4,6 +4,14 @@ declare namespace API {
     ids: number[]
   }
 
+  type BodyBatchGenerateCodeApiV1ToolGenBatchGeneratePost = {
+    req?: GenCodeRequest
+    /** Table Ids */
+    table_ids?: string
+    /** Token */
+    token?: string
+  }
+
   type BodyLoginAccessTokenApiV1AuthLoginPost = {
     /** Grant Type */
     grant_type?: string | null
@@ -335,6 +343,7 @@ declare namespace API {
 
   type generateCodeApiV1ToolGenIdGenerateGetParams = {
     id: number
+    token?: string
   }
 
   type GenTableColumnInDB = {

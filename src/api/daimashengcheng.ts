@@ -77,7 +77,9 @@ export async function generateCodeApiV1ToolGenIdGenerateGet(
   const { id: param0, ...queryParams } = params
   return request<any>(`/api/v1/tool/gen/${param0}/generate`, {
     method: 'GET',
-    params: { ...queryParams },
+    params: {
+      ...queryParams,
+    },
     ...(options || {}),
   })
 }
@@ -113,13 +115,13 @@ export async function batchDeleteTablesApiV1ToolGenBatchDelete(
 
 /** Batch Generate Code 批量生成代码 POST /api/v1/tool/gen/batch/generate */
 export async function batchGenerateCodeApiV1ToolGenBatchGeneratePost(
-  body: API.GenCodeRequest,
+  body: API.BodyBatchGenerateCodeApiV1ToolGenBatchGeneratePost,
   options?: { [key: string]: any }
 ) {
   return request<any>('/api/v1/tool/gen/batch/generate', {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
     data: body,
     ...(options || {}),

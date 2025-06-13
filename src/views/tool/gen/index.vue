@@ -100,13 +100,24 @@
       </el-table>
       
       <!-- 分页区域 -->
-      <pagination
-        v-show="total > 0"
-        :total="total"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
-        @pagination="getList"
-      />
+      <div class="pagination-container">
+        <el-config-provider :locale="locale">
+          <div>
+            <el-pagination
+              v-model:current-page="queryParams.pageNum"
+              v-model:page-size="queryParams.pageSize"
+              :page-sizes="[10, 20, 30, 50]"
+              :total="total"
+              :locale="paginationLocale"
+              background
+              :layout="paginationLayout"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+            <span class="total-text">共 {{ total }} 条记录</span>
+          </div>
+        </el-config-provider>
+      </div>
 
       <!-- 导入表结构对话框 -->
       <el-dialog 
@@ -256,7 +267,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElConfigProvider } from 'element-plus'
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { 
   Search, 
   Document, 
@@ -351,6 +363,23 @@ const previewList = ref<PreviewCode[]>([])
 const searchKeyword = ref('')
 const searchResults = ref<{filePath: string, matches: number}[]>([])
 const currentSearchIndex = ref(0)
+
+// Element Plus 本地化配置
+const locale = zhCn
+
+// 自定义分页文本配置
+const paginationLocale = reactive({
+  ...zhCn.el.pagination,
+  goto: '前往',
+  pagesize: '条/页',
+  total: '共 {total} 条记录',
+  pageClassifier: '页',
+  prevText: '上一页',
+  nextText: '下一页'
+})
+
+// 可以显示中文的分页组件布局
+const paginationLayout = "sizes, prev, pager, next, jumper"
 
 // 获取表格数据
 const getList = () => {
@@ -541,84 +570,70 @@ const handleGenerate = (row: TableInfo | undefined) => {
     })
     
     if (tableIds.length === 1) {
-      // 单表生成
+      // 单表生成 - 使用原生fetch API直接处理二进制数据
       try {
-        // 使用iframe下载方式，避免fetch API可能的限制
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-        const url = `${apiBaseUrl}/v1/tool/gen/${tableIds[0]}/generate`
+        const url = `${apiBaseUrl}/api/v1/tool/gen/${tableIds[0]}/generate`
         
         // 获取token
         const token = localStorage.getItem('token')
         
-        // 创建一个隐藏的iframe用于下载
-        const iframe = document.createElement('iframe')
-        iframe.style.display = 'none'
-        document.body.appendChild(iframe)
-        
-        // 创建表单并提交
-        const form = document.createElement('form')
-        form.method = 'GET'
-        form.action = url
-        form.target = 'download_iframe'
-        
-        // 添加token到header
-        if (token) {
-          const tokenInput = document.createElement('input')
-          tokenInput.type = 'hidden'
-          tokenInput.name = 'Authorization'
-          tokenInput.value = `Bearer ${token}`
-          form.appendChild(tokenInput)
-        }
-        
-        document.body.appendChild(form)
-        iframe.name = 'download_iframe'
-        
-        // 监听iframe加载完成事件
-        iframe.onload = () => {
-          try {
-            // 检查iframe内容，判断是否下载成功
-            const iframeContent = iframe.contentDocument || iframe.contentWindow?.document
-            if (iframeContent) {
-              const errorText = iframeContent.body.innerText
-              if (errorText && errorText.includes('error')) {
-                ElMessage.error({
-                  message: `生成代码失败: ${errorText}`,
-                  duration: 5000
-                })
-              } else {
-                ElMessage.success('代码生成成功，下载已开始')
-              }
-            } else {
-              // 如果无法访问iframe内容，假定下载成功
-              ElMessage.success('代码生成成功，下载已开始')
-            }
-          } catch (e) {
-            // 如果出现跨域问题，也假定下载成功
-            ElMessage.success('代码生成成功，下载已开始')
-          } finally {
-            // 清理DOM
-            setTimeout(() => {
-              document.body.removeChild(iframe)
-              document.body.removeChild(form)
-              loading.value = false
-            }, 1000)
+        // 使用fetch API处理二进制数据
+        fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': token ? `Bearer ${token}` : '',
+            'Accept': 'application/octet-stream'
           }
-        }
-        
-        // 处理可能的错误
-        iframe.onerror = () => {
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP错误 ${response.status}: ${response.statusText}`)
+          }
+          
+          // 从响应头获取文件名
+          const contentDisposition = response.headers.get('Content-Disposition')
+          let filename = '代码生成.zip'
+          if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="(.+?)"/)
+            if (filenameMatch && filenameMatch[1]) {
+              filename = filenameMatch[1]
+            }
+          }
+          
+          // 将响应转为blob
+          return response.blob().then(blob => ({ blob, filename }))
+        })
+        .then(({ blob, filename }) => {
+          // 创建下载链接
+          const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/zip' }))
+          const link = document.createElement('a')
+          link.href = url
+          link.setAttribute('download', filename)
+          document.body.appendChild(link)
+          link.click()
+          
+          // 清理
+          setTimeout(() => {
+            window.URL.revokeObjectURL(url)
+            document.body.removeChild(link)
+          }, 100)
+          
+          ElMessage.success({
+            message: '代码生成成功，下载已开始',
+            duration: 3000
+          })
+        })
+        .catch(error => {
+          console.error('生成代码失败：', error)
           ElMessage.error({
-            message: '生成代码失败，请检查网络连接和服务器状态',
+            message: `生成代码失败: ${error.message || '请检查网络连接和服务器状态'}`,
             duration: 5000
           })
-          document.body.removeChild(iframe)
-          document.body.removeChild(form)
+        })
+        .finally(() => {
           loading.value = false
-        }
-        
-        // 提交表单开始下载
-        form.submit()
-        
+        })
       } catch (error: any) {
         console.error('生成代码失败：', error)
         ElMessage.error({
@@ -628,16 +643,15 @@ const handleGenerate = (row: TableInfo | undefined) => {
         loading.value = false
       }
     } else {
-      // 批量生成
+      // 批量生成 - 使用表单提交方式，让浏览器直接处理下载
       try {
-        // 使用form提交方式下载
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
-        const url = `${apiBaseUrl}/v1/tool/gen/batch/generate`
+        const url = `${apiBaseUrl}/api/v1/tool/gen/batch/generate`
         
         // 获取token
         const token = localStorage.getItem('token')
         
-        // 创建一个隐藏的iframe用于下载
+        // 创建隐藏的iframe用于下载
         const iframe = document.createElement('iframe')
         iframe.style.display = 'none'
         document.body.appendChild(iframe)
@@ -670,59 +684,19 @@ const handleGenerate = (row: TableInfo | undefined) => {
         
         // 监听iframe加载完成事件
         iframe.onload = () => {
-          try {
-            // 检查iframe内容，判断是否下载成功
-            const iframeContent = iframe.contentDocument || iframe.contentWindow?.document
-            if (iframeContent) {
-              const errorText = iframeContent.body.innerText
-              if (errorText && errorText.includes('error')) {
-                ElMessage.error({
-                  message: `批量生成代码失败: ${errorText}`,
-                  duration: 5000
-                })
-              } else {
-                ElMessage.success({
-                  message: `批量代码生成成功，共 ${tableIds.length} 个表，下载已开始`,
-                  duration: 3000
-                })
-              }
-            } else {
-              // 如果无法访问iframe内容，假定下载成功
-              ElMessage.success({
-                message: `批量代码生成成功，共 ${tableIds.length} 个表，下载已开始`,
-                duration: 3000
-              })
-            }
-          } catch (e) {
-            // 如果出现跨域问题，也假定下载成功
+          setTimeout(() => {
+            document.body.removeChild(iframe)
+            document.body.removeChild(form)
+            loading.value = false
             ElMessage.success({
-              message: `批量代码生成成功，共 ${tableIds.length} 个表，下载已开始`,
+              message: `批量代码生成请求已发送，共 ${tableIds.length} 个表，如果下载未开始，请检查浏览器下载设置`,
               duration: 3000
             })
-          } finally {
-            // 清理DOM
-            setTimeout(() => {
-              document.body.removeChild(iframe)
-              document.body.removeChild(form)
-              loading.value = false
-            }, 1000)
-          }
-        }
-        
-        // 处理可能的错误
-        iframe.onerror = () => {
-          ElMessage.error({
-            message: '批量生成代码失败，请检查网络连接和服务器状态',
-            duration: 5000
-          })
-          document.body.removeChild(iframe)
-          document.body.removeChild(form)
-          loading.value = false
+          }, 1000)
         }
         
         // 提交表单开始下载
         form.submit()
-        
       } catch (error: any) {
         console.error('批量生成代码失败：', error)
         ElMessage.error({
@@ -1156,6 +1130,18 @@ const highlightCode = (code: string, fileType: string): string => {
   return highlighted
 }
 
+// 每页数量变化
+const handleSizeChange = (size: number) => {
+  queryParams.pageSize = size
+  getList()
+}
+
+// 页码变化
+const handleCurrentChange = (page: number) => {
+  queryParams.pageNum = page
+  getList()
+}
+
 onMounted(() => {
   getList()
 })
@@ -1282,5 +1268,18 @@ onMounted(() => {
 .comment {
   color: #808080;
   font-style: italic;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.total-text {
+  margin-left: 10px;
+  color: #606266;
+  font-size: 14px;
 }
 </style> 
