@@ -9,7 +9,7 @@
           </div>
         </div>
       </template>
-      
+
       <!-- 搜索区域 -->
       <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch">
         <el-form-item label="表名称" prop="tableName">
@@ -98,7 +98,7 @@
           </template>
         </el-table-column>
       </el-table>
-      
+
       <!-- 分页区域 -->
       <div class="pagination-container">
         <el-config-provider :locale="locale">
@@ -120,10 +120,10 @@
       </div>
 
       <!-- 导入表结构对话框 -->
-      <el-dialog 
-        title="导入表结构" 
-        v-model="importOpen" 
-        width="800px" 
+      <el-dialog
+        title="导入表结构"
+        v-model="importOpen"
+        width="800px"
         :close-on-click-modal="false"
         destroy-on-close
       >
@@ -148,11 +148,11 @@
       </el-dialog>
 
       <!-- 预览对话框 -->
-      <el-dialog 
-        title="代码预览" 
-        v-model="previewOpen" 
-        width="90%" 
-        top="5vh" 
+      <el-dialog
+        title="代码预览"
+        v-model="previewOpen"
+        width="90%"
+        top="5vh"
         :close-on-click-modal="false"
         destroy-on-close
         class="preview-dialog"
@@ -172,18 +172,18 @@
           <el-button type="primary" @click="searchInCode" size="small">
             <el-icon><Search /></el-icon>搜索
           </el-button>
-          <el-button 
-            type="primary" 
-            @click="findPrevMatch" 
-            size="small" 
+          <el-button
+            type="primary"
+            @click="findPrevMatch"
+            size="small"
             :disabled="searchResults.length === 0"
           >
             上一个
           </el-button>
-          <el-button 
-            type="primary" 
-            @click="findNextMatch" 
-            size="small" 
+          <el-button
+            type="primary"
+            @click="findNextMatch"
+            size="small"
             :disabled="searchResults.length === 0"
           >
             下一个
@@ -191,9 +191,9 @@
           <el-button type="info" @click="resetSearch" size="small">
             <el-icon><RefreshRight /></el-icon>重置
           </el-button>
-          <el-button 
-            type="success" 
-            @click="batchDownloadFiles" 
+          <el-button
+            type="success"
+            @click="batchDownloadFiles"
             size="small"
             title="使用代码生成按钮可下载完整代码包"
           >
@@ -206,14 +206,14 @@
             </span>
           </div>
         </div>
-        
+
         <div class="preview-container">
           <!-- 文件树导航 -->
           <div class="file-tree">
             <div class="file-tree-header">文件列表</div>
             <el-scrollbar height="calc(85vh - 170px)">
-              <div 
-                v-for="(item, index) in previewList" 
+              <div
+                v-for="(item, index) in previewList"
                 :key="index"
                 :class="['file-item', { 'active': previewActiveTab === item.file_path }]"
                 @click="previewActiveTab = item.file_path"
@@ -223,7 +223,7 @@
               </div>
             </el-scrollbar>
           </div>
-          
+
           <!-- 代码内容 -->
           <div class="code-container">
             <el-tabs v-model="previewActiveTab" type="card">
@@ -234,24 +234,24 @@
                 :name="item.file_path"
               >
                 <div class="code-actions">
-                  <el-button 
-                    type="primary" 
-                    size="small" 
+                  <el-button
+                    type="primary"
+                    size="small"
                     @click="copyCode(item.file_content)"
                   >
                     <el-icon><CopyDocument /></el-icon>复制代码
                   </el-button>
-                  <el-button 
-                    type="success" 
-                    size="small" 
+                  <el-button
+                    type="success"
+                    size="small"
                     @click="downloadSingleFile(item)"
                   >
                     <el-icon><Download /></el-icon>下载文件
                   </el-button>
                 </div>
                 <el-scrollbar height="calc(85vh - 210px)">
-                  <pre 
-                    class="code-preview" 
+                  <pre
+                    class="code-preview"
                     v-html="highlightCode(item.file_content, getFileType(item.file_path))"
                   ></pre>
                 </el-scrollbar>
@@ -269,28 +269,26 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, ElConfigProvider } from 'element-plus'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-import { 
-  Search, 
-  Document, 
-  Download, 
-  CopyDocument, 
+import {
+  Search,
+  Document,
+  Download,
+  CopyDocument,
   RefreshRight,
   Folder
 } from '@element-plus/icons-vue'
-import { 
-  getTableListApiV1ToolGenListGet, 
-  getDbTablesApiV1ToolGenTablesGet, 
-  importTablesApiV1ToolGenImportPost, 
-  previewCodeApiV1ToolGenIdPreviewGet, 
-  deleteTableApiV1ToolGenIdDelete, 
-  batchDeleteTablesApiV1ToolGenBatchDelete, 
-  generateCodeApiV1ToolGenIdGenerateGet, 
-  batchGenerateCodeApiV1ToolGenBatchGeneratePost,
+import {
+  getTableListApiV1ToolGenListGet,
+  getDbTablesApiV1ToolGenTablesGet,
+  importTablesApiV1ToolGenImportPost,
+  previewCodeApiV1ToolGenIdPreviewGet,
+  deleteTableApiV1ToolGenIdDelete,
+  batchDeleteTablesApiV1ToolGenBatchDelete,
+  generateCodeApiV1ToolGenIdGenerateGet,
   getTableTotalApiV1ToolGenTotalGet
 } from '@/api/daimashengcheng'
 
 // 组件引入
-import Pagination from '@/components/Pagination/index.vue'
 import RightToolbar from '@/components/RightToolbar/index.vue'
 
 // 定义类型，确保与API返回类型匹配
@@ -385,7 +383,7 @@ const paginationLayout = "sizes, prev, pager, next, jumper"
 const getList = () => {
   loading.value = true
   tableList.value = []
-  
+
   // 调用API获取表格数据
   getTableListApiV1ToolGenListGet({
     page_num: queryParams.pageNum,
@@ -403,7 +401,7 @@ const getList = () => {
         tableList.value = []
         // console.warn('API返回的数据格式不正确:', response)
       }
-      
+
       // 获取总数
       getTableTotalApiV1ToolGenTotalGet({
         table_name: queryParams.tableName,
@@ -467,13 +465,13 @@ const handleImport = () => {
   // 先重置表单
   importForm.tables = []
   importForm.dataSourceId = '1'
-  
+
   // 先显示对话框
   importOpen.value = true
-  
+
   // 添加加载状态
   loading.value = true
-  
+
   // 调用API获取数据库表列表
   getDbTablesApiV1ToolGenTablesGet()
     .then(response => {
@@ -510,10 +508,10 @@ const handleImportTable = () => {
     ElMessage.warning('请选择要导入的表')
     return
   }
-  
+
   // 添加加载状态
   loading.value = true
-  
+
   // 调用API导入表结构
   importTablesApiV1ToolGenImportPost({
     tables: importForm.tables,
@@ -551,7 +549,7 @@ const handleGenerate = (row: TableInfo | undefined) => {
     ElMessage.warning('请选择要生成的表')
     return
   }
-  
+
   // 显示确认对话框
   ElMessageBox.confirm(
     '确定要生成选中表的代码吗？生成的代码将以ZIP包形式下载。',
@@ -568,16 +566,16 @@ const handleGenerate = (row: TableInfo | undefined) => {
       message: '代码生成中，请稍候...',
       duration: 2000
     })
-    
+
     if (tableIds.length === 1) {
       // 单表生成 - 使用原生fetch API直接处理二进制数据
       try {
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
         const url = `${apiBaseUrl}/api/v1/tool/gen/${tableIds[0]}/generate`
-        
+
         // 获取token
         const token = localStorage.getItem('token')
-        
+
         // 使用fetch API处理二进制数据
         fetch(url, {
           method: 'GET',
@@ -590,7 +588,7 @@ const handleGenerate = (row: TableInfo | undefined) => {
           if (!response.ok) {
             throw new Error(`HTTP错误 ${response.status}: ${response.statusText}`)
           }
-          
+
           // 从响应头获取文件名
           const contentDisposition = response.headers.get('Content-Disposition')
           let filename = '代码生成.zip'
@@ -600,7 +598,7 @@ const handleGenerate = (row: TableInfo | undefined) => {
               filename = filenameMatch[1]
             }
           }
-          
+
           // 将响应转为blob
           return response.blob().then(blob => ({ blob, filename }))
         })
@@ -612,13 +610,13 @@ const handleGenerate = (row: TableInfo | undefined) => {
           link.setAttribute('download', filename)
           document.body.appendChild(link)
           link.click()
-          
+
           // 清理
           setTimeout(() => {
             window.URL.revokeObjectURL(url)
             document.body.removeChild(link)
           }, 100)
-          
+
           ElMessage.success({
             message: '代码生成成功，下载已开始',
             duration: 3000
@@ -647,22 +645,22 @@ const handleGenerate = (row: TableInfo | undefined) => {
       try {
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || ''
         const url = `${apiBaseUrl}/api/v1/tool/gen/batch/generate`
-        
+
         // 获取token
         const token = localStorage.getItem('token')
-        
+
         // 创建隐藏的iframe用于下载
         const iframe = document.createElement('iframe')
         iframe.style.display = 'none'
         document.body.appendChild(iframe)
-        
+
         // 创建表单并提交
         const form = document.createElement('form')
         form.method = 'POST'
         form.action = url
         form.target = 'download_iframe'
         form.enctype = 'application/x-www-form-urlencoded'
-        
+
         // 添加token到header
         if (token) {
           const tokenInput = document.createElement('input')
@@ -671,17 +669,17 @@ const handleGenerate = (row: TableInfo | undefined) => {
           tokenInput.value = `Bearer ${token}`
           form.appendChild(tokenInput)
         }
-        
+
         // 添加表ID数据
         const idsInput = document.createElement('input')
         idsInput.type = 'hidden'
         idsInput.name = 'table_ids'
         idsInput.value = JSON.stringify(tableIds)
         form.appendChild(idsInput)
-        
+
         document.body.appendChild(form)
         iframe.name = 'download_iframe'
-        
+
         // 监听iframe加载完成事件
         iframe.onload = () => {
           setTimeout(() => {
@@ -694,7 +692,7 @@ const handleGenerate = (row: TableInfo | undefined) => {
             })
           }, 1000)
         }
-        
+
         // 提交表单开始下载
         form.submit()
       } catch (error: any) {
@@ -718,22 +716,22 @@ const handlePreview = (row: TableInfo | undefined) => {
     ElMessage.warning('请选择要预览的表')
     return
   }
-  
+
   loading.value = true
-  
+
         // 调用API获取预览代码
   previewCodeApiV1ToolGenIdPreviewGet({ id: tableId })
     .then(response => {
       // console.log('预览代码API返回数据:', response)
-      
+
       // 从响应中提取数据，处理不同的响应结构
       let previewData: any[] = []
-      
+
       try {
         // 使用try-catch避免类型错误
         if (response && response.data) {
           const responseData = response.data as any;
-          
+
           if (Array.isArray(responseData)) {
             // 直接是数组
             previewData = responseData;
@@ -755,7 +753,7 @@ const handlePreview = (row: TableInfo | undefined) => {
       } catch (error) {
         // console.error('解析预览代码数据时出错:', error);
       }
-      
+
       // 检查预览数据是否为空
       if (previewData.length === 0) {
         ElMessageBox.confirm(
@@ -775,7 +773,7 @@ const handlePreview = (row: TableInfo | undefined) => {
         });
         return;
       }
-      
+
       if (previewData.length > 0) {
         // 确保提取的数据格式正确
         try {
@@ -783,22 +781,22 @@ const handlePreview = (row: TableInfo | undefined) => {
             file_path: item.file_path || '',
             file_content: item.file_content || ''
           }));
-          
+
           // 检查是否缺少vue_api.js文件
-          const hasVueApi = previewList.value.some(item => 
-            item.file_path.includes('vue_api.js') || 
+          const hasVueApi = previewList.value.some(item =>
+            item.file_path.includes('vue_api.js') ||
             item.file_path.endsWith('vue_api.js')
           );
-          
+
           // console.log('是否包含vue_api.js:', hasVueApi, '文件总数:', previewList.value.length);
-          
+
           if (!hasVueApi && previewList.value.length === 5) {
             // 前端重新请求生成代码，以便后端能创建完整模板
             ElMessage.info('正在补充缺失模板文件，请稍后...');
             createDefaultTemplates(tableId);
             return;
           }
-          
+
           if (previewList.value.length > 0) {
             previewOpen.value = true;
             previewActiveTab.value = previewList.value[0].file_path;
@@ -831,7 +829,7 @@ const createDefaultTemplates = (tableId: number) => {
   // 此处添加创建默认模板的API调用
   // 由于后端可能没有提供这个API，我们可以先通过生成代码的方式让后端自动创建模板
   loading.value = true;
-  
+
   generateCodeApiV1ToolGenIdGenerateGet({ id: tableId })
     .then(response => {
       ElMessage.success('模板文件创建成功，请重新尝试预览代码');
@@ -856,14 +854,14 @@ const handleEdit = (row: TableInfo | undefined) => {
     ElMessage.warning('请选择要编辑的表')
     return
   }
-  
+
   // 打印调试信息
   // console.log('编辑表ID:', tableId)
-  
+
   // 使用路由配置中的路径
   const routePath = `/tool/gen/editTable/${tableId}`
   // console.log('导航到:', routePath)
-  
+
   // 直接导航到编辑页面
   router.push(routePath)
 }
@@ -881,7 +879,7 @@ const handleDelete = (row: TableInfo | undefined) => {
     type: 'warning'
   }).then(() => {
     loading.value = true
-    
+
     // 调用API删除表
     if (tableIds.length === 1) {
       deleteTableApiV1ToolGenIdDelete({ id: tableIds[0] })
@@ -934,18 +932,18 @@ const searchInCode = () => {
     ElMessage.info('请输入搜索关键词')
     return
   }
-  
+
   // 重置搜索结果
   searchResults.value = []
   currentSearchIndex.value = 0
-  
+
   // 查找包含关键词的文件
   const keyword = searchKeyword.value.toLowerCase()
-  
+
   previewList.value.forEach(item => {
     const content = item.file_content.toLowerCase()
     const matches = (content.match(new RegExp(keyword, 'g')) || []).length
-    
+
     if (matches > 0) {
       searchResults.value.push({
         filePath: item.file_path,
@@ -953,7 +951,7 @@ const searchInCode = () => {
       })
     }
   })
-  
+
   if (searchResults.value.length > 0) {
     // 切换到第一个匹配的文件
     previewActiveTab.value = searchResults.value[0].filePath
@@ -974,7 +972,7 @@ const findNextMatch = () => {
     ElMessage.warning('没有搜索结果')
     return
   }
-  
+
   currentSearchIndex.value = (currentSearchIndex.value + 1) % searchResults.value.length
   previewActiveTab.value = searchResults.value[currentSearchIndex.value].filePath
 }
@@ -985,7 +983,7 @@ const findPrevMatch = () => {
     ElMessage.warning('没有搜索结果')
     return
   }
-  
+
   currentSearchIndex.value = (currentSearchIndex.value - 1 + searchResults.value.length) % searchResults.value.length
   previewActiveTab.value = searchResults.value[currentSearchIndex.value].filePath
 }
@@ -1061,7 +1059,7 @@ const downloadSingleFile = (item: PreviewCode, showMessage = true) => {
   link.click()
   document.body.removeChild(link)
   window.URL.revokeObjectURL(url)
-  
+
   if (showMessage) {
     ElMessage.success('文件下载成功')
   }
@@ -1076,7 +1074,7 @@ const getFileName = (filePath: string): string => {
 // 获取文件类型
 const getFileType = (filePath: string): string => {
   const extension = filePath.split('.').pop()?.toLowerCase() || ''
-  
+
   const typeMap: Record<string, string> = {
     'js': 'javascript',
     'ts': 'typescript',
@@ -1090,43 +1088,43 @@ const getFileType = (filePath: string): string => {
     'md': 'markdown',
     'vue': 'vue'
   }
-  
+
   return typeMap[extension] || 'plaintext'
 }
 
 // 高亮代码
-const highlightCode = (code: string, fileType: string): string => {
+const highlightCode = (code: string): string => {
   // 这里实现简单的语法高亮
   // 实际项目中建议使用highlight.js、prism.js等库
-  
+
   // 简单的HTML转义
   let highlighted = code
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-  
+
   // 简单的关键字高亮
   const keywords = [
     'function', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return',
     'class', 'import', 'export', 'from', 'public', 'private', 'protected',
     'interface', 'type', 'extends', 'implements', 'static', 'async', 'await'
   ]
-  
+
   keywords.forEach(keyword => {
     const regex = new RegExp(`\\b${keyword}\\b`, 'g')
     highlighted = highlighted.replace(regex, `<span class="keyword">${keyword}</span>`)
   })
-  
+
   // 简单的字符串高亮
   highlighted = highlighted
     .replace(/(".*?")/g, '<span class="string">$1</span>')
     .replace(/('.*?')/g, '<span class="string">$1</span>')
-  
+
   // 简单的注释高亮
   highlighted = highlighted
     .replace(/(\/\/.*)/g, '<span class="comment">$1</span>')
     .replace(/\/\*([\s\S]*?)\*\//g, '<span class="comment">$&</span>')
-  
+
   return highlighted
 }
 
@@ -1171,7 +1169,7 @@ onMounted(() => {
   line-height: 1.5;
 }
 
-.preview-dialog :deep(.el-dialog__body) {
+.preview-dialog :deep() {
   padding: 10px;
   overflow: hidden;
 }
@@ -1227,7 +1225,7 @@ onMounted(() => {
   background-color: #e6f7ff;
 }
 
-.file-item.active {
+.file-item {
   background-color: #e6f7ff;
   color: #409eff;
   border-right: 2px solid #409eff;
@@ -1240,11 +1238,11 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.code-container :deep(.el-tabs__header) {
+.code-container :deep() {
   margin: 0;
 }
 
-.code-container :deep(.el-tabs__content) {
+.code-container :deep() {
   flex: 1;
   overflow: hidden;
 }
@@ -1282,4 +1280,4 @@ onMounted(() => {
   color: #606266;
   font-size: 14px;
 }
-</style> 
+</style>
